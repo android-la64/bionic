@@ -86,4 +86,19 @@
 #define R_GENERIC_TLS_TPREL     R_X86_64_TPOFF64
 #define R_GENERIC_TLSDESC       R_X86_64_TLSDESC
 
+#elif defined (__loongarch__)
+
+#define R_GENERIC_JUMP_SLOT     R_LARCH_JUMP_SLOT
+#define R_GENERIC_ABSOLUTE      R_LARCH_64
+#define R_GENERIC_GLOB_DAT      R_LARCH_64
+#define R_GENERIC_RELATIVE      R_LARCH_RELATIVE
+#define R_GENERIC_IRELATIVE     R_LARCH_IRELATIVE
+#define R_GENERIC_COPY          R_LARCH_COPY
+#define R_GENERIC_TLS_DTPMOD    R_LARCH_TLS_DTPMOD64
+#define R_GENERIC_TLS_DTPREL    R_LARCH_TLS_DTPREL64
+#define R_GENERIC_TLS_TPREL     R_LARCH_TLS_TPREL64
+// TODO: https://github.com/riscv-non-isa/riscv-elf-psabi-doc/issues/94
+// #define R_GENERIC_TLSDESC       R_LARCH_TLS_DESC
+
+
 #endif
