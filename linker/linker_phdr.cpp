@@ -53,6 +53,8 @@ static int GetTargetElfMachine() {
   return EM_386;
 #elif defined(__x86_64__)
   return EM_X86_64;
+#elif defined(__loongarch__)
+  return EM_LOONGARCH;
 #endif
 }
 
