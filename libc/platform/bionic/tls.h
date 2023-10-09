@@ -36,6 +36,8 @@
 # define __get_tls() ({ void** __val; __asm__("movl %%gs:0, %0" : "=r"(__val)); __val; })
 #elif defined(__x86_64__)
 # define __get_tls() ({ void** __val; __asm__("mov %%fs:0, %0" : "=r"(__val)); __val; })
+#elif defined(__loongarch__)
+# define __get_tls() ({ void** __val; __asm__("move %0, $tp" : "=r"(__val)); __val; })
 #else
 #error unsupported architecture
 #endif
