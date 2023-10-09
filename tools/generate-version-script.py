@@ -8,7 +8,7 @@
 import sys
 
 def has_arch_tags(tags):
-  for arch in ["arm", "arm64", "x86", "x86_64"]:
+  for arch in ["arm", "arm64", "x86", "x86_64", "loongarch64"]:
     if arch in tags:
       return True
   return False
