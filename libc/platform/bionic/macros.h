@@ -57,6 +57,8 @@ static inline T* align_up(T* p, size_t align) {
 #define BIONIC_STOP_UNWIND asm volatile(".cfi_undefined \%eip")
 #elif defined(__x86_64__)
 #define BIONIC_STOP_UNWIND asm volatile(".cfi_undefined \%rip")
+#elif defined(__loongarch__)
+#define BIONIC_STOP_UNWIND asm volatile(".cfi_undefined ra")
 #endif
 
 // The arraysize(arr) macro returns the # of elements in an array arr.
