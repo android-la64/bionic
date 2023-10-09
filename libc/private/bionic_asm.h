@@ -48,7 +48,7 @@
 #elif defined(__x86_64__)
 #include <private/bionic_asm_x86_64.h>
 #elif defined(__loongarch__)
-#include <private/bionic_asm_larch64.h>
+#include <private/bionic_asm_loongarch64.h>
 #endif
 
 #define ENTRY_NO_DWARF(f) \
