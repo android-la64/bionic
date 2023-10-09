@@ -37,6 +37,8 @@
 #include <bits/fenv_x86.h>
 #elif defined(__x86_64__)
 #include <bits/fenv_x86_64.h>
+#elif defined(__loongarch__)
+#include <bits/fenv_loongarch64.h>
 #endif
 
 __BEGIN_DECLS
