@@ -46,11 +46,11 @@ ENTRY_PRIVATE(__bionic_clone)
   # Did the clone(2) fail?
   blt       a0, zero, .L_bc_failure
   # Nope, we're the parent, and our work here is done.
-  ret
+  jirl      zero, ra, 0
 
 .L_bc_failure:
   # Set errno if something went wrong.
-  neg       a0, a0
+  sub.d     a0, zero, a0
   b         __set_errno_internal
 
 .L_bc_child:
