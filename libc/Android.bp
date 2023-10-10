@@ -187,8 +187,8 @@ cc_library_static {
         arm64: {
             srcs: ["arch-arm64/bionic/__set_tls.c"],
         },
-        larch64: {
-            srcs: ["arch-larch64/bionic/__set_tls.c"],
+        loongarch64: {
+            srcs: ["arch-loongarch64/bionic/__set_tls.c"],
         },
         x86: {
             srcs: [
@@ -904,28 +904,21 @@ cc_library_static {
             ],
         },
 
-        larch64: {
+        loongarch64: {
             srcs: [
-                "arch-larch64/bionic/__bionic_clone.S",
-                "arch-larch64/bionic/_exit_with_stack_teardown.S",
-                "arch-larch64/bionic/setjmp.S",
-                "arch-larch64/bionic/syscall.S",
-                "arch-larch64/bionic/vfork.S",
+                "arch-loongarch64/bionic/__bionic_clone.S",
+                "arch-loongarch64/bionic/_exit_with_stack_teardown.S",
+                "arch-loongarch64/bionic/setjmp.S",
+                "arch-loongarch64/bionic/syscall.S",
+                "arch-loongarch64/bionic/vfork.S",
 
-                "arch-larch64/string/memchr_vext.S",
-                "arch-larch64/string/memcmp_vext.S",
-                "arch-larch64/string/memcpy_vext.S",
-                "arch-larch64/string/memmove_vext.S",
-                "arch-larch64/string/memset_vext.S",
-                "arch-larch64/string/strcat_vext.S",
-                "arch-larch64/string/strchr_vext.S",
-                "arch-larch64/string/strcmp_vext.S",
-                "arch-larch64/string/strcpy_vext.S",
-                "arch-larch64/string/strlen_vext.S",
-                "arch-larch64/string/strncat_vext.S",
-                "arch-larch64/string/strncmp_vext.S",
-                "arch-larch64/string/strncpy_vext.S",
-                "arch-larch64/string/strnlen_vext.S",
+                "arch-loongarch64/string/memset_chk.c",
+                "upstream-freebsd/lib/libc/string/memcmp.c",
+                "upstream-freebsd/lib/libc/string/memcpy.c",
+                "upstream-freebsd/lib/libc/string/memmove.c",
+                "upstream-freebsd/lib/libc/string/memset.c",
+                "upstream-openbsd/lib/libc/string/strcmp.c",
+                "upstream-openbsd/lib/libc/string/strlen.c",
             ],
         },
 
