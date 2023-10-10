@@ -1339,11 +1339,11 @@ genrule {
 }
 
 genrule {
-    name: "syscalls-larch64",
-    out: ["syscalls-larch64.S"],
+    name: "syscalls-loongarch64",
+    out: ["syscalls-loongarch64.S"],
     srcs: ["SYSCALLS.TXT"],
     tools: ["gensyscalls"],
-    cmd: "$(location gensyscalls) larch64 $(in) > $(out)",
+    cmd: "$(location gensyscalls) loongarch64 $(in) > $(out)",
 }
 genrule {
     name: "syscalls-x86.S",
@@ -1378,7 +1378,7 @@ cc_library_static {
             srcs: [":syscalls-arm64.S"],
         },
         larch64: {
-            srcs: [":syscalls-larch64.S"],
+            srcs: [":syscalls-loongarch64.S"],
         },
         x86: {
             srcs: [":syscalls-x86.S"],
@@ -2448,10 +2448,10 @@ cc_object {
 }
 
 cc_object {
-    name: "libseccomp_gen_syscall_nrs_larch64",
+    name: "libseccomp_gen_syscall_nrs_loongarch64",
     defaults: ["libseccomp_gen_syscall_nrs_defaults"],
     local_include_dirs: [
-        "kernel/uapi/asm-larch",
+        "kernel/uapi/asm-loongarch64",
         "kernel/uapi",
     ],
 
@@ -2504,7 +2504,7 @@ cc_genrule {
         ":libseccomp_gen_syscall_nrs_arm64",
         ":libseccomp_gen_syscall_nrs_x86",
         ":libseccomp_gen_syscall_nrs_x86_64",
-	":libseccomp_gen_syscall_nrs_larch64",
+	":libseccomp_gen_syscall_nrs_loongarch64",
     ],
 
     out: [
@@ -2536,7 +2536,7 @@ cc_genrule {
         ":generate_app_zygote_blocklist",
         ":libseccomp_gen_syscall_nrs_arm",
         ":libseccomp_gen_syscall_nrs_arm64",
-        ":libseccomp_gen_syscall_nrs_larch64",
+        ":libseccomp_gen_syscall_nrs_loongarch64",
         ":libseccomp_gen_syscall_nrs_x86",
         ":libseccomp_gen_syscall_nrs_x86_64",
     ],
@@ -2566,7 +2566,7 @@ cc_genrule {
         "SECCOMP_PRIORITY.TXT",
         ":libseccomp_gen_syscall_nrs_arm",
         ":libseccomp_gen_syscall_nrs_arm64",
-        ":libseccomp_gen_syscall_nrs_larch64",
+        ":libseccomp_gen_syscall_nrs_loongarch64",
         ":libseccomp_gen_syscall_nrs_x86",
         ":libseccomp_gen_syscall_nrs_x86_64",
     ],
@@ -2595,7 +2595,7 @@ cc_genrule {
         "SECCOMP_PRIORITY.TXT",
         ":libseccomp_gen_syscall_nrs_arm",
         ":libseccomp_gen_syscall_nrs_arm64",
-        ":libseccomp_gen_syscall_nrs_larch64",
+        ":libseccomp_gen_syscall_nrs_loongarch64",
         ":libseccomp_gen_syscall_nrs_x86",
         ":libseccomp_gen_syscall_nrs_x86_64",
     ],
