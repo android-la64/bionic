@@ -319,9 +319,9 @@ typedef struct ucontext {
 
 #define LARCH_REG_RA 1
 #define LARCH_REG_SP 3
+#define LARCH_REG_A0 4
 #define LARCH_REG_S0 23
 #define LARCH_REG_S1 24
-#define LARCH_REG_A0 4
 #define LARCH_REG_S2 25
 #define LARCH_REG_NARGS 8
 
@@ -329,19 +329,30 @@ typedef unsigned long int greg_t;
 /* Container for all general registers.  */
 typedef greg_t gregset_t[32];
 
-// typedef struct mcontext_t
-// {
-//   unsigned long long __pc;
-//   unsigned long long __gregs[32];
-//   unsigned int __flags;
-//   unsigned long long __extcontext[0] __attribute__((__aligned__(16)));
-// } mcontext_t;
+typedef struct mcontext_t
+{
+  unsigned long long __pc;
+  unsigned long long __gregs[32];
+  unsigned int __flags;
+  unsigned long long __extcontext[0] __attribute__((__aligned__(16)));
+} mcontext_t;
 
-#include <asm/sigcontext.h>
-typedef struct sigcontext mcontext_t;
+/* Userlevel context.  */
+typedef struct ucontext_t
+{
+  unsigned long int __uc_flags;
+  struct ucontext_t *uc_link;
+  stack_t uc_stack;
+  sigset_t uc_sigmask;
+  mcontext_t uc_mcontext;
+} ucontext_t;
 
-#include <asm/ucontext.h>
-typedef struct ucontext ucontext_t;
+// best use the following
+// #include <asm/sigcontext.h>
+// typedef struct sigcontext mcontext_t;
+//
+// #include <asm/ucontext.h>
+// typedef struct ucontext ucontext_t;
 
 #endif
 
