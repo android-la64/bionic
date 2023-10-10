@@ -1771,8 +1771,8 @@ cc_library {
                 keep_symbols: true,
             },
         },
-        larch64: {
-            version_script: ":libc.larch64.map",
+        loongarch64: {
+            version_script: ":libc.loongarch64.map",
 
             // Leave the symbols in the shared library so that stack unwinders can produce
             // meaningful name resolution.
@@ -1857,11 +1857,11 @@ genrule {
 }
 
 genrule {
-    name: "libc.larch64.map",
-    out: ["libc.larch64.map.txt"],
+    name: "libc.loongarch64.map",
+    out: ["libc.loongarch64.map.txt"],
     srcs: ["libc.map.txt"],
     tool_files: [":bionic-generate-version-script"],
-    cmd: "$(location :bionic-generate-version-script) larch64 $(in) $(out)",
+    cmd: "$(location :bionic-generate-version-script) loongarch64 $(in) $(out)",
     bazel_module: { bp2build_available: true },
 }
 
@@ -2067,8 +2067,8 @@ cc_library {
         arm64: {
             version_script: ":libstdc++.arm64.map",
         },
-        larch64: {
-            version_script: ":libstdc++.larch64.map",
+        loongarch64: {
+            version_script: ":libstdc++.loongarch64.map",
         },
         x86: {
             pack_relocations: false,
@@ -2098,11 +2098,11 @@ genrule {
 }
 
 genrule {
-    name: "libstdc++.larch64.map",
-    out: ["libstdc++.larch64.map.txt"],
+    name: "libstdc++.loongarch64.map",
+    out: ["libstdc++.loongarch64.map.txt"],
     srcs: ["libstdc++.map.txt"],
     tools: ["generate-version-script"],
-    cmd: "$(location generate-version-script) larch64 $(in) $(out)",
+    cmd: "$(location generate-version-script) loongarch64 $(in) $(out)",
 }
 
 genrule {
