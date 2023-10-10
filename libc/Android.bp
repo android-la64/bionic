@@ -2357,10 +2357,10 @@ ndk_headers {
 }
 
 ndk_headers {
-    name: "libc_asm_larch64",
-    from: "kernel/uapi/asm-larch",
-    to: "larch64-linux-android",
-    srcs: ["kernel/uapi/asm-larch/**/*.h"],
+    name: "libc_asm_loongarch64",
+    from: "kernel/uapi/asm-loongarch64",
+    to: "loongarch64-linux-android",
+    srcs: ["kernel/uapi/asm-loongarch64/**/*.h"],
     license: "NOTICE",
 }
 
