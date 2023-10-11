@@ -42,6 +42,14 @@
 #define DATA_WORD(val) .quad val
 #define MAIN .globl main; main: mov w0, wzr; ret
 
+#elif defined(__loongarch__)
+// No `lga` in clang unless https://reviews.llvm.org/D107278 lands.
+// `la` is equivalent when using PIC (which we do) though.
+#define GOT_RELOC(sym) la $a0, sym
+#define CALL(sym) bl %plt(sym)
+#define DATA_WORD(val) .quad val
+#define MAIN .globl main; main: li.d $a0, 0; jirl $zero, $ra, 0
+
 #elif defined(__i386__)
 
 #define GOT_RELOC(sym) .long sym@got
