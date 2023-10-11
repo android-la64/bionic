@@ -317,13 +317,26 @@ typedef struct ucontext {
 
 #define LARCH_NGREG 32
 
-#define LARCH_REG_RA 1
-#define LARCH_REG_SP 3
-#define LARCH_REG_A0 4
-#define LARCH_REG_S0 23
-#define LARCH_REG_S1 24
-#define LARCH_REG_S2 25
-#define LARCH_REG_NARGS 8
+#if defined(__USE_GNU)
+
+enum {
+  LARCH_REG_RA = 1,
+#define LARCH_REG_RA LARCH_REG_RA
+  LARCH_REG_SP = 3,
+#define LARCH_REG_SP LARCH_REG_SP
+  LARCH_REG_A0 = 4,
+#define LARCH_REG_A0 LARCH_REG_A0
+  LARCH_REG_S0 = 23,
+#define LARCH_REG_S0 LARCH_REG_S0
+  LARCH_REG_S1 = 24,
+#define LARCH_REG_S1 LARCH_REG_S1
+  LARCH_REG_S2 = 25,
+#define LARCH_REG_S2 LARCH_REG_S2
+  LARCH_REG_NARGS = 8,
+#define LARCH_REG_NARGS LARCH_REG_NARGS
+}
+
+#endif // defined(__USE_GNU)
 
 typedef unsigned long int greg_t;
 /* Container for all general registers.  */
