@@ -343,7 +343,12 @@ typedef struct ucontext_t
   unsigned long int __uc_flags;
   struct ucontext_t *uc_link;
   stack_t uc_stack;
-  sigset_t uc_sigmask;
+  union {
+    sigset_t uc_sigmask;
+    sigset64_t uc_sigmask64;
+  };
+  /* The kernel adds extra padding after uc_sigmask to match glibc sigset_t on LoongArch64. */
+  char __padding[128 - sizeof(sigset_t)];
   mcontext_t uc_mcontext;
 } ucontext_t;
 
