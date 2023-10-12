@@ -342,7 +342,7 @@ typedef unsigned long int greg_t;
 /* Container for all general registers.  */
 typedef greg_t gregset_t[32];
 
-typedef struct mcontext_t
+typedef struct
 {
   unsigned long long __pc;
   unsigned long long __gregs[32];
@@ -351,10 +351,10 @@ typedef struct mcontext_t
 } mcontext_t;
 
 /* Userlevel context.  */
-typedef struct ucontext_t
+typedef struct ucontext
 {
   unsigned long int __uc_flags;
-  struct ucontext_t *uc_link;
+  struct ucontext *uc_link;
   stack_t uc_stack;
   union {
     sigset_t uc_sigmask;
