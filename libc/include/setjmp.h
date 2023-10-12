@@ -45,7 +45,7 @@
 #if defined(__aarch64__)
 #define _JBLEN 32
 #if defined(__loongarch__)
-#define _JBLEN 32
+#define _JBLEN 64
 #elif defined(__arm__)
 #define _JBLEN 64
 #elif defined(__i386__)
