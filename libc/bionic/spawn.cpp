@@ -38,7 +38,6 @@
 #include <android/fdsan.h>
 
 #include "private/ScopedSignalBlocker.h"
-#include "private/SigSetConverter.h"
 
 enum Action {
   kOpen,
@@ -90,8 +89,10 @@ struct __posix_spawnattr {
   pid_t pgroup;
   sched_param schedparam;
   int schedpolicy;
-  SigSetConverter sigmask;
-  SigSetConverter sigdefault;
+  union {
+    sigset_t sigset;
+    sigset64_t sigset64;
+  } sigmask, sigdefault;
 };
 
 static void ApplyAttrs(short flags, const posix_spawnattr_t* attr) {
