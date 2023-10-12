@@ -87,12 +87,12 @@ loongarch64_call = syscall_stub_header + """\
     li.d    a7, %(__NR_name)s
     syscall 0
 
-    li.d    a7, -(MAX_ERRNO + 1)
-    bltu    a7, a0, 1f
+    li.d    t0, -(MAX_ERRNO + 1)
+    bltu    t0, a0, 1f
 
     jirl    zero, ra, 0
 1:
-    sub     a0, zero, a0
+    sub.d   a0, zero, a0
     b       __set_errno_internal
 END(%(func)s)
 """

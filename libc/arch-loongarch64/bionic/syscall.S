@@ -26,6 +26,8 @@
  * SUCH DAMAGE.
  */
 
+/* https://sourceware.org/pipermail/libc-alpha/2023-March/146588.html */
+
 #include <private/bionic_asm.h>
 
 ENTRY(syscall)
