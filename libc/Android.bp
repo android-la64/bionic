@@ -653,7 +653,7 @@ cc_library_static {
                 "upstream-openbsd/lib/libc/string/strncmp.c",
             ],
         },
-        larch64: {
+        loongarch64: {
             srcs: [
                 "upstream-openbsd/lib/libc/string/strcmp.c",
                 "upstream-openbsd/lib/libc/string/strlen.c",
@@ -1370,7 +1370,7 @@ cc_library_static {
         arm64: {
             srcs: [":syscalls-arm64.S"],
         },
-        larch64: {
+        loongarch64: {
             srcs: [":syscalls-loongarch64.S"],
         },
         x86: {
@@ -1540,9 +1540,6 @@ cc_library_static {
         arm64: {
             srcs: ["arch-arm64/static_function_dispatch.S"],
         },
-        larch64: {
-            srcs: ["arch-larch64/static_function_dispatch.S"]
-        },
     },
 }
 
@@ -1567,9 +1564,6 @@ cc_library_static {
         },
         arm64: {
             srcs: ["arch-arm64/dynamic_function_dispatch.cpp"],
-        },
-        larch64: {
-            srcs: ["arch-larch64/dynamic_function_dispatch.cpp"]
         },
     },
 }
@@ -2536,7 +2530,7 @@ cc_genrule {
 
     out: [
         "arm64_app_zygote_policy.cpp",
-        "larch64_app_zygote_policy.cpp",
+        "loongarch64_app_zygote_policy.cpp",
         "arm_app_zygote_policy.cpp",
         "x86_64_app_zygote_policy.cpp",
         "x86_app_zygote_policy.cpp",
@@ -2566,7 +2560,7 @@ cc_genrule {
 
     out: [
         "arm64_app_policy.cpp",
-        "larch64_app_policy.cpp",
+        "loongarch64_app_policy.cpp",
         "arm_app_policy.cpp",
         "x86_64_app_policy.cpp",
         "x86_app_policy.cpp",
@@ -2595,7 +2589,7 @@ cc_genrule {
 
     out: [
         "arm64_system_policy.cpp",
-        "larch64_system_policy.cpp",
+        "loongarch64_system_policy.cpp",
         "arm_system_policy.cpp",
         "x86_64_system_policy.cpp",
         "x86_system_policy.cpp",
