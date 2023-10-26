@@ -334,7 +334,7 @@ enum {
 #define LARCH_REG_S2 LARCH_REG_S2
   LARCH_REG_NARGS = 8,
 #define LARCH_REG_NARGS LARCH_REG_NARGS
-}
+};
 
 #endif // defined(__USE_GNU)
 
