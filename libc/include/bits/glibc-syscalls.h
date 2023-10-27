@@ -162,9 +162,6 @@
 #if defined(__NR_epoll_pwait)
   #define SYS_epoll_pwait __NR_epoll_pwait
 #endif
-#if defined(__NR_epoll_pwait2)
-  #define SYS_epoll_pwait2 __NR_epoll_pwait2
-#endif
 #if defined(__NR_epoll_wait)
   #define SYS_epoll_wait __NR_epoll_wait
 #endif
@@ -606,9 +603,6 @@
 #if defined(__NR_mount)
   #define SYS_mount __NR_mount
 #endif
-#if defined(__NR_mount_setattr)
-  #define SYS_mount_setattr __NR_mount_setattr
-#endif
 #if defined(__NR_move_mount)
   #define SYS_move_mount __NR_move_mount
 #endif
@@ -788,6 +782,9 @@
 #endif
 #if defined(__NR_process_madvise)
   #define SYS_process_madvise __NR_process_madvise
+#endif
+#if defined(__NR_process_mrelease)
+  #define SYS_process_mrelease __NR_process_mrelease
 #endif
 #if defined(__NR_process_vm_readv)
   #define SYS_process_vm_readv __NR_process_vm_readv

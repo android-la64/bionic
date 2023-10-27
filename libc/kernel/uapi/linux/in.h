@@ -138,6 +138,8 @@ enum {
 #define MCAST_MSFILTER 48
 #define IP_MULTICAST_ALL 49
 #define IP_UNICAST_IF 50
+#define IP_LOCAL_PORT_RANGE 51
+#define IP_PROTOCOL 52
 #define MCAST_EXCLUDE 0
 #define MCAST_INCLUDE 1
 #define IP_DEFAULT_MULTICAST_TTL 1
@@ -214,6 +216,7 @@ struct sockaddr_in {
 #define INADDR_ANY ((unsigned long int) 0x00000000)
 #define INADDR_BROADCAST ((unsigned long int) 0xffffffff)
 #define INADDR_NONE ((unsigned long int) 0xffffffff)
+#define INADDR_DUMMY ((unsigned long int) 0xc0000008)
 #define IN_LOOPBACKNET 127
 #define INADDR_LOOPBACK 0x7f000001
 #define IN_LOOPBACK(a) ((((long int) (a)) & 0xff000000) == 0x7f000000)

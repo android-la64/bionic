@@ -19,7 +19,11 @@
 #ifndef _UAPI__ASM_GENERIC_SIGNAL_H
 #define _UAPI__ASM_GENERIC_SIGNAL_H
 #include <linux/types.h>
+#ifndef __loongarch__
 #define _KERNEL__NSIG 64
+#else
+#define _KERNEL__NSIG 128
+#endif
 #define _NSIG_BPW __BITS_PER_LONG
 #define _NSIG_WORDS (_KERNEL__NSIG / _NSIG_BPW)
 #define SIGHUP 1

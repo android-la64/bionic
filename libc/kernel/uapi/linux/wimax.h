@@ -16,31 +16,57 @@
  ***
  ****************************************************************************
  ****************************************************************************/
-#ifndef _UAPI_LINUX_SURFACE_AGGREGATOR_CDEV_H
-#define _UAPI_LINUX_SURFACE_AGGREGATOR_CDEV_H
-#include <linux/ioctl.h>
+#ifndef __LINUX__WIMAX_H__
+#define __LINUX__WIMAX_H__
 #include <linux/types.h>
-enum ssam_cdev_request_flags {
-  SSAM_CDEV_REQUEST_HAS_RESPONSE = 0x01,
-  SSAM_CDEV_REQUEST_UNSEQUENCED = 0x02,
+enum {
+  WIMAX_GNL_VERSION = 01,
+  WIMAX_GNL_ATTR_INVALID = 0x00,
+  WIMAX_GNL_ATTR_MAX = 10,
 };
-struct ssam_cdev_request {
-  __u8 target_category;
-  __u8 target_id;
-  __u8 command_id;
-  __u8 instance_id;
-  __u16 flags;
-  __s16 status;
-  struct {
-    __u64 data;
-    __u16 length;
-    __u8 __pad[6];
-  } payload;
-  struct {
-    __u64 data;
-    __u16 length;
-    __u8 __pad[6];
-  } response;
-} __attribute__((__packed__));
-#define SSAM_CDEV_REQUEST _IOWR(0xA5, 1, struct ssam_cdev_request)
+enum {
+  WIMAX_GNL_OP_MSG_FROM_USER,
+  WIMAX_GNL_OP_MSG_TO_USER,
+  WIMAX_GNL_OP_RFKILL,
+  WIMAX_GNL_OP_RESET,
+  WIMAX_GNL_RE_STATE_CHANGE,
+  WIMAX_GNL_OP_STATE_GET,
+};
+enum {
+  WIMAX_GNL_MSG_IFIDX = 1,
+  WIMAX_GNL_MSG_PIPE_NAME,
+  WIMAX_GNL_MSG_DATA,
+};
+enum wimax_rf_state {
+  WIMAX_RF_OFF = 0,
+  WIMAX_RF_ON = 1,
+  WIMAX_RF_QUERY = 2,
+};
+enum {
+  WIMAX_GNL_RFKILL_IFIDX = 1,
+  WIMAX_GNL_RFKILL_STATE,
+};
+enum {
+  WIMAX_GNL_RESET_IFIDX = 1,
+};
+enum {
+  WIMAX_GNL_STGET_IFIDX = 1,
+};
+enum {
+  WIMAX_GNL_STCH_IFIDX = 1,
+  WIMAX_GNL_STCH_STATE_OLD,
+  WIMAX_GNL_STCH_STATE_NEW,
+};
+enum wimax_st {
+  __WIMAX_ST_NULL = 0,
+  WIMAX_ST_DOWN,
+  __WIMAX_ST_QUIESCING,
+  WIMAX_ST_UNINITIALIZED,
+  WIMAX_ST_RADIO_OFF,
+  WIMAX_ST_READY,
+  WIMAX_ST_SCANNING,
+  WIMAX_ST_CONNECTING,
+  WIMAX_ST_CONNECTED,
+  __WIMAX_ST_INVALID
+};
 #endif

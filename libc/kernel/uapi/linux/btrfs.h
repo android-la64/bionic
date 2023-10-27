@@ -103,6 +103,7 @@ struct btrfs_scrub_progress {
   __u64 unverified_errors;
 };
 #define BTRFS_SCRUB_READONLY 1
+#define BTRFS_SCRUB_SUPPORTED_FLAGS (BTRFS_SCRUB_READONLY)
 struct btrfs_ioctl_scrub_args {
   __u64 devid;
   __u64 start;
@@ -187,7 +188,6 @@ struct btrfs_ioctl_fs_info_args {
 #define BTRFS_FEATURE_INCOMPAT_NO_HOLES (1ULL << 9)
 #define BTRFS_FEATURE_INCOMPAT_METADATA_UUID (1ULL << 10)
 #define BTRFS_FEATURE_INCOMPAT_RAID1C34 (1ULL << 11)
-#define BTRFS_FEATURE_INCOMPAT_ZONED (1ULL << 12)
 struct btrfs_ioctl_feature_flags {
   __u64 compat_flags;
   __u64 compat_ro_flags;
