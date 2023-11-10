@@ -37,7 +37,9 @@ ENTRY(vfork)
   ld.d    t0, t0, TLS_SLOT_THREAD_ID * 8
 
   // Set cached_pid_ to 0, vforked_ to 1, and stash the previous value.
-  li.d    t1, 0x80000000
+  /* load 0x80000000 into t1 */
+  li.d    t1, 1
+  slli.d  t1, t1, 31
   li.w    t2, t0, 20
   st.w    t1, t0, 20
 
