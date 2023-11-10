@@ -129,13 +129,13 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(sigsetjmp)
   st.d    a1, a0, _JB_SIGFLAG
 
   // Do we need to save the signal mask?
-  andi    a1, a1, 1
+  andi.d  a1, a1, 1
   beqz    a1, 1f
 
   // Save current signal mask.
   // The 'how'/a0 argument is ignored if set is NULL.
   li.d    a1, 0 // NULL
-  addi    a2, a0, _JB_SIGMASK // old_mask.
+  addi.d  a2, a0, _JB_SIGMASK // old_mask.
   la      t0, sigprocmask
   jirl    ra, t0, 0
 
@@ -143,11 +143,11 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(sigsetjmp)
   // Restore original a0/ra.
   ld.d    a0, sp, 0
   ld.d    ra, sp, 16
-  addi    sp, sp, 24
+  addi.d  sp, sp, 24
 
   // Get the cookie.
   ld.d    a1, a0, _JB_SIGFLAG
-  andi    a1, a1, -2
+  andi.d  a1, a1, -2
 
   // Save core registers.
   move    a2, sp
@@ -194,10 +194,10 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
 
   // Do we need to restore the signal mask?
   ld.d    a2, a0, _JB_SIGFLAG
-  andi    a3, a2, 1
+  andi.d  a3, a2, 1
   beqz    a3, 1f
 
-  addi    sp, sp, -24
+  addi.d  sp, sp, -24
   st.d    a0, sp, 0
   st.d    ra, sp, 8
 
@@ -206,7 +206,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
 
   move    a2, a0
   li.d    a0, 2 // SIG_SETMASK
-  addi    a1, a2, _JB_SIGMASK // new_mask
+  addi.d  a1, a2, _JB_SIGMASK // new_mask
   li.d    a2, 0 // NULL
 
   la      t0, sigprocmask
@@ -217,12 +217,12 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   // Restore original a0 and ra.
   ld.d    a0, sp, 0
   ld.d    ra, sp, 8
-  addi    sp, sp, 24
+  addi.d  sp, sp, 24
 
   ld.d    a2, a0, _JB_SIGFLAG
 1:
   // Restore core registers.
-  andi    a2, a2, -2
+  andi.d  a2, a2, -2
   ld.d    ra, a0, _JB_RA
   ld.d    fp, a0, _JB_FP  // Don't clobber the upper bits of gp (x3) used for SCS yet.
   ld.d    s0, a0, _JB_S0
@@ -238,7 +238,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   m_unmangle_registers a2, sp_reg=a3
   move    sp, a3
 
-  addi    sp, sp, -24
+  addi.d  sp, sp, -24
   st.d    ra, sp, 0
   st.d    a0, sp, 8
   st.d    a1, sp, 16
@@ -250,7 +250,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   ld.d    ra, sp, 0
   ld.d    a0, sp, 8
   ld.d    a1, sp, 16
-  addi    sp, sp, 24
+  addi.d  sp, sp, 24
 
   // Restore floating point registers.
   fld.d   fs0,  a0, _JB_FS0

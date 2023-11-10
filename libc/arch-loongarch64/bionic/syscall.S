@@ -47,5 +47,5 @@ ENTRY(syscall)
 
 1:
 	sub.d	a0, zero, a0
-	b	__set_errno_internal
+	b       __set_errno_internal
 END(syscall)
