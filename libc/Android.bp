@@ -1332,11 +1332,14 @@ genrule {
 }
 
 genrule {
-    name: "syscalls-loongarch64",
+    name: "syscalls-loongarch64.S",
     out: ["syscalls-loongarch64.S"],
     srcs: ["SYSCALLS.TXT"],
-    tools: ["gensyscalls"],
-    cmd: "$(location gensyscalls) loongarch64 $(in) > $(out)",
+    tool_files: [":bionic-gensyscalls"],
+    cmd: "$(location :bionic-gensyscalls) loongarch64 $(in) > $(out)",
+    bazel_module: {
+        bp2build_available: true,
+    },
 }
 genrule {
     name: "syscalls-x86.S",
@@ -1852,7 +1855,7 @@ genrule {
 
 genrule {
     name: "libc.loongarch64.map",
-    out: ["libc.loongarch64.map.txt"],
+    out: ["libc.loongarch64.map"],
     srcs: ["libc.map.txt"],
     tool_files: [":bionic-generate-version-script"],
     cmd: "$(location :bionic-generate-version-script) loongarch64 $(in) $(out)",
@@ -2093,10 +2096,10 @@ genrule {
 
 genrule {
     name: "libstdc++.loongarch64.map",
-    out: ["libstdc++.loongarch64.map.txt"],
+    out: ["libstdc++.loongarch64.map"],
     srcs: ["libstdc++.map.txt"],
-    tools: ["generate-version-script"],
-    cmd: "$(location generate-version-script) loongarch64 $(in) $(out)",
+    tool_files: [":bionic-generate-version-script"],
+    cmd: "$(location :bionic-generate-version-script) loongarch64 $(in) $(out)",
 }
 
 genrule {

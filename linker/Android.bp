@@ -408,6 +408,11 @@ cc_binary {
                 profile_file: "bionic/linker_x86_x86_64.profdata",
             },
         },
+        android_loongarch64: {
+            pgo: {
+                profile_file: "bionic/linker_loongarch_loongarch64.profdata",
+            },
+        },
     },
 
     lto: {
