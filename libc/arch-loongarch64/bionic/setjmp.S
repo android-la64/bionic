@@ -129,7 +129,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(sigsetjmp)
   st.d    a1, a0, _JB_SIGFLAG
 
   // Do we need to save the signal mask?
-  andi.d  a1, a1, 1
+  andi    a1, a1, 1
   beqz    a1, 1f
 
   // Save current signal mask.
@@ -147,7 +147,8 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(sigsetjmp)
 
   // Get the cookie.
   ld.d    a1, a0, _JB_SIGFLAG
-  andi.d  a1, a1, -2
+  li.d    t0, -2
+  and     a1, a1, t0
 
   // Save core registers.
   move    a2, sp
@@ -194,7 +195,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
 
   // Do we need to restore the signal mask?
   ld.d    a2, a0, _JB_SIGFLAG
-  andi.d  a3, a2, 1
+  andi    a3, a2, 1
   beqz    a3, 1f
 
   addi.d  sp, sp, -24
@@ -222,7 +223,8 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   ld.d    a2, a0, _JB_SIGFLAG
 1:
   // Restore core registers.
-  andi.d  a2, a2, -2
+  li.d    t0, -2
+  and     a2, a2, t0
   ld.d    ra, a0, _JB_RA
   ld.d    fp, a0, _JB_FP  // Don't clobber the upper bits of gp (x3) used for SCS yet.
   ld.d    s0, a0, _JB_S0

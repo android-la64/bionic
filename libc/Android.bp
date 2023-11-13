@@ -911,14 +911,15 @@ cc_library_static {
                 "arch-loongarch64/bionic/setjmp.S",
                 "arch-loongarch64/bionic/syscall.S",
                 "arch-loongarch64/bionic/vfork.S",
+                "arch-loongarch64/bionic/renameat.cpp",
 
                 "arch-loongarch64/string/memset_chk.c",
                 "upstream-freebsd/lib/libc/string/memcmp.c",
                 "upstream-freebsd/lib/libc/string/memcpy.c",
                 "upstream-freebsd/lib/libc/string/memmove.c",
                 "upstream-freebsd/lib/libc/string/memset.c",
-                "upstream-openbsd/lib/libc/string/strcmp.c",
-                "upstream-openbsd/lib/libc/string/strlen.c",
+                //"upstream-openbsd/lib/libc/string/strcmp.c",
+                //"upstream-openbsd/lib/libc/string/strlen.c",
             ],
         },
 

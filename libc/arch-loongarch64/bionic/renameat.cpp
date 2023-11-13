@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,43 +26,11 @@
  * SUCH DAMAGE.
  */
 
-#include <platform/bionic/tls_defines.h>
-#include <private/bionic_asm.h>
-#include <asm/signal.h>
-#include <linux/sched.h>
+#include <stdio.h>
 
-ENTRY(vfork)
-  // t0 = __get_tls()[TLS_SLOT_THREAD_ID]
-  move    t0, tp
-  ld.d    t0, t0, TLS_SLOT_THREAD_ID * 8
-
-  // Set cached_pid_ to 0, vforked_ to 1, and stash the previous value.
-  /* load 0x80000000 into t1 */
-  li.d    t1, 1
-  slli.d  t1, t1, 31
-  ld.w    t2, t0, 20
-  st.w    t1, t0, 20
-
-  li.d    a0, (CLONE_VM | CLONE_VFORK | SIGCHLD)
-  li.d    a1, 0 //uses a duplicate of the parent's stack
-  li.d    a2, 0
-  li.d    a3, 0
-  li.d    a4, 0
-
-  li.d    a7, __NR_clone
-  syscall 0
-
-  // if (rc == 0) we're the child, and finished...
-  beqz    a0, .L_success
-
-  // else if (rc != 0): reset cached_pid_ and vforked_...
-  st.w    t2, t0, 20
-  // ...and work out whether we succeeded or failed.
-  blt     a0, zero, .L_failure
-.L_success:
-  jirl    zero, ra, 0
-
-.L_failure:
-  sub.d   a0, zero, a0
-  b       __set_errno_internal
-END(vfork)
+// syscall renameat is not defined for loongarch, so we create one and call 
+// renameat2 internally
+int renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath)
+{
+  return renameat2(olddirfd, oldpath, newdirfd, newpath, 0);
+}
