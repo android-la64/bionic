@@ -29,7 +29,7 @@
 #include <fenv.h>
 #include <stdint.h>
 
-const fenv_t __fe_dfl_env = 0;
+const fenv_t __fe_dfl_env = {0};
 
 int fegetenv(fenv_t* envp) {
   _FPU_GETCW (*envp);

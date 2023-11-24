@@ -351,7 +351,7 @@ typedef struct
 } mcontext_t;
 
 /* Userlevel context.  */
-typedef struct ucontext
+typedef struct ucontext_t
 {
   unsigned long int __uc_flags;
   struct ucontext *uc_link;
