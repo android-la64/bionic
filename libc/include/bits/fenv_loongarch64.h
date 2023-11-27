@@ -62,8 +62,8 @@ typedef unsigned int femode_t;
 #define _FPU_IEEE 0x1F
 
 /* Macros for accessing the hardware control word.  */
-#define _FPU_GETCW(cw) __asm__ volatile ("movfcsr2gr %0,$r0" : "=r"(cw))
-#define _FPU_SETCW(cw) __asm__ volatile ("movgr2fcsr $r0,%0" : : "r"(cw))
+#define _FPU_GETCW(cw) __asm__ volatile ("movfcsr2gr %0,$fcsr0" : "=r"(cw))
+#define _FPU_SETCW(cw) __asm__ volatile ("movgr2fcsr $fcsr0,%0" : : "r"(cw))
 
 #define _FCLASS_SNAN     (1 << 0)
 #define _FCLASS_QNAN     (1 << 1)
