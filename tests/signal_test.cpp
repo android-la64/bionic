@@ -808,7 +808,11 @@ TEST(signal, sigset_size) {
   // long. This is true because ARM and x86 have broken rt signal support,
   // and AArch64 and x86_64 both have a SIGRTMAX defined as 64.
 #if defined(__BIONIC__)
+#if defined(__loongarch__)
+  static_assert(sizeof(sigset_t) <= sizeof(long) * 2, "sigset_t doesn't fit in a 2*long");
+#elif
   static_assert(sizeof(sigset_t) <= sizeof(long), "sigset_t doesn't fit in a long");
+#endif
 #endif
   static_assert(sizeof(sigset64_t)*8 >= 64, "sigset64_t too small for real-time signals");
 }
