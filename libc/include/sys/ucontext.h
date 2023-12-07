@@ -315,7 +315,7 @@ typedef struct ucontext {
 
 #elif defined(__loongarch__)
 
-#define LARCH_NGREG 32
+#define NGREG 32
 
 #if defined(__USE_GNU)
 
@@ -340,37 +340,29 @@ enum {
 
 typedef unsigned long int greg_t;
 /* Container for all general registers.  */
-typedef greg_t gregset_t[32];
+typedef greg_t gregset_t[NGREG];
+/* Container for floating-point state.  */
+typedef union {
+  unsigned int __val32[256 / 32];
+  unsigned long long __val64[256 / 64];
+} fpregset_t;
 
-typedef struct
-{
-  unsigned long long __pc;
-  unsigned long long __gregs[32];
-  unsigned int __flags;
-  unsigned long long __extcontext[0] __attribute__((__aligned__(16)));
-} mcontext_t;
+#include <asm/sigcontext.h>
+typedef struct sigcontext mcontext_t;
 
 /* Userlevel context.  */
-typedef struct ucontext_t
-{
-  unsigned long int __uc_flags;
-  struct ucontext *uc_link;
+typedef struct ucontext_t {
+  unsigned long int uc_flags;
+  struct ucontext_t *uc_link;
   stack_t uc_stack;
+  mcontext_t uc_mcontext;
   union {
     sigset_t uc_sigmask;
     sigset64_t uc_sigmask64;
   };
-  /* The kernel adds extra padding after uc_sigmask to match glibc sigset_t on LoongArch64. */
+  /* The kernel adds extra padding after uc_sigmask to match glibc sigset_t on loongarch64. */
   char __padding[128 - sizeof(sigset_t)];
-  mcontext_t uc_mcontext;
 } ucontext_t;
-
-// best use the following
-// #include <asm/sigcontext.h>
-// typedef struct sigcontext mcontext_t;
-//
-// #include <asm/ucontext.h>
-// typedef struct ucontext ucontext_t;
 
 #endif
 
