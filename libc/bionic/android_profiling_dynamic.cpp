@@ -202,7 +202,7 @@ static void HandleSigsysSeccompOverride(int /*signal_number*/, siginfo_t* info,
 #elif defined(__x86_64__)
   ctx->uc_mcontext.gregs[REG_RAX] = ret;
 #elif defined(__loongarch__)
-  ctx->uc_mcontext.__gregs[LARCH_REG_RA] = ret;
+  ctx->uc_mcontext.sc_regs[LARCH_REG_RA] = ret;
 #else
 #error "unsupported architecture"
 #endif
