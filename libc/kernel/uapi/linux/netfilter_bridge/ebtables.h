@@ -129,9 +129,10 @@ struct ebt_entry {
   unsigned char sourcemsk[ETH_ALEN];
   unsigned char destmac[ETH_ALEN];
   unsigned char destmsk[ETH_ALEN];
-  unsigned int watchers_offset;
+  __struct_group(, offsets,, unsigned int watchers_offset;
   unsigned int target_offset;
   unsigned int next_offset;
+ );
   unsigned char elems[0] __attribute__((aligned(__alignof__(struct ebt_replace))));
 };
 #define EBT_BASE_CTL 128
