@@ -236,9 +236,9 @@ struct user_fpsimd_struct {
 
 struct user_regs_struct
 {
-  uint64_t gpr[32];
-  uint64_t pc;
-  uint64_t badvaddr;
+  uint64_t regs[32];
+  uint64_t csr_era;
+  uint64_t csr_badv;
   uint64_t reserved[11];
 };
 
