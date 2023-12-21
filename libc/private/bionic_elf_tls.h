@@ -202,7 +202,6 @@ struct bionic_tcb;
 void __free_dynamic_tls(bionic_tcb* tcb);
 void __notify_thread_exit_callbacks();
 
-#if defined(__loongarch__)
 // TLS_DTV_OFFSET is a constant used in relocation fields, defined in RISC-V ELF Specification[1]
 // The front of the TCB contains a pointer to the DTV, and each pointer in DTV
 // points to 0x800 past the start of a TLS block to make full use of the range
@@ -212,7 +211,4 @@ void __notify_thread_exit_callbacks();
 // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#constants
 // [2]: Documentation of TLS data structures
 // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/issues/53
-#define TLS_DTV_OFFSET 0x800
-#else
 #define TLS_DTV_OFFSET 0
-#endif
