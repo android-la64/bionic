@@ -89,9 +89,9 @@ static _Unwind_Reason_Code trace_function(__unwind_context* context, void* arg) 
   // that instruction, not necessarily at the start of it. (If the value
   // is too low to be valid, we just leave it alone.)
   if (ip >= 4096) {
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__loongarch__)
     ip -= 4;  // Exactly.
-#elif defined(__arm__) || defined(__loongarch__)
+#elif defined(__arm__)
     ip -= 2;  // At least.
 #elif defined(__i386__) || defined(__x86_64__)
     ip -= 1;  // At least.
