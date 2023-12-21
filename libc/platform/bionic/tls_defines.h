@@ -69,7 +69,7 @@
 //  - TLS_SLOT_APP: Available for use by apps in Android Q and later. (This slot
 //    was used for errno in P and earlier.)
 
-#if defined(__arm__) || defined(__aarch64__)
+#if defined(__arm__) || defined(__aarch64__) || defined(__loongarch__)
 
 // The ARM ELF TLS ABI specifies[1] that the thread pointer points at a 2-word
 // TCB followed by the executable's TLS segment. Both the TCB and the
@@ -114,7 +114,7 @@
 #define TLS_SLOT_BIONIC_TLS       9
 #define MAX_TLS_SLOT              9 // update this value when reserving a slot
 
-#elif defined(__loongarch__)
+#elif defined(__riscv)
 
 // RISC-V ELF Specification[1] specifies that RISC-V uses Variant I as described
 // by the ELF TLS specification, with tp containing the address one past the end
