@@ -198,12 +198,12 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   andi    a3, a2, 1
   beqz    a3, 1f
 
-  addi.d  sp, sp, -24
+  addi.d  sp, sp, -16
   st.d    a0, sp, 0
   st.d    ra, sp, 8
 
   // Restore the signal mask.
-  st.d    a1, sp, 16 // Save 'value'.
+  move    s0, a1 // Save 'value'.
 
   move    a2, a0
   li.d    a0, 2 // SIG_SETMASK
@@ -213,12 +213,12 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   la      t0, sigprocmask
   jirl    ra, t0, 0
 
-  ld.d    a1, sp, 16 // Restore 'value'.
+  move    a1, s0 // Restore 'value'.
 
   // Restore original a0 and ra.
   ld.d    a0, sp, 0
   ld.d    ra, sp, 8
-  addi.d  sp, sp, 24
+  addi.d  sp, sp, 16
 
   ld.d    a2, a0, _JB_SIGFLAG
 1:
@@ -226,7 +226,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   li.d    t0, -2
   and     a2, a2, t0
   ld.d    ra, a0, _JB_RA
-  ld.d    fp, a0, _JB_FP  // Don't clobber the upper bits of gp (x3) used for SCS yet.
+  ld.d    fp, a0, _JB_FP
   ld.d    s0, a0, _JB_S0
   ld.d    s1, a0, _JB_S1
   ld.d    s2, a0, _JB_S2
