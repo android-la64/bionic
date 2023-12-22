@@ -604,11 +604,15 @@ static void set_bss_vma_name(soinfo* si) {
 extern __LIBC_HIDDEN__ ElfW(Rela) __rela_iplt_start[], __rela_iplt_end[];
 
 static void call_ifunc_resolvers(ElfW(Addr) load_bias) {
+  UNUSED(load_bias);
+  // XC-TODO workaround: fix undefined reference  __rela_iplt_start, __rela_iplt_end because loongarch64 not support hwasan
+#if 0
   for (ElfW(Rela) *r = __rela_iplt_start; r != __rela_iplt_end; ++r) {
     ElfW(Addr)* offset = reinterpret_cast<ElfW(Addr)*>(r->r_offset + load_bias);
     ElfW(Addr) resolver = r->r_addend + load_bias;
     *offset = __bionic_call_ifunc_resolver(resolver);
   }
+#endif
 }
 #else
 extern __LIBC_HIDDEN__ ElfW(Rel) __rel_iplt_start[], __rel_iplt_end[];
