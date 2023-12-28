@@ -33,7 +33,7 @@ ENTRY(_start)
   .cfi_undefined ra
 
   move a0, sp
-  la   t0, __linker_init
+  la.pcrel   t0, __linker_init
   jirl ra, t0, 0
 
   // __linker_init returns the address of the entry point in the main image.
