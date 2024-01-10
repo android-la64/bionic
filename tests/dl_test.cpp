@@ -94,6 +94,8 @@ TEST(dl, lib_does_not_preempt_global_protected) {
   static constexpr const char* kAlternatePathToLinker = "/system/bin/arm/linker";
 #elif defined (__x86_64__)
   static constexpr const char* kAlternatePathToLinker = "/system/bin/x86_64/linker64";
+#elif defined (__loongarch64)
+  static constexpr const char* kAlternatePathToLinker = "/system/bin/loongarch64/linker64";
 #elif defined (__i386__)
   static constexpr const char* kAlternatePathToLinker = "/system/bin/x86/linker";
 #else
