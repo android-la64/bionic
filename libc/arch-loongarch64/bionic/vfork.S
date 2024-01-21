@@ -48,6 +48,9 @@ ENTRY(vfork)
   li.d    a2, 0
   li.d    a3, 0
   li.d    a4, 0
+  li.d    a5, 0
+  // loongarch syscall clob t registers, save it in a6
+  move    a6, t2
 
   li.d    a7, __NR_clone
   syscall 0
@@ -56,7 +59,9 @@ ENTRY(vfork)
   beqz    a0, .L_success
 
   // else if (rc != 0): reset cached_pid_ and vforked_...
-  st.w    t2, t0, 20
+  move    t0, tp
+  ld.d    t0, t0, TLS_SLOT_THREAD_ID * 8
+  st.w    a6, t0, 20
   // ...and work out whether we succeeded or failed.
   blt     a0, zero, .L_failure
 .L_success:
