@@ -355,7 +355,7 @@ TEST_F(MallocHooksTest, DISABLED_aligned_alloc_hook_error) {
   ASSERT_TRUE(__memalign_hook != nullptr);
   __memalign_hook = test_memalign_hook;
 
-  void* ptr = aligned_alloc(11, 1024);
+  void* ptr = aligned_alloc(512, 1024);
   ASSERT_TRUE(ptr == nullptr);
   EXPECT_EQ(EINVAL, errno);
   write(0, ptr, 0);
