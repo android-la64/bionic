@@ -36,6 +36,11 @@ ENTRY_PRIVATE(__bionic_clone)
   st.d      a5, a1, 0
   st.d      a6, a1, 8
 
+  # swap a3/a3
+  add.d    a7, a3, zero
+  add.d    a3, a4, zero
+  add.d    a4, a7, zero
+
   # Make the system call.
   li.d      a7, __NR_clone
   syscall   0
