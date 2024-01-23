@@ -92,7 +92,11 @@ TEST(fenv, feraiseexcept) {
   ASSERT_EQ(0, fetestexcept(FE_ALL_EXCEPT));
 
   ASSERT_EQ(0, feraiseexcept(FE_DIVBYZERO | FE_OVERFLOW));
+#ifdef __loongarch__
   ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
+#else
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+#endif
 }
 
 TEST(fenv, fegetenv_fesetenv) {
@@ -104,16 +108,28 @@ TEST(fenv, fegetenv_fesetenv) {
   // fegetenv (unlike feholdexcept) leaves the current state untouched...
   fenv_t state;
   ASSERT_EQ(0, fegetenv(&state));
+#ifdef __loongarch__
   ASSERT_EQ(FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
+#else
+  ASSERT_EQ(FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+#endif
 
   // Dividing by zero sets the appropriate flag...
   DivideByZero();
+#ifdef __loongarch__
   ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
+#else
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+#endif
 
   // And fesetenv (unlike feupdateenv) clobbers that to return to where
   // we started.
   ASSERT_EQ(0, fesetenv(&state));
+#ifdef __loongarch__
   ASSERT_EQ(FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
+#else
+  ASSERT_EQ(FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+#endif
 }
 
 TEST(fenv, feholdexcept_feupdateenv) {
@@ -134,14 +150,22 @@ TEST(fenv, feholdexcept_feupdateenv) {
   // And feupdateenv (unlike fesetenv) merges what we started with
   // (FE_OVERFLOW) with what we now have (FE_DIVBYZERO).
   ASSERT_EQ(0, feupdateenv(&state));
+#ifdef __loongarch__
   ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
+#else
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+#endif
 }
 
 TEST(fenv, fegetexceptflag_fesetexceptflag) {
   // Set three flags.
   feclearexcept(FE_ALL_EXCEPT);
   ASSERT_EQ(0, feraiseexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW));
+#ifdef __loongarch__
   ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
+#else
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW, fetestexcept(FE_ALL_EXCEPT));
+#endif
 
   fexcept_t all; // FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW
   fexcept_t two; // FE_OVERFLOW | FE_UNDERFLOW
@@ -151,7 +175,11 @@ TEST(fenv, fegetexceptflag_fesetexceptflag) {
   // Check we can restore all.
   feclearexcept(FE_ALL_EXCEPT);
   ASSERT_EQ(0, fesetexceptflag(&all, FE_ALL_EXCEPT));
+#ifdef __loongarch__
   ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
+#else
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW, fetestexcept(FE_ALL_EXCEPT));
+#endif
 
   // Check that `two` only stored a subset.
   feclearexcept(FE_ALL_EXCEPT);
