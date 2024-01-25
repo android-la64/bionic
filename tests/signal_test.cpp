@@ -562,7 +562,11 @@ TEST(signal, sys_siglist) {
 TEST(signal, limits) {
   // These come from the kernel.
   ASSERT_EQ(32, __SIGRTMIN);
+#ifdef __loongarch__
+  ASSERT_EQ(128, __SIGRTMAX);
+#else
   ASSERT_EQ(64, __SIGRTMAX);
+#endif
 
   // We reserve a non-zero number at the bottom for ourselves.
   ASSERT_GT(SIGRTMIN, __SIGRTMIN);
