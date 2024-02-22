@@ -56,6 +56,42 @@ class SignalMaskRestorer {
   sigset64_t old_mask_;
 };
 
+#ifdef __loongarch__
+#include <cstdint>
+#include <type_traits>
+
+template<typename T>
+inline void SignalSetAdd(T* sigset, int signo) {
+    static_assert(std::is_same<T, uint64_t>::value || std::is_same<T, uint64_t[2]>::value,
+                  "SignalSetAdd only supports uint64_t or uint64_t[2]");
+
+    if constexpr (std::is_same<T, uint64_t>::value) {
+        *sigset |= 1ULL << (signo - 1);
+    } else {
+        if (signo <= 64) {
+            *(sigset)[0] |= 1ULL << (signo - 1);
+        } else {
+            *(sigset)[1] |= 1ULL << (signo - 65);
+        }
+    }
+}
+
+template<typename T>
+inline void SignalSetDel(T* sigset, int signo) {
+    static_assert(std::is_same<T, uint64_t>::value || std::is_same<T, uint64_t[2]>::value,
+                  "SignalSetDel only supports uint64_t or uint64_t[2]");
+
+    if constexpr (std::is_same<T, uint64_t>::value) {
+        *sigset &= ~(1ULL << (signo - 1));
+    } else {
+        if (signo <= 64) {
+            *(sigset)[0] &= ~(1ULL << (signo - 1));
+        } else {
+            *(sigset)[1] &= ~(1ULL << (signo - 65));
+        }
+    }
+}
+#else
 // uint64_t equivalents of sigsetops.
 static inline void SignalSetAdd(uint64_t* sigset, int signo) {
   *sigset |= 1ULL << (signo - 1);
@@ -64,3 +100,4 @@ static inline void SignalSetAdd(uint64_t* sigset, int signo) {
 static inline void SignalSetDel(uint64_t* sigset, int signo) {
   *sigset &= ~(1ULL << (signo - 1));
 }
+#endif

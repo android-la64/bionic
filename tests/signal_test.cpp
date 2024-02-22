@@ -306,7 +306,11 @@ TEST(signal, sigaction64_SIGRTMIN) {
 }
 
 static void ClearSignalMask() {
+#ifdef __loongarch__
+  uint64_t sigset[2] = {0, 0};
+#else
   uint64_t sigset = 0;
+#endif
   SignalSetAdd(&sigset, __SIGRTMIN);
   if (syscall(__NR_rt_sigprocmask, SIG_SETMASK, &sigset, nullptr, sizeof(sigset)) != 0) {
     abort();
@@ -314,7 +318,11 @@ static void ClearSignalMask() {
 }
 
 static void FillSignalMask() {
+#ifdef __loongarch__
+  uint64_t sigset[2] = {~0ULL, ~0ULL};
+#else
   uint64_t sigset = ~0ULL;
+#endif
   for (int signo = __SIGRTMIN + 1; signo < SIGRTMIN; ++signo) {
     SignalSetDel(&sigset, signo);
   }
@@ -323,18 +331,43 @@ static void FillSignalMask() {
   }
 }
 
+#ifdef __loongarch__
+static uint64_t* GetSignalMask() {
+  uint64_t sigset[2];
+#else
 static uint64_t GetSignalMask() {
   uint64_t sigset;
+#endif
   if (syscall(__NR_rt_sigprocmask, SIG_SETMASK, nullptr, &sigset, sizeof(sigset)) != 0) {
     abort();
   }
+#ifdef __loongarch__
+  uint64_t* sigset_ptr = new uint64_t[2];
+  sigset_ptr[0] = sigset[0];
+  sigset_ptr[1] = sigset[1];
+  return sigset_ptr;
+#else
   return sigset;
+#endif
 }
 
+#ifdef __loongarch__
+static void TestSignalMaskFiltered(uint64_t *sigset) {
+#else
 static void TestSignalMaskFiltered(uint64_t sigset) {
+#endif
 #if defined(__BIONIC__)
   for (int signo = __SIGRTMIN; signo < SIGRTMIN; ++signo) {
+#ifdef __loongarch__
+    bool signal_blocked;
+    auto sigset_tmp = reinterpret_cast<uint64_t (*)[2]>(sigset);
+    if (signo <= 64)
+      signal_blocked = (*sigset_tmp)[0] & (1ULL << (signo - 1));
+    else
+      signal_blocked = (*sigset_tmp)[1] & (1ULL << (signo - 1));
+#else
     bool signal_blocked = sigset & (1ULL << (signo - 1));
+#endif
     if (signo == __SIGRTMIN) {
       // TIMER_SIGNAL must be blocked.
       EXPECT_EQ(true, signal_blocked) << "signal " << signo;
@@ -343,6 +376,9 @@ static void TestSignalMaskFiltered(uint64_t sigset) {
       EXPECT_EQ(false, signal_blocked) << "signal " << signo;
     }
   }
+#ifdef __loongarch__
+  delete[] sigset;
+#endif
 #else
   UNUSED(sigset);
 #endif
@@ -356,14 +392,38 @@ static void TestSignalMaskFunction(std::function<void()> fn) {
 
 TEST(signal, sigaction_filter) {
   ClearSignalMask();
+#ifdef __loongarch__
+  static uint64_t sigset[2];
+#else
   static uint64_t sigset;
+#endif
   struct sigaction sa = {};
+#ifdef __loongarch__
+  sa.sa_handler = [](int) {
+      auto sigset_ptr = GetSignalMask();
+      sigset[0] = sigset_ptr[0];
+      sigset[1] = sigset_ptr[1];
+      delete[] sigset_ptr;
+  };
+#else
   sa.sa_handler = [](int) { sigset = GetSignalMask(); };
+#endif
   sa.sa_flags = SA_ONSTACK | SA_NODEFER;
   sigfillset(&sa.sa_mask);
   sigaction(SIGUSR1, &sa, nullptr);
   raise(SIGUSR1);
 
+#ifdef __loongarch__
+  // On LP32, struct sigaction::sa_mask is only 32-bits wide.
+  unsigned long expected_sigset[2] = {~0UL, ~0UL};
+
+  // SIGKILL and SIGSTOP are always blocked.
+  expected_sigset[0] &= ~(1UL << (SIGKILL - 1));
+  expected_sigset[0] &= ~(1UL << (SIGSTOP - 1));
+
+  ASSERT_EQ(static_cast<uint64_t>(expected_sigset[0]), sigset[0]);
+  ASSERT_EQ(static_cast<uint64_t>(expected_sigset[1]), sigset[1]);
+#else
   // On LP32, struct sigaction::sa_mask is only 32-bits wide.
   unsigned long expected_sigset = ~0UL;
 
@@ -372,25 +432,46 @@ TEST(signal, sigaction_filter) {
   expected_sigset &= ~(1UL << (SIGSTOP - 1));
 
   ASSERT_EQ(static_cast<uint64_t>(expected_sigset), sigset);
+#endif
 }
 
 TEST(signal, sigaction64_filter) {
   ClearSignalMask();
+#ifdef __loongarch__
+  static uint64_t sigset[2];
+#else
   static uint64_t sigset;
+#endif
   struct sigaction64 sa = {};
+#ifdef __loongarch__
+  sa.sa_handler = [](int) {
+      auto sigset_ptr = GetSignalMask();
+      sigset[0] = sigset_ptr[0];
+      sigset[1] = sigset_ptr[1];
+      delete[] sigset_ptr;
+  };
+#else
   sa.sa_handler = [](int) { sigset = GetSignalMask(); };
+#endif
   sa.sa_flags = SA_ONSTACK | SA_NODEFER;
   sigfillset64(&sa.sa_mask);
   sigaction64(SIGUSR1, &sa, nullptr);
   raise(SIGUSR1);
 
+#ifdef __loongarch__
+  uint64_t expected_sigset[2] = {~0ULL, ~0ULL};
+  // SIGKILL and SIGSTOP are always blocked.
+  expected_sigset[0] &= ~(1ULL << (SIGKILL - 1));
+  expected_sigset[0] &= ~(1ULL << (SIGSTOP - 1));
+  ASSERT_EQ(expected_sigset[0], sigset[0]);
+  ASSERT_EQ(expected_sigset[1], sigset[1]);
+#else
   uint64_t expected_sigset = ~0ULL;
-
   // SIGKILL and SIGSTOP are always blocked.
   expected_sigset &= ~(1ULL << (SIGKILL - 1));
   expected_sigset &= ~(1ULL << (SIGSTOP - 1));
-
   ASSERT_EQ(expected_sigset, sigset);
+#endif
 }
 
 TEST(signal, sigprocmask_setmask_filter) {
