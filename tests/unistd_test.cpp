@@ -1519,7 +1519,7 @@ TEST(UNISTD_TEST, exec_argv0_null) {
   char* args[] = {nullptr};
   char* envs[] = {nullptr};
   ASSERT_EXIT(execve("/system/bin/run-as", args, envs), testing::ExitedWithCode(1),
-              "<unknown>: usage: run-as");
+              ": usage: run-as");
 }
 
 TEST(UNISTD_TEST, fexecve_failure) {
