@@ -130,6 +130,17 @@ static void set_watchpoint(pid_t child, uintptr_t address, size_t size) {
 
   ASSERT_EQ(0, ptrace(PTRACE_SETREGSET, child, NT_ARM_HW_WATCH, &iov)) << strerror(errno);
 #endif
+#elif defined(__loongarch64)
+
+  pt_watch_regs dreg_state;
+  memset(&dreg_state, 0, sizeof dreg_state);
+  dreg_state.max_valid = 1;
+  dreg_state.style = pt_watch_style_la64;
+  dreg_state.la64[0].addr = reinterpret_cast<uintptr_t>(address);
+  dreg_state.la64[0].irw = LA_WATCH_W; // todo LA_WATCH_W LA_WATCH_I LA_WATCH_R
+
+  ASSERT_EQ(0, ptrace(PTRACE_SET_WATCH_REGS, child, &dreg_state, nullptr)) << strerror(errno);
+  UNUSED(size);
 #elif defined(__i386__) || defined(__x86_64__)
   ASSERT_EQ(0, ptrace(PTRACE_POKEUSER, child, offsetof(user, u_debugreg[0]), address)) << strerror(errno);
   errno = 0;
@@ -318,6 +329,17 @@ static void set_breakpoint(pid_t child) {
 
   ASSERT_EQ(0, ptrace(PTRACE_SETREGSET, child, NT_ARM_HW_BREAK, &iov)) << strerror(errno);
 #endif
+#elif defined(__loongarch64)
+  address &= ~3; // todo need or not?
+
+  pt_watch_regs dreg_state;
+  memset(&dreg_state, 0, sizeof dreg_state);
+  dreg_state.max_valid = 1;
+  dreg_state.style = pt_watch_style_la64;
+  dreg_state.la64[0].addr = reinterpret_cast<uintptr_t>(address);
+  dreg_state.la64[0].irw = LA_WATCH_R; // todo fix
+
+  ASSERT_EQ(0, ptrace(PTRACE_SET_WATCH_REGS, child, &dreg_state, nullptr)) << strerror(errno);
 #elif defined(__i386__) || defined(__x86_64__)
   ASSERT_EQ(0, ptrace(PTRACE_POKEUSER, child, offsetof(user, u_debugreg[0]), address))
       << strerror(errno);
