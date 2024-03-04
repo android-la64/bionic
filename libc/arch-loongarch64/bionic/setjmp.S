@@ -51,27 +51,27 @@
 
 #define _JB_SIGFLAG   0
 #define _JB_SIGMASK   1 * 8
-#define _JB_RA        2 * 8
-#define _JB_SP        3 * 8
-#define _JB_FP        4 * 8
-#define _JB_S0        5 * 8
-#define _JB_S1        6 * 8
-#define _JB_S2        7 * 8
-#define _JB_S3        8 * 8
-#define _JB_S4        9 * 8
-#define _JB_S5       10 * 8
-#define _JB_S6       11 * 8
-#define _JB_S7       12 * 8
-#define _JB_S8       13 * 8
-#define _JB_FS0      14 * 8
-#define _JB_FS1      15 * 8
-#define _JB_FS2      16 * 8
-#define _JB_FS3      17 * 8
-#define _JB_FS4      18 * 8
-#define _JB_FS5      19 * 8
-#define _JB_FS6      20 * 8
-#define _JB_FS7      21 * 8
-#define _JB_CHECKSUM 22 * 8
+#define _JB_RA        3 * 8  // sigset_t is 16 bytes 128 bits so start at 3.
+#define _JB_SP        4 * 8
+#define _JB_FP        5 * 8
+#define _JB_S0        6 * 8
+#define _JB_S1        7 * 8
+#define _JB_S2        8 * 8
+#define _JB_S3        9 * 8
+#define _JB_S4       10 * 8
+#define _JB_S5       11 * 8
+#define _JB_S6       12 * 8
+#define _JB_S7       13 * 8
+#define _JB_S8       14 * 8
+#define _JB_FS0      15 * 8
+#define _JB_FS1      16 * 8
+#define _JB_FS2      17 * 8
+#define _JB_FS3      18 * 8
+#define _JB_FS4      19 * 8
+#define _JB_FS5      20 * 8
+#define _JB_FS6      21 * 8
+#define _JB_FS7      22 * 8
+#define _JB_CHECKSUM 23 * 8
 
 .macro m_mangle_registers reg, sp_reg
   xor s0, s0, \reg
