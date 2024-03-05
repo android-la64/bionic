@@ -24,6 +24,7 @@
 #define ADRERR_RD (1 << 30)
 #define ADRERR_WR (1 << 31)
 #define FPU_REG_WIDTH 256
+#define FPU_ALIGN __attribute__((aligned(32)))
 struct sigcontext {
   __u64 sc_pc;
   __u64 sc_regs[32];
@@ -35,7 +36,7 @@ struct sigcontext {
   union {
     __u32 val32[FPU_REG_WIDTH / 32];
     __u64 val64[FPU_REG_WIDTH / 64];
-  } sc_fpregs[32] __attribute__((aligned(32)));
+  } sc_fpregs[32] FPU_ALIGN;
   __u8 sc_reserved[4096] __attribute__((__aligned__(16)));
 };
 #endif
