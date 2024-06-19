@@ -315,7 +315,7 @@ typedef struct ucontext {
 
 #elif defined(__loongarch__)
 
-#define NGREG 32
+#define NGREG 33 /* r0..r31 + sp */
 
 #if defined(__USE_GNU)
 
