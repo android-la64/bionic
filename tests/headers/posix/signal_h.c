@@ -63,10 +63,6 @@ static void signal_h() {
   MACRO(SIGEV_SIGNAL);
   MACRO(SIGEV_THREAD);
 
-#if !defined(__GLIBC__)  // Our glibc is too old.
-  MACRO(SIG2STR_MAX);
-#endif
-
   TYPE(union sigval);
   STRUCT_MEMBER(union sigval, int, sival_int);
   STRUCT_MEMBER(union sigval, void*, sival_ptr);
@@ -209,9 +205,6 @@ static void signal_h() {
   FUNCTION(pthread_kill, int (*f)(pthread_t, int));
   FUNCTION(pthread_sigmask, int (*f)(int, const sigset_t*, sigset_t*));
   FUNCTION(raise, int (*f)(int));
-#if !defined(__GLIBC__)  // Our glibc is too old.
-  FUNCTION(sig2str, int (*f)(int, char*));
-#endif
   FUNCTION(sigaction, int (*f)(int, const struct sigaction*, struct sigaction*));
   FUNCTION(sigaddset, int (*f)(sigset_t*, int));
   FUNCTION(sigaltstack, int (*f)(const stack_t*, stack_t*));
@@ -233,7 +226,4 @@ static void signal_h() {
   FUNCTION(sigtimedwait, int (*f)(const sigset_t*, siginfo_t*, const struct timespec*));
   FUNCTION(sigwait, int (*f)(const sigset_t*, int*));
   FUNCTION(sigwaitinfo, int (*f)(const sigset_t*, siginfo_t*));
-#if !defined(__GLIBC__)  // Our glibc is too old.
-  FUNCTION(str2sig, int (*f)(const char*, int*));
-#endif
 }

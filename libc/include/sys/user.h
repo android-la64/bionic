@@ -231,7 +231,7 @@ struct user_fpsimd_struct {
   uint32_t fpcr;
 };
 
-#elif defined(__riscv) || defined(__loongarch64)
+#elif defined(__riscv)
 
 // This space deliberately left blank for now.
 // No other libcs have any riscv64-specific structs.

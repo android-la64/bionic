@@ -32,13 +32,11 @@ inline size_t page_size() {
 #endif
 }
 
-// The maximum page size supported on any Android device. As
-// of API level 35, this is limited by ART.
-constexpr size_t max_android_page_size() {
+constexpr size_t max_page_size() {
 #if defined(PAGE_SIZE)
   return PAGE_SIZE;
 #else
-  return 16384;
+  return 65536;
 #endif
 }
 

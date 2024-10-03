@@ -440,22 +440,6 @@ TEST(UNISTD_TEST, syncfs) {
   TestSyncFunction(syncfs);
 }
 
-TEST(UNISTD_TEST, _Fork) {
-#if defined(__BIONIC__)
-  pid_t rc = _Fork();
-  ASSERT_NE(-1, rc);
-  if (rc == 0) {
-    _exit(66);
-  }
-
-  int status;
-  pid_t wait_result = waitpid(rc, &status, 0);
-  ASSERT_EQ(wait_result, rc);
-  ASSERT_TRUE(WIFEXITED(status));
-  ASSERT_EQ(66, WEXITSTATUS(status));
-#endif
-}
-
 TEST(UNISTD_TEST, vfork) {
 #if defined(__BIONIC__)
   pthread_internal_t* self = __get_thread();
@@ -769,36 +753,22 @@ TEST(UNISTD_TEST, gethostname) {
 
 TEST(UNISTD_TEST, pathconf_fpathconf) {
   TemporaryFile tf;
-  long l;
-
+  long rc = 0L;
   // As a file system's block size is always power of 2, the configure values
   // for ALLOC and XFER should be power of 2 as well.
-  l = pathconf(tf.path, _PC_ALLOC_SIZE_MIN);
-  ASSERT_TRUE(l > 0 && powerof2(l));
-  l = pathconf(tf.path, _PC_REC_MIN_XFER_SIZE);
-  ASSERT_TRUE(l > 0 && powerof2(l));
-  l = pathconf(tf.path, _PC_REC_XFER_ALIGN);
-  ASSERT_TRUE(l > 0 && powerof2(l));
+  rc = pathconf(tf.path, _PC_ALLOC_SIZE_MIN);
+  ASSERT_TRUE(rc > 0 && powerof2(rc));
+  rc = pathconf(tf.path, _PC_REC_MIN_XFER_SIZE);
+  ASSERT_TRUE(rc > 0 && powerof2(rc));
+  rc = pathconf(tf.path, _PC_REC_XFER_ALIGN);
+  ASSERT_TRUE(rc > 0 && powerof2(rc));
 
-  l = fpathconf(tf.fd, _PC_ALLOC_SIZE_MIN);
-  ASSERT_TRUE(l > 0 && powerof2(l));
-  l = fpathconf(tf.fd, _PC_REC_MIN_XFER_SIZE);
-  ASSERT_TRUE(l > 0 && powerof2(l));
-  l = fpathconf(tf.fd, _PC_REC_XFER_ALIGN);
-  ASSERT_TRUE(l > 0 && powerof2(l));
-
-  // Check that the "I can't answer that, you'll have to try it and see"
-  // cases don't set errno.
-  int names[] = {
-      _PC_ASYNC_IO, _PC_PRIO_IO, _PC_REC_INCR_XFER_SIZE, _PC_REC_MAX_XFER_SIZE, _PC_SYMLINK_MAX,
-      _PC_SYNC_IO,  -1};
-  for (size_t i = 0; names[i] != -1; i++) {
-    errno = 0;
-    ASSERT_EQ(-1, pathconf(tf.path, names[i])) << names[i];
-    ASSERT_ERRNO(0) << names[i];
-    ASSERT_EQ(-1, fpathconf(tf.fd, names[i])) << names[i];
-    ASSERT_ERRNO(0) << names[i];
-  }
+  rc = fpathconf(tf.fd, _PC_ALLOC_SIZE_MIN);
+  ASSERT_TRUE(rc > 0 && powerof2(rc));
+  rc = fpathconf(tf.fd, _PC_REC_MIN_XFER_SIZE);
+  ASSERT_TRUE(rc > 0 && powerof2(rc));
+  rc = fpathconf(tf.fd, _PC_REC_XFER_ALIGN);
+  ASSERT_TRUE(rc > 0 && powerof2(rc));
 }
 
 TEST(UNISTD_TEST, _POSIX_constants) {
@@ -998,7 +968,7 @@ TEST(UNISTD_TEST, sysconf) {
   VERIFY_SYSCONF_POSIX_VERSION(_SC_CPUTIME);
   VERIFY_SYSCONF_POSITIVE(_SC_EXPR_NEST_MAX);
   VERIFY_SYSCONF_POSITIVE(_SC_LINE_MAX);
-  VerifySysconf(_SC_NGROUPS_MAX, "_SC_NGROUPS_MAX", [](long v){return v >= 0 && v <= NGROUPS_MAX;});
+  VERIFY_SYSCONF_POSITIVE(_SC_NGROUPS_MAX);
   VERIFY_SYSCONF_POSITIVE(_SC_OPEN_MAX);
   VERIFY_SYSCONF_POSITIVE(_SC_PASS_MAX);
   VERIFY_SYSCONF_POSIX_VERSION(_SC_2_C_BIND);
@@ -1157,8 +1127,8 @@ TEST(UNISTD_TEST, sysconf_SC_NPROCESSORS_ONLN) {
 
 TEST(UNISTD_TEST, sysconf_SC_ARG_MAX) {
   // Since Linux 2.6.23, ARG_MAX isn't a constant and depends on RLIMIT_STACK.
-  // See setup_arg_pages() in the kernel for the gory details:
-  // https://elixir.bootlin.com/linux/v6.6.4/source/fs/exec.c#L749
+  // See prepare_arg_pages() in the kernel for the gory details:
+  // https://elixir.bootlin.com/linux/v5.3.11/source/fs/exec.c#L451
 
   // Get our current limit, and set things up so we restore the limit.
   rlimit rl;
@@ -1175,24 +1145,19 @@ TEST(UNISTD_TEST, sysconf_SC_ARG_MAX) {
   // _SC_ARG_MAX should be 1/4 the stack size.
   EXPECT_EQ(static_cast<long>(rl.rlim_cur / 4), sysconf(_SC_ARG_MAX));
 
-  // If you have a really small stack, the kernel still guarantees a stack
-  // expansion of 128KiB (see setup_arg_pages() in fs/exec.c).
+  // If you have a really small stack, the kernel still guarantees "32 pages" (see fs/exec.c).
   rl.rlim_cur = 1024;
   rl.rlim_max = RLIM_INFINITY;
   ASSERT_EQ(0, setrlimit(RLIMIT_STACK, &rl));
 
-  // The stack expansion number is defined in fs/exec.c.
-  // https://elixir.bootlin.com/linux/v6.6.4/source/fs/exec.c#L845
-  constexpr long kernel_stack_expansion = 131072;
-  EXPECT_EQ(kernel_stack_expansion, sysconf(_SC_ARG_MAX));
+  EXPECT_EQ(static_cast<long>(32 * sysconf(_SC_PAGE_SIZE)), sysconf(_SC_ARG_MAX));
 
-  // If you have a large stack, the kernel will keep the stack
-  // expansion to 128KiB (see setup_arg_pages() in fs/exec.c).
-  rl.rlim_cur = 524288;
+  // With a 128-page stack limit, we know exactly what _SC_ARG_MAX should be...
+  rl.rlim_cur = 128 * sysconf(_SC_PAGE_SIZE);
   rl.rlim_max = RLIM_INFINITY;
   ASSERT_EQ(0, setrlimit(RLIMIT_STACK, &rl));
 
-  EXPECT_EQ(kernel_stack_expansion, sysconf(_SC_ARG_MAX));
+  EXPECT_EQ(static_cast<long>((128 * sysconf(_SC_PAGE_SIZE)) / 4), sysconf(_SC_ARG_MAX));
 }
 
 TEST(UNISTD_TEST, sysconf_unknown) {

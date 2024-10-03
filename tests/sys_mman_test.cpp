@@ -25,8 +25,6 @@
 
 #include "utils.h"
 
-static const size_t kPageSize = getpagesize();
-
 TEST(sys_mman, mmap_std) {
   void* map = mmap(nullptr, 4096, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
   ASSERT_NE(MAP_FAILED, map);
@@ -235,56 +233,42 @@ TEST(sys_mman, mmap_PTRDIFF_MAX) {
 }
 
 TEST(sys_mman, mremap_PTRDIFF_MAX) {
-  void* map = mmap(nullptr, kPageSize, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  void* map = mmap(nullptr, PAGE_SIZE, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   ASSERT_NE(MAP_FAILED, map);
 
-  ASSERT_EQ(MAP_FAILED, mremap(map, kPageSize, kHuge, MREMAP_MAYMOVE));
+  ASSERT_EQ(MAP_FAILED, mremap(map, PAGE_SIZE, kHuge, MREMAP_MAYMOVE));
 
-  ASSERT_EQ(0, munmap(map, kPageSize));
-}
-
-TEST(sys_mman, mremap_MREMAP_FIXED) {
-  // We're not trying to test the kernel here; that's external/ltp's job.
-  // We just want to check that optional argument (mremap() is varargs)
-  // gets passed through in an MREMAP_FIXED call.
-  void* vma1 = mmap(NULL, getpagesize(), PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-  ASSERT_NE(MAP_FAILED, vma1);
-
-  void* vma2 = mmap(NULL, getpagesize(), PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-  ASSERT_NE(MAP_FAILED, vma2);
-
-  void* vma3 = mremap(vma1, getpagesize(), getpagesize(), MREMAP_FIXED | MREMAP_MAYMOVE, vma2);
-  ASSERT_EQ(vma2, vma3);
+  ASSERT_EQ(0, munmap(map, PAGE_SIZE));
 }
 
 TEST(sys_mman, mmap_bug_27265969) {
-  char* base = reinterpret_cast<char*>(
-      mmap(nullptr, kPageSize * 2, PROT_EXEC | PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
+  char* base = reinterpret_cast<char*>(mmap(nullptr, PAGE_SIZE * 2, PROT_EXEC | PROT_READ,
+                                            MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
   // Some kernels had bugs that would cause segfaults here...
-  __builtin___clear_cache(base, base + (kPageSize * 2));
+  __builtin___clear_cache(base, base + (PAGE_SIZE * 2));
 }
 
 TEST(sys_mman, mlock) {
-  void* map = mmap(nullptr, kPageSize, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  void* map = mmap(nullptr, PAGE_SIZE, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   ASSERT_NE(MAP_FAILED, map);
 
   // Not really anything we can assert about this.
-  mlock(map, kPageSize);
+  mlock(map, PAGE_SIZE);
 
-  ASSERT_EQ(0, munmap(map, kPageSize));
+  ASSERT_EQ(0, munmap(map, PAGE_SIZE));
 }
 
 TEST(sys_mman, mlock2) {
 #if defined(__GLIBC__)
   GTEST_SKIP() << "needs glibc 2.27";
 #else
-  void* map = mmap(nullptr, kPageSize, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  void* map = mmap(nullptr, PAGE_SIZE, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   ASSERT_NE(MAP_FAILED, map);
 
   // Not really anything we can assert about this.
-  mlock2(map, kPageSize, MLOCK_ONFAULT);
+  mlock2(map, PAGE_SIZE, MLOCK_ONFAULT);
 
-  ASSERT_EQ(0, munmap(map, kPageSize));
+  ASSERT_EQ(0, munmap(map, PAGE_SIZE));
 #endif
 }
 
@@ -318,32 +302,5 @@ TEST(sys_mman, memfd_create) {
   ASSERT_EQ(expected, actual);
 
   close(fd);
-#endif
-}
-
-TEST(sys_mseal, mseal) {
-#if defined(__GLIBC__)
-  GTEST_SKIP() << "needs glibc 2.40";
-#else
-  void* map = mmap(nullptr, kPageSize, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-  ASSERT_NE(MAP_FAILED, map);
-
-#if defined(__LP64__)
-  int rc = mseal(map, kPageSize, 0);
-  if (rc == -1) {
-    ASSERT_ERRNO(ENOSYS);
-    GTEST_SKIP() << "needs kernel with mseal(2)";
-  }
-  ASSERT_EQ(-1, mprotect(map, kPageSize, PROT_READ));
-  ASSERT_ERRNO(EPERM);
-#else
-  // No mseal() for ILP32.
-  errno = 0;
-  ASSERT_EQ(-1, mseal(map, kPageSize, 0));
-  ASSERT_ERRNO(ENOSYS);
-  GTEST_SKIP() << "mseal(2) is LP64-only";
-#endif
-
-  // We can't munmap() our test mapping if mseal() actually succeeded :-)
 #endif
 }

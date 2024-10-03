@@ -107,18 +107,21 @@
   m_mangle_registers \reg, sp_reg=\sp_reg
 .endm
 
-ENTRY_WEAK_FOR_NATIVE_BRIDGE(setjmp)
+ENTRY(setjmp)
+__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(setjmp)
   li a1, 1
   tail sigsetjmp
 END(setjmp)
 
-ENTRY_WEAK_FOR_NATIVE_BRIDGE(_setjmp)
+ENTRY(_setjmp)
+__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(_setjmp)
   li a1, 0
   tail sigsetjmp
 END(_setjmp)
 
 // int sigsetjmp(sigjmp_buf env, int save_signal_mask);
-ENTRY_WEAK_FOR_NATIVE_BRIDGE(sigsetjmp)
+ENTRY(sigsetjmp)
+__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(sigsetjmp)
   addi sp, sp, -24
   sd a0, 0(sp)
   sd a1, 8(sp)
@@ -201,11 +204,12 @@ ENTRY_WEAK_FOR_NATIVE_BRIDGE(sigsetjmp)
 END(sigsetjmp)
 
 // void siglongjmp(sigjmp_buf env, int value);
-ENTRY_WEAK_FOR_NATIVE_BRIDGE(siglongjmp)
+ENTRY(siglongjmp)
+__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(siglongjmp)
   // Check the checksum before doing anything.
   m_calculate_checksum t0, a0, t1
   ld t1, _JB_CHECKSUM(a0)
-  bne t0, t1, L(checksum_failure)
+  bne t0, t1, 3f
 
   // Do we need to restore the signal mask?
   ld a2, _JB_SIGFLAG(a0)
@@ -290,9 +294,11 @@ ENTRY_WEAK_FOR_NATIVE_BRIDGE(siglongjmp)
   mv a0, a1
   ret
 
-L(checksum_failure):
+3:
   call __bionic_setjmp_checksum_mismatch
 END(siglongjmp)
 
-ALIAS_SYMBOL_WEAK_FOR_NATIVE_BRIDGE(longjmp, siglongjmp)
-ALIAS_SYMBOL_WEAK_FOR_NATIVE_BRIDGE(_longjmp, siglongjmp)
+ALIAS_SYMBOL(longjmp, siglongjmp)
+__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(longjmp)
+ALIAS_SYMBOL(_longjmp, siglongjmp)
+__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(_longjmp)

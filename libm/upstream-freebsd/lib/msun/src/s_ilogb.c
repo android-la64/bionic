@@ -1,3 +1,4 @@
+/* @(#)s_ilogb.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -8,6 +9,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /* ilogb(double x)
  * return the binary exponent of non-zero x

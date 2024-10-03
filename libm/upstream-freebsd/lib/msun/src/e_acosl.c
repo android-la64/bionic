@@ -1,4 +1,5 @@
 
+/* @(#)e_acos.c 1.3 95/01/18 */
 /* FreeBSD: head/lib/msun/src/e_acos.c 176451 2008-02-22 02:30:36Z das */
 /*
  * ====================================================
@@ -10,6 +11,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /*
  * See comments in e_acos.c.

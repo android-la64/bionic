@@ -39,32 +39,32 @@
 __BEGIN_DECLS
 
 /**
- * [ether_ntoa(3)](https://man7.org/linux/man-pages/man3/ether_ntoa.3.html) returns a string
- * representation of the given Ethernet (MAC) address.
+ * [ether_ntoa(3)](http://man7.org/linux/man-pages/man3/ether_ntoa.3.html) returns a string
+ * representation of the given Ethernet address.
  *
  * Returns a pointer to a static buffer.
  */
 char* _Nonnull ether_ntoa(const struct ether_addr* _Nonnull __addr);
 
 /**
- * [ether_ntoa_r(3)](https://man7.org/linux/man-pages/man3/ether_ntoa_r.3.html) returns a string
- * representation of the given Ethernet (MAC) address.
+ * [ether_ntoa_r(3)](http://man7.org/linux/man-pages/man3/ether_ntoa_r.3.html) returns a string
+ * representation of the given Ethernet address.
  *
  * Returns a pointer to the given buffer.
  */
 char* _Nonnull ether_ntoa_r(const struct ether_addr* _Nonnull __addr, char* _Nonnull __buf);
 
 /**
- * [ether_aton(3)](https://man7.org/linux/man-pages/man3/ether_aton.3.html) returns an `ether_addr`
- * corresponding to the given Ethernet (MAC) address string.
+ * [ether_aton(3)](http://man7.org/linux/man-pages/man3/ether_aton.3.html) returns an `ether_addr`
+ * corresponding to the given Ethernet address string.
  *
  * Returns a pointer to a static buffer, or NULL if the given string isn't a valid MAC address.
  */
 struct ether_addr* _Nullable ether_aton(const char* _Nonnull __ascii);
 
 /**
- * [ether_aton_r(3)](https://man7.org/linux/man-pages/man3/ether_aton_r.3.html) returns an
- * `ether_addr` corresponding to the given Ethernet (MAC) address string.
+ * [ether_aton_r(3)](http://man7.org/linux/man-pages/man3/ether_aton_r.3.html) returns an
+ * `ether_addr` corresponding to the given Ethernet address string.
  *
  * Returns a pointer to the given buffer, or NULL if the given string isn't a valid MAC address.
  */

@@ -1,3 +1,4 @@
+/* @(#)s_modf.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -8,6 +9,10 @@
  * is preserved.
  * ====================================================
  */
+
+#ifndef lint
+static char rcsid[] = "$FreeBSD$";
+#endif
 
 /*
  * modf(double x, double *iptr)

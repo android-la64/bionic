@@ -38,6 +38,7 @@
 
 #include "private/WriteProtected.h"
 #include "private/bionic_allocator.h"
+#include "private/bionic_asm_offsets.h"
 #include "private/bionic_elf_tls.h"
 #include "private/bionic_fdsan.h"
 #include "private/bionic_malloc_dispatch.h"
@@ -47,8 +48,7 @@ struct libc_globals {
   vdso_entry vdso[VDSO_END];
   long setjmp_cookie;
   uintptr_t heap_pointer_tag;
-  _Atomic(bool) decay_time_enabled;
-  _Atomic(bool) memtag;
+  _Atomic(bool) memtag_stack;
 
   // In order to allow a complete switch between dispatch tables without
   // the need for copying each function by function in the structure,
@@ -66,36 +66,13 @@ struct libc_globals {
   MallocDispatch malloc_dispatch_table;
 };
 
-struct memtag_dynamic_entries_t {
-  void* memtag_globals;
-  size_t memtag_globalssz;
-  bool has_memtag_mode;
-  unsigned memtag_mode;
-  bool memtag_heap;
-  bool memtag_stack;
-};
+#ifdef __aarch64__
+static_assert(OFFSETOF_libc_globals_memtag_stack == offsetof(libc_globals, memtag_stack));
+#endif
 
 __LIBC_HIDDEN__ extern WriteProtected<libc_globals> __libc_globals;
-// These cannot be in __libc_globals, because we cannot access the
-// WriteProtected in a thread-safe way.
-// See b/328256432.
-//
-// __libc_memtag_stack says whether stack MTE is enabled on the process, i.e.
-// whether the stack pages are mapped with PROT_MTE. This is always false if
-// MTE is disabled for the process (i.e. libc_globals.memtag is false).
-__LIBC_HIDDEN__ extern _Atomic(bool) __libc_memtag_stack;
-// __libc_memtag_stack_abi says whether the process contains any code that was
-// compiled with memtag-stack. This is true even if the process does not have
-// MTE enabled (e.g. because it was overridden using MEMTAG_OPTIONS, or because
-// MTE is disabled for the device).
-// Code compiled with memtag-stack needs a stack history buffer in
-// TLS_SLOT_STACK_MTE, because the codegen will emit an unconditional
-// (to keep the code branchless) write to it.
-// Protected by g_heap_creation_lock.
-__LIBC_HIDDEN__ extern bool __libc_memtag_stack_abi;
 
 struct abort_msg_t;
-struct crash_detail_page_t;
 namespace gwp_asan {
 struct AllocatorState;
 struct AllocationMetadata;
@@ -143,17 +120,10 @@ struct libc_shared_globals {
   const char* scudo_region_info = nullptr;
   const char* scudo_ring_buffer = nullptr;
   size_t scudo_ring_buffer_size = 0;
-  size_t scudo_stack_depot_size = 0;
 
   HeapTaggingLevel initial_heap_tagging_level = M_HEAP_TAGGING_LEVEL_NONE;
-  // See comments for __libc_memtag_stack / __libc_memtag_stack_abi above.
   bool initial_memtag_stack = false;
-  bool initial_memtag_stack_abi = false;
   int64_t heap_tagging_upgrade_timer_sec = 0;
-
-  void (*memtag_stack_dlopen_callback)() = nullptr;
-  pthread_mutex_t crash_detail_page_lock = PTHREAD_MUTEX_INITIALIZER;
-  crash_detail_page_t* crash_detail_page = nullptr;
 };
 
 __LIBC_HIDDEN__ libc_shared_globals* __libc_shared_globals();

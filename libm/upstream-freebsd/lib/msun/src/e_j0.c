@@ -1,3 +1,4 @@
+/* @(#)e_j0.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -8,6 +9,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /* j0(x), y0(x)
  * Bessel function of the first and second kinds of order zero.

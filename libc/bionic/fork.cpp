@@ -50,13 +50,11 @@ int __clone_for_fork() {
   return result;
 }
 
-int _Fork() {
-  return __clone_for_fork();
-}
-
 int fork() {
   __bionic_atfork_run_prepare();
-  int result = _Fork();
+
+  int result = __clone_for_fork();
+
   if (result == 0) {
     // Disable fdsan and fdtrack post-fork, so we don't falsely trigger on processes that
     // fork, close all of their fds, and then exec.

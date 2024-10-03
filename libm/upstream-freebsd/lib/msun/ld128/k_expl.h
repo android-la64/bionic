@@ -30,6 +30,9 @@
  * Optimized by Bruce D. Evans.
  */
 
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
+
 /*
  * ld128 version of k_expl.h.  See ../ld80/s_expl.c for most comments.
  *

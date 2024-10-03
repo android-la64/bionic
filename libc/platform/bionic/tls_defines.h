@@ -68,11 +68,6 @@
 //
 //  - TLS_SLOT_APP: Available for use by apps in Android Q and later. (This slot
 //    was used for errno in P and earlier.)
-//
-//  - TLS_SLOT_NATIVE_BRIDGE_GUEST_STATE: Pointer to the guest state for native
-//    bridge implementations. It is (to be) used by debuggerd to access this
-//    state for guest aware crash reporting of the binary translated code.
-//    (Introduced in V)
 
 #if defined(__arm__) || defined(__aarch64__)
 
@@ -85,9 +80,7 @@
 // [1] "Addenda to, and Errata in, the ABI for the ARM Architecture". Section 3.
 // http://infocenter.arm.com/help/topic/com.arm.doc.ihi0045e/IHI0045E_ABI_addenda.pdf
 
-#define MIN_TLS_SLOT (-3)  // update this value when reserving a slot
-#define TLS_SLOT_STACK_MTE (-3)
-#define TLS_SLOT_NATIVE_BRIDGE_GUEST_STATE (-2)
+#define MIN_TLS_SLOT            (-1) // update this value when reserving a slot
 #define TLS_SLOT_BIONIC_TLS     (-1)
 #define TLS_SLOT_DTV              0
 #define TLS_SLOT_THREAD_ID        1
@@ -119,10 +112,9 @@
 #define TLS_SLOT_ART_THREAD_SELF  7
 #define TLS_SLOT_DTV              8
 #define TLS_SLOT_BIONIC_TLS       9
-#define TLS_SLOT_NATIVE_BRIDGE_GUEST_STATE 10
-#define MAX_TLS_SLOT 10  // update this value when reserving a slot
+#define MAX_TLS_SLOT              9 // update this value when reserving a slot
 
-#elif defined(__riscv) || defined(__loongarch__)
+#elif defined(__riscv)
 
 // RISC-V ELF Specification[1] specifies that RISC-V uses Variant I as described
 // by the ELF TLS specification, with tp containing the address one past the end
@@ -131,9 +123,8 @@
 // [1]: RISC-V ELF Specification. Section: Thread Local Storage
 // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#thread-local-storage
 
-#define MIN_TLS_SLOT (-10)  // update this value when reserving a slot
+#define MIN_TLS_SLOT             (-9) // update this value when reserving a slot
 
-#define TLS_SLOT_NATIVE_BRIDGE_GUEST_STATE (-10)
 #define TLS_SLOT_BIONIC_TLS      (-9)
 #define TLS_SLOT_DTV             (-8)
 #define TLS_SLOT_THREAD_ID       (-7)

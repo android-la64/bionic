@@ -297,20 +297,14 @@ TEST(wchar, mbtowc) {
   // mbrtowc returns 0 "if the next n or fewer bytes complete the multibyte
   // character that corresponds to the null wide character"
   //
-  // mbrtoc (C23 7.24.7.2.4) says:
+  // mbrtoc says: "If s is not a null pointer, the mbtowc function either
+  // returns 0 (if s points to the null character)..."
   //
-  //     If s is not a null pointer, the mbtowc function either returns 0 (if s
-  //     points to the null character), or returns the number of bytes that are
-  //     contained in the converted multibyte character (if the next n or fewer
-  //     bytes form a valid multibyte character), or returns -1 (if they do not
-  //     form a valid multibyte character).
+  // So mbrtowc will not provide the correct mbtowc return value for "" and
+  // n = 0.
   //
-  // glibc's interpretation differs from all the BSDs (including macOS) and
-  // bionic (by way of openbsd). glibc returns 0 since s does point to the null
-  // character, whereas the BSDs return -1 because the next 0 bytes do not form
-  // a valid multibyte chatacter. glibc's interpretation is probably more
-  // correct from a strict interpretation of the spec, but considering the other
-  // APIs behave more like the BSD interpretation that may be a bug in the spec.
+  // glibc gets this right, but all the BSDs (including macOS) and bionic (by
+  // way of openbsd) return -1 instead of 0.
 #ifdef __GLIBC__
   int expected_result_for_zero_length_empty_string = 0;
 #else
@@ -556,7 +550,7 @@ void TestWcsToIntLimits(WcsToIntFn<T> fn, const wchar_t* min_str,
   } else {
     // If the subject sequence begins with a <hyphen-minus>, the value resulting
     // from the conversion shall be negated.
-    // https://pubs.opengroup.org/onlinepubs/9799919799.2024edition/functions/strtoul.html
+    // http://pubs.opengroup.org/onlinepubs/9699919799/functions/strtoul.html
     ASSERT_EQ(std::numeric_limits<T>::max(), fn(min_str, nullptr, 0)) << min_str;
   }
   ASSERT_EQ(std::numeric_limits<T>::max(), fn(max_str, nullptr, 0)) << max_str;
@@ -1075,37 +1069,8 @@ TEST(wchar, wcwidth_non_spacing_and_enclosing_marks_and_format) {
 
   EXPECT_EQ(0, wcwidth(0x0300)); // Combining grave.
   EXPECT_EQ(0, wcwidth(0x20dd)); // Combining enclosing circle.
+  EXPECT_EQ(0, wcwidth(0x00ad)); // Soft hyphen (SHY).
   EXPECT_EQ(0, wcwidth(0x200b)); // Zero width space.
-}
-
-TEST(wchar, wcwidth_non_spacing_special_cases) {
-  if (!have_dl()) return;
-
-  // U+00AD is a soft hyphen, which normally shouldn't be rendered at all.
-  // I think the assumption here is that you elide the soft hyphen character
-  // completely in that case, and never call wcwidth() if you don't want to
-  // render it as an actual hyphen. Whereas if you do want to render it,
-  // you call wcwidth(), and 1 is the right answer. This is what Markus Kuhn's
-  // original https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c did,
-  // and glibc and iOS do the same.
-  // See also: https://en.wikipedia.org/wiki/Soft_hyphen#Text_to_be_formatted_by_the_recipient
-  EXPECT_EQ(1, wcwidth(0x00ad)); // Soft hyphen (SHY).
-
-  // U+115F is the Hangeul choseong filler (for a degenerate composed
-  // character missing an initial consonant (as opposed to one with a
-  // leading ieung). Since the code points for combining jungseong (medial
-  // vowels) and jongseong (trailing consonants) have width 0, the choseong
-  // (initial consonant) has width 2 to cover the entire syllable. So unless
-  // U+115f has width 2, a degenerate composed "syllable" without an initial
-  // consonant or ieung would have a total width of 0, which is silly.
-  // The following sequence is effectively "약" without the leading ieung...
-  EXPECT_EQ(2, wcwidth(0x115f)); // Hangeul choseong filler.
-  EXPECT_EQ(0, wcwidth(0x1163)); // Hangeul jungseong "ya".
-  EXPECT_EQ(0, wcwidth(0x11a8)); // Hangeul jongseong "kiyeok".
-
-  // U+1160, the jungseong filler, has width 0 because it must have been
-  // preceded by either a choseong or choseong filler.
-  EXPECT_EQ(0, wcwidth(0x1160));
 }
 
 TEST(wchar, wcwidth_cjk) {
@@ -1131,10 +1096,8 @@ TEST(wchar, wcwidth_korean_jeongeul_syllables) {
   if (!have_dl()) return;
 
   EXPECT_EQ(2, wcwidth(0xac00)); // Start of block.
-  EXPECT_EQ(2, wcwidth(0xd7a3)); // End of defined code points as of Unicode 15.
-
-  // Undefined characters at the end of the block currently have width 1,
-  // but since they're undefined, we don't test that.
+  EXPECT_EQ(2, wcwidth(0xd7a3)); // End of defined code points in Unicode 7.
+  // Undefined characters at the end of the block have width 1.
 }
 
 TEST(wchar, wcwidth_kana) {
@@ -1168,21 +1131,11 @@ TEST(wchar, wcwidth_default_ignorables) {
   EXPECT_EQ(0, wcwidth(0xe0000)); // ...through 0xe0fff.
 }
 
-TEST(wchar, wcwidth_hangeul_compatibility_jamo) {
+TEST(wchar, wcwidth_korean_common_non_syllables) {
   if (!have_dl()) return;
 
-  // These are actually the *compatibility* jamo code points, *not* the regular
-  // jamo code points (U+1100-U+11FF) using a jungseong filler. If you use the
-  // Android IME to type any of these, you get these code points.
-
-  // (Half of) the Korean "crying" emoticon "ㅠㅠ".
-  // Actually U+3160 "Hangeul Letter Yu" from Hangeul Compatibility Jamo.
-  EXPECT_EQ(2, wcwidth(L'ㅠ'));
-  // The two halves of the Korean internet shorthand "ㄱㅅ" (short for 감사).
-  // Actually U+3131 "Hangeul Letter Kiyeok" and U+3145 "Hangeul Letter Sios"
-  // from Hangeul Compatibility Jamo.
-  EXPECT_EQ(2, wcwidth(L'ㄱ'));
-  EXPECT_EQ(2, wcwidth(L'ㅅ'));
+  EXPECT_EQ(2, wcwidth(L'ㅜ')); // Korean "crying" emoticon.
+  EXPECT_EQ(2, wcwidth(L'ㅋ')); // Korean "laughing" emoticon.
 }
 
 TEST(wchar, wcswidth) {

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef __ANDROID_DLEXT_H__
+#define __ANDROID_DLEXT_H__
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -30,7 +31,7 @@
 /**
  * \file
  * Advanced dynamic library opening support. Most users will want to use
- * the standard [dlopen(3)](https://man7.org/linux/man-pages/man3/dlopen.3.html)
+ * the standard [dlopen(3)](http://man7.org/linux/man-pages/man3/dlopen.3.html)
  * functionality in `<dlfcn.h>` instead.
  */
 
@@ -100,7 +101,7 @@ enum {
   ANDROID_DLEXT_FORCE_LOAD = 0x40,
 
   // Historically we had two other options for ART.
-  // They were last available in API level 28.
+  // They were last available in Android P.
   // Reuse these bits last!
   // ANDROID_DLEXT_FORCE_FIXED_VADDR = 0x80
   // ANDROID_DLEXT_LOAD_AT_FIXED_ADDRESS = 0x100
@@ -114,7 +115,7 @@ enum {
   ANDROID_DLEXT_USE_NAMESPACE = 0x200,
 
   /**
-   * Instructs dlopen() to apply `ANDROID_DLEXT_RESERVED_ADDRESS`,
+   * Instructs dlopen to apply `ANDROID_DLEXT_RESERVED_ADDRESS`,
    * `ANDROID_DLEXT_RESERVED_ADDRESS_HINT`, `ANDROID_DLEXT_WRITE_RELRO` and
    * `ANDROID_DLEXT_USE_RELRO` to any libraries loaded as dependencies of the
    * main library as well.
@@ -150,7 +151,7 @@ enum {
 
 struct android_namespace_t;
 
-/** Used to pass Android-specific arguments to android_dlopen_ext(). */
+/** Used to pass Android-specific arguments to `android_dlopen_ext`. */
 typedef struct {
   /** A bitmask of `ANDROID_DLEXT_` enum values. */
   uint64_t flags;
@@ -174,7 +175,7 @@ typedef struct {
 
 /**
  * Opens the given library. The `__filename` and `__flags` arguments are
- * the same as for [dlopen(3)](https://man7.org/linux/man-pages/man3/dlopen.3.html),
+ * the same as for [dlopen(3)](http://man7.org/linux/man-pages/man3/dlopen.3.html),
  * with the Android-specific flags supplied via the `flags` member of `__info`.
  */
 void* _Nullable android_dlopen_ext(const char* _Nullable __filename, int __flags, const android_dlextinfo* _Nullable __info);
@@ -182,3 +183,5 @@ void* _Nullable android_dlopen_ext(const char* _Nullable __filename, int __flags
 __END_DECLS
 
 /** @} */
+
+#endif

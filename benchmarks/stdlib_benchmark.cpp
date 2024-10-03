@@ -22,7 +22,6 @@
 #include <unistd.h>
 
 #include <benchmark/benchmark.h>
-#include "ScopedDecayTimeRestorer.h"
 #include "util.h"
 
 static void MallocFree(benchmark::State& state) {
@@ -41,8 +40,6 @@ static void MallocFree(benchmark::State& state) {
 
 static void BM_stdlib_malloc_free_default(benchmark::State& state) {
 #if defined(__BIONIC__)
-  ScopedDecayTimeRestorer restorer;
-
   // The default is expected to be a zero decay time.
   mallopt(M_DECAY_TIME, 0);
 #endif
@@ -53,11 +50,11 @@ BIONIC_BENCHMARK_WITH_ARG(BM_stdlib_malloc_free_default, "AT_COMMON_SIZES");
 
 #if defined(__BIONIC__)
 static void BM_stdlib_malloc_free_decay1(benchmark::State& state) {
-  ScopedDecayTimeRestorer restorer;
-
   mallopt(M_DECAY_TIME, 1);
 
   MallocFree(state);
+
+  mallopt(M_DECAY_TIME, 0);
 }
 BIONIC_BENCHMARK_WITH_ARG(BM_stdlib_malloc_free_decay1, "AT_COMMON_SIZES");
 #endif
@@ -78,8 +75,6 @@ static void CallocFree(benchmark::State& state) {
 
 static void BM_stdlib_calloc_free_default(benchmark::State& state) {
 #if defined(__BIONIC__)
-  ScopedDecayTimeRestorer restorer;
-
   // The default is expected to be a zero decay time.
   mallopt(M_DECAY_TIME, 0);
 #endif
@@ -118,9 +113,8 @@ static void MallocMultiple(benchmark::State& state, size_t nbytes, size_t numAll
 }
 
 void BM_stdlib_malloc_forty_default(benchmark::State& state) {
-#if defined(__BIONIC__)
-  ScopedDecayTimeRestorer restorer;
 
+#if defined(__BIONIC__)
   // The default is expected to be a zero decay time.
   mallopt(M_DECAY_TIME, 0);
 #endif
@@ -131,19 +125,17 @@ BIONIC_BENCHMARK_WITH_ARG(BM_stdlib_malloc_forty_default, "AT_COMMON_SIZES");
 
 #if defined(__BIONIC__)
 void BM_stdlib_malloc_forty_decay1(benchmark::State& state) {
-  ScopedDecayTimeRestorer restorer;
-
   mallopt(M_DECAY_TIME, 1);
 
   MallocMultiple(state, state.range(0), 40);
+
+  mallopt(M_DECAY_TIME, 0);
 }
 BIONIC_BENCHMARK_WITH_ARG(BM_stdlib_malloc_forty_decay1, "AT_COMMON_SIZES");
 #endif
 
 void BM_stdlib_malloc_multiple_8192_allocs_default(benchmark::State& state) {
 #if defined(__BIONIC__)
-  ScopedDecayTimeRestorer restorer;
-
   // The default is expected to be a zero decay time.
   mallopt(M_DECAY_TIME, 0);
 #endif
@@ -154,11 +146,11 @@ BIONIC_BENCHMARK_WITH_ARG(BM_stdlib_malloc_multiple_8192_allocs_default, "AT_SMA
 
 #if defined(__BIONIC__)
 void BM_stdlib_malloc_multiple_8192_allocs_decay1(benchmark::State& state) {
-  ScopedDecayTimeRestorer restorer;
-
   mallopt(M_DECAY_TIME, 1);
 
   MallocMultiple(state, 8192, state.range(0));
+
+  mallopt(M_DECAY_TIME, 0);
 }
 BIONIC_BENCHMARK_WITH_ARG(BM_stdlib_malloc_multiple_8192_allocs_decay1, "AT_SMALL_SIZES");
 #endif
@@ -235,6 +227,3 @@ BIONIC_TRIVIAL_BENCHMARK(BM_stdlib_strtol, strtol(" -123", nullptr, 0));
 BIONIC_TRIVIAL_BENCHMARK(BM_stdlib_strtoll, strtoll(" -123", nullptr, 0));
 BIONIC_TRIVIAL_BENCHMARK(BM_stdlib_strtoul, strtoul(" -123", nullptr, 0));
 BIONIC_TRIVIAL_BENCHMARK(BM_stdlib_strtoull, strtoull(" -123", nullptr, 0));
-
-BIONIC_TRIVIAL_BENCHMARK(BM_stdlib_strtol_hex, strtol("0xdeadbeef", nullptr, 0));
-BIONIC_TRIVIAL_BENCHMARK(BM_stdlib_strtoul_hex, strtoul("0xdeadbeef", nullptr, 0));

@@ -14,6 +14,9 @@
  * and David A. Schultz.
  */
 
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
+
 #include <float.h>
 #ifdef __i386__
 #include <ieeefp.h>

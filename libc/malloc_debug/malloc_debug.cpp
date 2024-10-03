@@ -53,7 +53,6 @@
 
 #include "Config.h"
 #include "DebugData.h"
-#include "LogAllocatorStats.h"
 #include "Unreachable.h"
 #include "UnwindBacktrace.h"
 #include "backtrace.h"
@@ -70,7 +69,7 @@ bool* g_zygote_child;
 
 const MallocDispatch* g_dispatch;
 
-static inline __always_inline uint64_t Nanotime() {
+static __always_inline uint64_t Nanotime() {
   struct timespec t = {};
   clock_gettime(CLOCK_MONOTONIC, &t);
   return static_cast<uint64_t>(t.tv_sec) * 1000000000LL + t.tv_nsec;
@@ -451,18 +450,10 @@ void debug_finalize() {
     PointerData::LogLeaks();
   }
 
-  if ((g_debug->config().options() & RECORD_ALLOCS) && g_debug->config().record_allocs_on_exit()) {
-    RecordData::WriteEntriesOnExit();
-  }
-
   if ((g_debug->config().options() & BACKTRACE) && g_debug->config().backtrace_dump_on_exit()) {
     debug_dump_heap(android::base::StringPrintf("%s.%d.exit.txt",
                                                 g_debug->config().backtrace_dump_prefix().c_str(),
                                                 getpid()).c_str());
-  }
-
-  if (g_debug->config().options() & LOG_ALLOCATOR_STATS_ON_EXIT) {
-    LogAllocatorStats::Log();
   }
 
   backtrace_shutdown();
@@ -526,14 +517,10 @@ size_t debug_malloc_usable_size(void* pointer) {
 }
 
 static TimedResult InternalMalloc(size_t size) {
-  uint64_t options = g_debug->config().options();
-  if ((options & BACKTRACE) && g_debug->pointer->ShouldDumpAndReset()) {
+  if ((g_debug->config().options() & BACKTRACE) && g_debug->pointer->ShouldDumpAndReset()) {
     debug_dump_heap(android::base::StringPrintf(
                         "%s.%d.txt", g_debug->config().backtrace_dump_prefix().c_str(), getpid())
                         .c_str());
-  }
-  if (options & LOG_ALLOCATOR_STATS_ON_SIGNAL) {
-    LogAllocatorStats::CheckIfShouldLog();
   }
 
   if (size == 0) {
@@ -606,14 +593,10 @@ void* debug_malloc(size_t size) {
 }
 
 static TimedResult InternalFree(void* pointer) {
-  uint64_t options = g_debug->config().options();
-  if ((options & BACKTRACE) && g_debug->pointer->ShouldDumpAndReset()) {
+  if ((g_debug->config().options() & BACKTRACE) && g_debug->pointer->ShouldDumpAndReset()) {
     debug_dump_heap(android::base::StringPrintf(
                         "%s.%d.txt", g_debug->config().backtrace_dump_prefix().c_str(), getpid())
                         .c_str());
-  }
-  if (options & LOG_ALLOCATOR_STATS_ON_SIGNAL) {
-    LogAllocatorStats::CheckIfShouldLog();
   }
 
   void* free_pointer = pointer;

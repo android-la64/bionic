@@ -1,3 +1,4 @@
+/* @(#)s_atan.c 5.1 93/09/24 */
 /* FreeBSD: head/lib/msun/src/s_atan.c 176451 2008-02-22 02:30:36Z das */
 /*
  * ====================================================
@@ -9,6 +10,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /*
  * See comments in s_atan.c.

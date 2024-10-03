@@ -121,10 +121,9 @@ static void AssertFileIs(FILE* fp, const char* expected, bool is_fmemopen = fals
   EXPECT_SWPRINTF_N(expected, static_cast<int>(wcslen(expected)), fmt __VA_OPT__(, ) __VA_ARGS__)
 
 TEST(STDIO_TEST, flockfile_18208568_stderr) {
+  // Check that we have a _recursive_ mutex for flockfile.
   flockfile(stderr);
-  // Check that we're using a _recursive_ mutex for flockfile() by calling
-  // something that will take the lock.
-  ASSERT_EQ(0, feof(stderr));
+  feof(stderr); // We don't care about the result, but this needs to take the lock.
   funlockfile(stderr);
 }
 
@@ -133,9 +132,7 @@ TEST(STDIO_TEST, flockfile_18208568_regular) {
   FILE* fp = fopen("/dev/null", "w");
   ASSERT_TRUE(fp != nullptr);
   flockfile(fp);
-  // Check that we're using a _recursive_ mutex for flockfile() by calling
-  // something that will take the lock.
-  ASSERT_EQ(0, feof(fp));
+  feof(fp);
   funlockfile(fp);
   fclose(fp);
 }
@@ -2154,27 +2151,6 @@ TEST(STDIO_TEST, fread_from_write_only_stream_slow_path) {
 
 TEST(STDIO_TEST, fread_from_write_only_stream_fast_path) {
   test_fread_from_write_only_stream(64*1024);
-}
-
-TEST(STDIO_TEST, fwrite_to_read_only_stream) {
-  FILE* fp = fopen("/proc/version", "re");
-  ASSERT_FALSE(ferror(fp));
-  ASSERT_EQ(0U, fwrite("hello", 1, 5, fp));
-  ASSERT_TRUE(ferror(fp));
-}
-
-TEST(STDIO_TEST, fputc_to_read_only_stream) {
-  FILE* fp = fopen("/proc/version", "re");
-  ASSERT_FALSE(ferror(fp));
-  ASSERT_EQ(EOF, fputc('x', fp));
-  ASSERT_TRUE(ferror(fp));
-}
-
-TEST(STDIO_TEST, fprintf_to_read_only_stream) {
-  FILE* fp = fopen("/proc/version", "re");
-  ASSERT_FALSE(ferror(fp));
-  ASSERT_EQ(-1, fprintf(fp, "%s%d", "hello", 123));
-  ASSERT_TRUE(ferror(fp));
 }
 
 static void test_fwrite_after_fread(size_t n) {

@@ -372,7 +372,6 @@ extern "C" const char* __scudo_get_stack_depot_addr();
 extern "C" const char* __scudo_get_region_info_addr();
 extern "C" const char* __scudo_get_ring_buffer_addr();
 extern "C" size_t __scudo_get_ring_buffer_size();
-extern "C" size_t __scudo_get_stack_depot_size();
 
 // Initializes memory allocation framework once per process.
 static void MallocInitImpl(libc_globals* globals) {
@@ -381,12 +380,11 @@ static void MallocInitImpl(libc_globals* globals) {
 
   MaybeInitGwpAsanFromLibc(globals);
 
-#if defined(USE_SCUDO) && !__has_feature(hwaddress_sanitizer)
+#if defined(USE_SCUDO)
   __libc_shared_globals()->scudo_stack_depot = __scudo_get_stack_depot_addr();
   __libc_shared_globals()->scudo_region_info = __scudo_get_region_info_addr();
   __libc_shared_globals()->scudo_ring_buffer = __scudo_get_ring_buffer_addr();
   __libc_shared_globals()->scudo_ring_buffer_size = __scudo_get_ring_buffer_size();
-  __libc_shared_globals()->scudo_stack_depot_size = __scudo_get_stack_depot_size();
 #endif
 
   // Prefer malloc debug since it existed first and is a more complete
@@ -542,15 +540,7 @@ extern "C" bool android_mallopt(int opcode, void* arg, size_t arg_size) {
       errno = EINVAL;
       return false;
     }
-    *reinterpret_cast<bool*>(arg) = atomic_load(&__libc_memtag_stack);
-    return true;
-  }
-  if (opcode == M_GET_DECAY_TIME_ENABLED) {
-    if (arg == nullptr || arg_size != sizeof(bool)) {
-      errno = EINVAL;
-      return false;
-    }
-    *reinterpret_cast<bool*>(arg) = atomic_load(&__libc_globals->decay_time_enabled);
+    *reinterpret_cast<bool*>(arg) = atomic_load(&__libc_globals->memtag_stack);
     return true;
   }
   // Try heapprofd's mallopt, as it handles options not covered here.

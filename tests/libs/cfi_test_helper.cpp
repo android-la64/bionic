@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "CHECK.h"
+#include "libs_utils.h"
 
 // This library is built for all targets, including host tests, so __cfi_slowpath may not be
 // present. But it is only used in the bionic loader tests.

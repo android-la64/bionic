@@ -28,7 +28,7 @@
 
 #include <bionic/malloc.h>
 
-#include "CHECK.h"
+#include "libs_utils.h"
 
 #if defined(__aarch64__)
 
@@ -240,14 +240,14 @@ void test_longjmp() {
 }
 
 void test_longjmp_sigaltstack() {
-  const size_t kAltStackSize = kStackAllocationSize + getpagesize() * 16;
+  constexpr size_t kAltStackSize = kStackAllocationSize + PAGE_SIZE * 16;
   SigAltStackScoped sigAltStackScoped(kAltStackSize);
   SigActionScoped sigActionScoped(
       SIGUSR1, [](int, siginfo_t*, void*) { check_longjmp_restores_tags(); });
   raise(SIGUSR1);
 
   // same for a secondary thread
-  std::thread t([&]() {
+  std::thread t([]() {
     SigAltStackScoped sigAltStackScoped(kAltStackSize);
     raise(SIGUSR1);
   });

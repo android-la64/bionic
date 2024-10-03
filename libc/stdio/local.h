@@ -51,7 +51,11 @@ __BEGIN_DECLS
 
 struct __sbuf {
   unsigned char* _base;
+#if defined(__LP64__)
   size_t _size;
+#else
+  int _size;
+#endif
 };
 
 struct __sFILE {
@@ -232,7 +236,7 @@ int __vfwscanf(FILE*, const wchar_t*, va_list);
 /* OpenBSD exposes these in <stdio.h>, but we only want them exposed to the implementation. */
 #define __sferror(p) (((p)->_flags & __SERR) != 0)
 #define __sclearerr(p) ((void)((p)->_flags &= ~(__SERR | __SEOF)))
-#define __sgetc(p) (--(p)->_r < 0 ? __srget(p) : __BIONIC_CAST(static_cast, int, *(p)->_p++))
+#define __sgetc(p) (--(p)->_r < 0 ? __srget(p) : (int)(*(p)->_p++))
 
 /* OpenBSD declares these in fvwrite.h, but we share them with C++ parts of the implementation. */
 struct __siov {
@@ -284,7 +288,7 @@ char* __hdtoa(double, const char*, int, int*, int*, char**);
 char* __hldtoa(long double, const char*, int, int*, int*, char**);
 char* __ldtoa(long double*, int, int, int*, int*, char**);
 
-#define WCIO_GET(fp) (_EXT(fp) ? &(_EXT(fp)->_wcio) : NULL)
+#define WCIO_GET(fp) (_EXT(fp) ? &(_EXT(fp)->_wcio) : (struct wchar_io_data*)0)
 
 #define ORIENT_BYTES (-1)
 #define ORIENT_UNKNOWN 0

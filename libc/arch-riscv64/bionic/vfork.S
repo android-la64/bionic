@@ -51,16 +51,16 @@ ENTRY(vfork)
   ecall
 
   // if (rc == 0) we're the child, and finished...
-  beqz    a0, L(success)
+  beqz    a0, .L_success
 
   // else if (rc != 0): reset cached_pid_ and vforked_...
   sw      t2, 20(t0)
   // ...and work out whether we succeeded or failed.
-  bltz    a0, L(failure)
-L(success):
+  bltz    a0, .L_failure
+.L_success:
   ret
 
-L(failure):
+.L_failure:
   neg     a0, a0
   tail    __set_errno_internal
 END(vfork)

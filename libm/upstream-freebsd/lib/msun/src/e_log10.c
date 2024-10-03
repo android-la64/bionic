@@ -1,4 +1,5 @@
 
+/* @(#)e_log10.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,6 +10,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /*
  * Return the base 10 logarithm of x.  See e_log.c and k_log.h for most

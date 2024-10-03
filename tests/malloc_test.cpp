@@ -678,12 +678,10 @@ TEST(malloc, mallopt_smoke) {
 TEST(malloc, mallopt_decay) {
 #if defined(__BIONIC__)
   SKIP_WITH_HWASAN << "hwasan does not implement mallopt";
-  ASSERT_EQ(1, mallopt(M_DECAY_TIME, -1));
   ASSERT_EQ(1, mallopt(M_DECAY_TIME, 1));
   ASSERT_EQ(1, mallopt(M_DECAY_TIME, 0));
   ASSERT_EQ(1, mallopt(M_DECAY_TIME, 1));
   ASSERT_EQ(1, mallopt(M_DECAY_TIME, 0));
-  ASSERT_EQ(1, mallopt(M_DECAY_TIME, -1));
 #else
   GTEST_SKIP() << "bionic-only test";
 #endif
@@ -937,8 +935,7 @@ void __attribute__((optnone)) VerifyAlignment(Type* floating) {
   size_t expected_alignment = alignof(Type);
   if (expected_alignment != 0) {
     ASSERT_EQ(0U, (expected_alignment - 1) & reinterpret_cast<uintptr_t>(floating))
-        << "Expected alignment " << expected_alignment << " ptr value "
-        << static_cast<void*>(floating);
+        << "Expected alignment " << expected_alignment << " ptr value " << floating;
   }
 }
 
@@ -1412,15 +1409,15 @@ TEST(android_mallopt, set_allocation_limit_multiple_threads) {
 }
 
 #if defined(__BIONIC__)
-using Mode = android_mallopt_gwp_asan_options_t::Mode;
+using Action = android_mallopt_gwp_asan_options_t::Action;
 TEST(android_mallopt, DISABLED_multiple_enable_gwp_asan) {
   android_mallopt_gwp_asan_options_t options;
   options.program_name = "";  // Don't infer GWP-ASan options from sysprops.
-  options.mode = Mode::APP_MANIFEST_NEVER;
+  options.desire = Action::DONT_TURN_ON_UNLESS_OVERRIDDEN;
   // GWP-ASan should already be enabled. Trying to enable or disable it should
   // always pass.
   ASSERT_TRUE(android_mallopt(M_INITIALIZE_GWP_ASAN, &options, sizeof(options)));
-  options.mode = Mode::APP_MANIFEST_DEFAULT;
+  options.desire = Action::TURN_ON_WITH_SAMPLING;
   ASSERT_TRUE(android_mallopt(M_INITIALIZE_GWP_ASAN, &options, sizeof(options)));
 }
 #endif  // defined(__BIONIC__)
@@ -1492,7 +1489,7 @@ TEST(malloc, zero_init) {
   // release secondary allocations back to the OS) was modified to 0ms/1ms by
   // mallopt_decay. Ensure that we delay for at least a second before releasing
   // pages to the OS in order to avoid implicit zeroing by the kernel.
-  mallopt(M_DECAY_TIME, 1);
+  mallopt(M_DECAY_TIME, 1000);
   TestHeapZeroing(/* num_iterations */ 32, [](int iteration) -> int {
     return 1 << (19 + iteration % 4);
   });
@@ -1627,7 +1624,6 @@ TEST(malloc, zeroed_allocations_small_medium_sizes) {
 #if !defined(__BIONIC__)
   GTEST_SKIP() << "Only valid on bionic";
 #endif
-  SKIP_WITH_HWASAN << "Only test system allocator, not hwasan allocator.";
 
   if (IsLowRamDevice()) {
     GTEST_SKIP() << "Skipped on low memory devices.";
@@ -1658,7 +1654,6 @@ TEST(malloc, zeroed_allocations_large_sizes) {
 #if !defined(__BIONIC__)
   GTEST_SKIP() << "Only valid on bionic";
 #endif
-  SKIP_WITH_HWASAN << "Only test system allocator, not hwasan allocator.";
 
   if (IsLowRamDevice()) {
     GTEST_SKIP() << "Skipped on low memory devices.";
@@ -1689,7 +1684,6 @@ TEST(malloc, zeroed_allocations_realloc) {
 #if !defined(__BIONIC__)
   GTEST_SKIP() << "Only valid on bionic";
 #endif
-  SKIP_WITH_HWASAN << "Only test system allocator, not hwasan allocator.";
 
   if (IsLowRamDevice()) {
     GTEST_SKIP() << "Skipped on low memory devices.";
@@ -1739,41 +1733,4 @@ TEST(malloc, zeroed_allocations_realloc) {
       free(ptrs[i]);
     }
   }
-}
-
-TEST(android_mallopt, get_decay_time_enabled_errors) {
-#if defined(__BIONIC__)
-  errno = 0;
-  EXPECT_FALSE(android_mallopt(M_GET_DECAY_TIME_ENABLED, nullptr, sizeof(bool)));
-  EXPECT_ERRNO(EINVAL);
-
-  errno = 0;
-  int value;
-  EXPECT_FALSE(android_mallopt(M_GET_DECAY_TIME_ENABLED, &value, sizeof(value)));
-  EXPECT_ERRNO(EINVAL);
-#else
-  GTEST_SKIP() << "bionic-only test";
-#endif
-}
-
-TEST(android_mallopt, get_decay_time_enabled) {
-#if defined(__BIONIC__)
-  SKIP_WITH_HWASAN << "hwasan does not implement mallopt";
-
-  EXPECT_EQ(1, mallopt(M_DECAY_TIME, 0));
-
-  bool value;
-  EXPECT_TRUE(android_mallopt(M_GET_DECAY_TIME_ENABLED, &value, sizeof(value)));
-  EXPECT_FALSE(value);
-
-  EXPECT_EQ(1, mallopt(M_DECAY_TIME, 1));
-  EXPECT_TRUE(android_mallopt(M_GET_DECAY_TIME_ENABLED, &value, sizeof(value)));
-  EXPECT_TRUE(value);
-
-  EXPECT_EQ(1, mallopt(M_DECAY_TIME, -1));
-  EXPECT_TRUE(android_mallopt(M_GET_DECAY_TIME_ENABLED, &value, sizeof(value)));
-  EXPECT_FALSE(value);
-#else
-  GTEST_SKIP() << "bionic-only test";
-#endif
 }

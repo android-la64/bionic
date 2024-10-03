@@ -1,3 +1,5 @@
+/* @(#)k_tan.c 1.5 04/04/22 SMI */
+
 /*
  * ====================================================
  * Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved.
@@ -7,6 +9,10 @@
  * is preserved.
  * ====================================================
  */
+
+/* INDENT OFF */
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /* __kernel_tan( x, y, k )
  * kernel tan function on ~[-pi/4, pi/4] (except on -0), pi/4 ~ 0.7854

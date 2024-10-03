@@ -46,6 +46,9 @@
 #include <string>
 #include <unordered_map>
 
+#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+#include <sys/_system_properties.h>
+
 class ConfigParser {
  public:
   enum {
@@ -251,10 +254,11 @@ static bool parse_config_file(const char* ld_config_file_path,
         // the failure with INFO rather than DL_WARN. e.g. A binary in
         // /data/local/tmp may attempt to stat /postinstall. See
         // http://b/120996057.
-        INFO("%s:%zd: warning: path \"%s\" couldn't be resolved: %m",
+        INFO("%s:%zd: warning: path \"%s\" couldn't be resolved: %s",
              ld_config_file_path,
              cp.lineno(),
-             value.c_str());
+             value.c_str(),
+             strerror(errno));
         resolved_path = value;
       }
 
@@ -300,7 +304,7 @@ static bool parse_config_file(const char* ld_config_file_path,
     }
 
     if (result == ConfigParser::kPropertyAssign) {
-      if (properties->contains(name)) {
+      if (properties->find(name) != properties->end()) {
         DL_WARN("%s:%zd: warning: redefining property \"%s\" (overriding previous value)",
                 ld_config_file_path,
                 cp.lineno(),
@@ -309,7 +313,7 @@ static bool parse_config_file(const char* ld_config_file_path,
 
       (*properties)[name] = PropertyValue(std::move(value), cp.lineno());
     } else if (result == ConfigParser::kPropertyAppend) {
-      if (!properties->contains(name)) {
+      if (properties->find(name) == properties->end()) {
         DL_WARN("%s:%zd: warning: appending to undefined property \"%s\" (treating as assignment)",
                 ld_config_file_path,
                 cp.lineno(),
@@ -522,7 +526,7 @@ bool Config::read_binary_config(const char* ld_config_file_path,
         properties.get_strings(property_name_prefix + ".links", &lineno);
 
     for (const auto& linked_ns_name : linked_namespaces) {
-      if (!namespace_configs.contains(linked_ns_name)) {
+      if (namespace_configs.find(linked_ns_name) == namespace_configs.end()) {
         *error_msg = create_error_msg(ld_config_file_path,
                                       lineno,
                                       std::string("undefined namespace: ") + linked_ns_name);

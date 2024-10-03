@@ -142,11 +142,11 @@ static CompilationRequirements collectRequirements(const Arch& arch,
 
   auto new_end = std::remove_if(headers.begin(), headers.end(), [&arch](llvm::StringRef header) {
     for (const auto& it : ignored_headers) {
-      if (!it.second.contains(arch)) {
+      if (it.second.find(arch) == it.second.end()) {
         continue;
       }
 
-      if (header.ends_with("/" + it.first)) {
+      if (header.endswith("/" + it.first)) {
         return true;
       }
     }

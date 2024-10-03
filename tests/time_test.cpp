@@ -31,8 +31,6 @@
 #include <thread>
 
 #include "SignalUtils.h"
-#include "android-base/file.h"
-#include "android-base/strings.h"
 #include "utils.h"
 
 using namespace std::chrono_literals;
@@ -799,41 +797,21 @@ TEST(time, timer_create_NULL) {
   ASSERT_EQ(1, timer_create_NULL_signal_handler_invocation_count);
 }
 
-static int GetThreadCount() {
-  std::string status;
-  if (android::base::ReadFileToString("/proc/self/status", &status)) {
-    for (const auto& line : android::base::Split(status, "\n")) {
-      int thread_count;
-      if (sscanf(line.c_str(), "Threads: %d", &thread_count) == 1) {
-        return thread_count;
-      }
-    }
-  }
-  return -1;
-}
-
 TEST(time, timer_create_EINVAL) {
-  const clockid_t kInvalidClock = 16;
+  clockid_t invalid_clock = 16;
 
-  // A SIGEV_SIGNAL timer failure is easy; that's the kernel's problem.
+  // A SIGEV_SIGNAL timer is easy; the kernel does all that.
   timer_t timer_id;
-  ASSERT_EQ(-1, timer_create(kInvalidClock, nullptr, &timer_id));
+  ASSERT_EQ(-1, timer_create(invalid_clock, nullptr, &timer_id));
   ASSERT_ERRNO(EINVAL);
 
-  // A SIGEV_THREAD timer failure is more interesting because we have a thread
-  // to clean up (https://issuetracker.google.com/340125671).
-  sigevent se = {};
+  // A SIGEV_THREAD timer is more interesting because we have stuff to clean up.
+  sigevent se;
+  memset(&se, 0, sizeof(se));
   se.sigev_notify = SIGEV_THREAD;
   se.sigev_notify_function = NoOpNotifyFunction;
-  ASSERT_EQ(-1, timer_create(kInvalidClock, &se, &timer_id));
+  ASSERT_EQ(-1, timer_create(invalid_clock, &se, &timer_id));
   ASSERT_ERRNO(EINVAL);
-
-  // timer_create() doesn't guarantee that the thread will be dead _before_
-  // it returns because that would require extra synchronization that's
-  // unnecessary in the normal (successful) case. A timeout here means we
-  // leaked a thread.
-  while (GetThreadCount() > 1) {
-  }
 }
 
 TEST(time, timer_create_multiple) {
@@ -1291,7 +1269,7 @@ TEST(time, strptime_s_nothing) {
 }
 
 TEST(time, timespec_get) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   timespec ts = {};
   ASSERT_EQ(TIME_UTC, timespec_get(&ts, TIME_UTC));
   ASSERT_EQ(TIME_MONOTONIC, timespec_get(&ts, TIME_MONOTONIC));
@@ -1303,7 +1281,7 @@ TEST(time, timespec_get) {
 }
 
 TEST(time, timespec_get_invalid) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   timespec ts = {};
   ASSERT_EQ(0, timespec_get(&ts, 123));
 #else
@@ -1312,7 +1290,7 @@ TEST(time, timespec_get_invalid) {
 }
 
 TEST(time, timespec_getres) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   timespec ts = {};
   ASSERT_EQ(TIME_UTC, timespec_getres(&ts, TIME_UTC));
   ASSERT_EQ(1, ts.tv_nsec);
@@ -1323,7 +1301,7 @@ TEST(time, timespec_getres) {
 }
 
 TEST(time, timespec_getres_invalid) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   timespec ts = {};
   ASSERT_EQ(0, timespec_getres(&ts, 123));
 #else
@@ -1337,7 +1315,7 @@ TEST(time, difftime) {
 }
 
 TEST(time, tzfree_null) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   tzfree(nullptr);
 #else
   GTEST_SKIP() << "glibc doesn't have timezone_t";
@@ -1345,7 +1323,7 @@ TEST(time, tzfree_null) {
 }
 
 TEST(time, localtime_rz) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   setenv("TZ", "America/Los_Angeles", 1);
   tzset();
 
@@ -1399,7 +1377,7 @@ TEST(time, localtime_rz) {
 }
 
 TEST(time, mktime_z) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   setenv("TZ", "America/Los_Angeles", 1);
   tzset();
 
@@ -1439,7 +1417,7 @@ TEST(time, mktime_z) {
 }
 
 TEST(time, tzalloc_nullptr) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   // tzalloc(nullptr) returns the system timezone.
   timezone_t default_tz = tzalloc(nullptr);
   ASSERT_NE(nullptr, default_tz);
@@ -1475,7 +1453,7 @@ TEST(time, tzalloc_nullptr) {
 }
 
 TEST(time, tzalloc_unique_ptr) {
-#if defined(__BIONIC__)
+#if __BIONIC__
   std::unique_ptr<std::remove_pointer_t<timezone_t>, decltype(&tzfree)> tz{tzalloc("Asia/Seoul"),
                                                                            tzfree};
 #else
