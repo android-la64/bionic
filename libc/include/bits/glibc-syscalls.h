@@ -306,20 +306,11 @@
 #if defined(__NR_futex)
   #define SYS_futex __NR_futex
 #endif
-#if defined(__NR_futex_requeue)
-  #define SYS_futex_requeue __NR_futex_requeue
-#endif
 #if defined(__NR_futex_time64)
   #define SYS_futex_time64 __NR_futex_time64
 #endif
-#if defined(__NR_futex_wait)
-  #define SYS_futex_wait __NR_futex_wait
-#endif
 #if defined(__NR_futex_waitv)
   #define SYS_futex_waitv __NR_futex_waitv
-#endif
-#if defined(__NR_futex_wake)
-  #define SYS_futex_wake __NR_futex_wake
 #endif
 #if defined(__NR_futimesat)
   #define SYS_futimesat __NR_futimesat
@@ -552,9 +543,6 @@
 #if defined(__NR_listen)
   #define SYS_listen __NR_listen
 #endif
-#if defined(__NR_listmount)
-  #define SYS_listmount __NR_listmount
-#endif
 #if defined(__NR_listxattr)
   #define SYS_listxattr __NR_listxattr
 #endif
@@ -578,15 +566,6 @@
 #endif
 #if defined(__NR_lsetxattr)
   #define SYS_lsetxattr __NR_lsetxattr
-#endif
-#if defined(__NR_lsm_get_self_attr)
-  #define SYS_lsm_get_self_attr __NR_lsm_get_self_attr
-#endif
-#if defined(__NR_lsm_list_modules)
-  #define SYS_lsm_list_modules __NR_lsm_list_modules
-#endif
-#if defined(__NR_lsm_set_self_attr)
-  #define SYS_lsm_set_self_attr __NR_lsm_set_self_attr
 #endif
 #if defined(__NR_lstat)
   #define SYS_lstat __NR_lstat
@@ -692,6 +671,9 @@
 #endif
 #if defined(__NR_mremap)
   #define SYS_mremap __NR_mremap
+#endif
+#if defined(__NR_mseal)
+  #define SYS_mseal __NR_mseal
 #endif
 #if defined(__NR_msgctl)
   #define SYS_msgctl __NR_msgctl
@@ -1229,9 +1211,6 @@
 #endif
 #if defined(__NR_statfs64)
   #define SYS_statfs64 __NR_statfs64
-#endif
-#if defined(__NR_statmount)
-  #define SYS_statmount __NR_statmount
 #endif
 #if defined(__NR_statx)
   #define SYS_statx __NR_statx

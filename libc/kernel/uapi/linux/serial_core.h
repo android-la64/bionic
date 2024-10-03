@@ -98,5 +98,4 @@
 #define PORT_SUNIX 121
 #define PORT_LINFLEXUART 122
 #define PORT_SUNPLUS 123
-#define PORT_GENERIC (- 1)
 #endif

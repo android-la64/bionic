@@ -13,7 +13,4 @@
 #define __BITS_PER_LONG 32
 #endif
 #endif
-#ifndef __BITS_PER_LONG_LONG
-#define __BITS_PER_LONG_LONG 64
-#endif
 #endif

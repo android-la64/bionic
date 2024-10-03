@@ -154,6 +154,11 @@ cc_defaults {
                 keep_symbols: true,
             },
         },
+        loongarch64: {
+            strip: {
+                keep_symbols: true,
+            },
+        },
         x86: {
             strip: {
                 keep_symbols: true,
@@ -230,6 +235,9 @@ cc_library_static {
         },
         riscv64: {
             srcs: ["arch-riscv64/bionic/__set_tls.c"],
+        },
+        loongarch64: {
+            srcs: ["arch-loongarch64/bionic/__set_tls.c"],
         },
         x86: {
             srcs: [
@@ -389,6 +397,7 @@ cc_library_static {
         "upstream-freebsd/lib/libc/stdlib/hdestroy_r.c",
         "upstream-freebsd/lib/libc/stdlib/hsearch_r.c",
         "upstream-freebsd/lib/libc/stdlib/qsort.c",
+        "upstream-freebsd/lib/libc/stdlib/qsort_r.c",
         "upstream-freebsd/lib/libc/stdlib/quick_exit.c",
         "upstream-freebsd/lib/libc/string/wcpcpy.c",
         "upstream-freebsd/lib/libc/string/wcpncpy.c",
@@ -570,7 +579,6 @@ cc_library_static {
         "upstream-openbsd/lib/libc/stdio/fgetwc.c",
         "upstream-openbsd/lib/libc/stdio/fgetws.c",
         "upstream-openbsd/lib/libc/stdio/flags.c",
-        "upstream-openbsd/lib/libc/stdio/fpurge.c",
         "upstream-openbsd/lib/libc/stdio/fputwc.c",
         "upstream-openbsd/lib/libc/stdio/fputws.c",
         "upstream-openbsd/lib/libc/stdio/fvwrite.c",
@@ -624,10 +632,12 @@ cc_library_static {
         "upstream-openbsd/lib/libc/string/wcslcpy.c",
         "upstream-openbsd/lib/libc/string/wcswidth.c",
 
-        // This file is originally from OpenBSD, and benefits from
-        // being compiled with openbsd-compat.h.
-        // TODO: clean this up instead.
+        // These files are originally from OpenBSD,
+        // and benefit from being compiled with openbsd-compat.h.
+        // TODO: clean them up instead.
         "bionic/fts.c",
+        "stdio/vfprintf.cpp",
+        "stdio/vfwprintf.cpp",
     ],
 
     // Each architecture has optimized versions of some routines,
@@ -663,6 +673,14 @@ cc_library_static {
                 "upstream-openbsd/lib/libc/string/strlcpy.c",
             ],
         },
+        loongarch64: {
+            srcs: [
+                "upstream-openbsd/lib/libc/string/memrchr.c",
+                "upstream-openbsd/lib/libc/string/stpncpy.c",
+                "upstream-openbsd/lib/libc/string/strlcat.c",
+                "upstream-openbsd/lib/libc/string/strlcpy.c",
+            ],
+        },
         x86: {
             srcs: [
                 // x86 has custom implementations of all of these.
@@ -686,9 +704,11 @@ cc_library_static {
 
     local_include_dirs: [
         "private",
-        "upstream-openbsd/android/include",
         "stdio",
-        "upstream-openbsd/lib/libc/include",
+        "upstream-openbsd/android/include/",
+        "upstream-openbsd/lib/libc/gdtoa/",
+        "upstream-openbsd/lib/libc/include/",
+        "upstream-openbsd/lib/libc/stdio/",
     ],
 
     name: "libc_openbsd",
@@ -698,8 +718,6 @@ cc_library_static {
     name: "libc_openbsd_large_stack",
     defaults: ["libc_defaults"],
     srcs: [
-        "stdio/vfprintf.cpp",
-        "stdio/vfwprintf.cpp",
         "upstream-openbsd/lib/libc/string/memmem.c",
         "upstream-openbsd/lib/libc/string/strstr.c",
     ],
@@ -710,11 +728,7 @@ cc_library_static {
     ],
 
     local_include_dirs: [
-        "private",
         "upstream-openbsd/android/include/",
-        "upstream-openbsd/lib/libc/gdtoa/",
-        "upstream-openbsd/lib/libc/include/",
-        "upstream-openbsd/lib/libc/stdio/",
     ],
 }
 
@@ -818,6 +832,11 @@ cc_library_static {
                 "arch-arm64/string/__memset_chk.S",
             ],
         },
+        loongarch64: {
+            srcs: [
+                "arch-loongarch64/string/memset_chk.c",
+            ],
+        },
         riscv64: {
             srcs: [
                 "arch-riscv64/string/__memset_chk.S",
@@ -915,6 +934,7 @@ cc_library_static {
         "bionic/isatty.cpp",
         "bionic/killpg.cpp",
         "bionic/langinfo.cpp",
+        "bionic/lchmod.cpp",
         "bionic/lchown.cpp",
         "bionic/lfs64_support.cpp",
         "bionic/libc_init_common.cpp",
@@ -1031,7 +1051,6 @@ cc_library_static {
         "bionic/thread_private.cpp",
         "bionic/threads.cpp",
         "bionic/time.cpp",
-        "bionic/time_l.cpp",
         "bionic/tmpfile.cpp",
         "bionic/umount.cpp",
         "bionic/unlink.cpp",
@@ -1167,6 +1186,35 @@ cc_library_static {
                 "arch-riscv64/string/strncmp.c",
                 "arch-riscv64/string/strncpy.c",
                 "arch-riscv64/string/strnlen.c",
+
+                "bionic/strchrnul.cpp",
+                "bionic/strrchr.cpp",
+            ],
+        },
+
+        loongarch64: {
+            srcs: [
+                "arch-loongarch64/bionic/__bionic_clone.S",
+                "arch-loongarch64/bionic/_exit_with_stack_teardown.S",
+                "arch-loongarch64/bionic/setjmp.S",
+                "arch-loongarch64/bionic/syscall.S",
+                "arch-loongarch64/bionic/vfork.S",
+
+                "arch-loongarch64/string/memchr.c",
+                "arch-loongarch64/string/memcmp.c",
+                "arch-loongarch64/string/memcpy.c",
+                "arch-loongarch64/string/memmove.c",
+                "arch-loongarch64/string/memset.c",
+                "arch-loongarch64/string/stpcpy.c",
+                "arch-loongarch64/string/strcat.c",
+                "arch-loongarch64/string/strchr.c",
+                "arch-loongarch64/string/strcmp.c",
+                "arch-loongarch64/string/strcpy.c",
+                "arch-loongarch64/string/strlen.c",
+                "arch-loongarch64/string/strncat.c",
+                "arch-loongarch64/string/strncmp.c",
+                "arch-loongarch64/string/strncpy.c",
+                "arch-loongarch64/string/strnlen.c",
 
                 "bionic/strchrnul.cpp",
                 "bionic/strrchr.cpp",
@@ -1316,6 +1364,14 @@ genrule {
 }
 
 genrule {
+    name: "syscalls-loongarch64",
+    out: ["syscalls-loongarch64.S"],
+    srcs: ["SYSCALLS.TXT"],
+    tools: ["gensyscalls"],
+    cmd: "$(location gensyscalls) loongarch64 $(in) > $(out)",
+}
+
+genrule {
     name: "syscalls-riscv64",
     out: ["syscalls-riscv64.S"],
     srcs: ["SYSCALLS.TXT"],
@@ -1348,6 +1404,9 @@ cc_library_static {
         },
         arm64: {
             srcs: [":syscalls-arm64"],
+        },
+        loongarch64: {
+            srcs: [":syscalls-loongarch64"],
         },
         riscv64: {
             srcs: [":syscalls-riscv64"],
@@ -1415,43 +1474,13 @@ cc_library_static {
 }
 
 // ========================================================
-// libc_static_dispatch.a --- libc.a ifuncs
+// libc_static_dispatch.a/libc_dynamic_dispatch.a --- string/memory "ifuncs"
+// (Actually ifuncs for libc.so, but a home-grown alternative for libc.a.)
 // ========================================================
-cc_library_static {
+
+cc_defaults {
+    name: "libc_dispatch_defaults",
     defaults: ["libc_defaults"],
-    name: "libc_static_dispatch",
-
-    arch: {
-        x86_64: {
-            srcs: ["arch-x86_64/static_function_dispatch.S"],
-        },
-        x86: {
-            srcs: ["arch-x86/static_function_dispatch.S"],
-        },
-        arm: {
-            srcs: ["arch-arm/static_function_dispatch.S"],
-        },
-        arm64: {
-            srcs: ["arch-arm64/static_function_dispatch.S"],
-        },
-        riscv64: {
-            srcs: ["arch-riscv64/static_function_dispatch.S"],
-        },
-    },
-}
-
-// ========================================================
-// libc_dynamic_dispatch.a --- libc.so ifuncs
-// ========================================================
-cc_library_static {
-    defaults: ["libc_defaults"],
-    name: "libc_dynamic_dispatch",
-
-    cflags: [
-        "-ffreestanding",
-        "-fno-stack-protector",
-        "-fno-jump-tables",
-    ],
     arch: {
         x86_64: {
             srcs: ["arch-x86_64/dynamic_function_dispatch.cpp"],
@@ -1465,10 +1494,37 @@ cc_library_static {
         arm64: {
             srcs: ["arch-arm64/dynamic_function_dispatch.cpp"],
         },
+        loongarch64: {
+            srcs: ["arch-loongarch64/dynamic_function_dispatch.cpp"],
+        },
         riscv64: {
             srcs: ["arch-riscv64/dynamic_function_dispatch.cpp"],
         },
     },
+    // Prevent the compiler from inserting calls to libc/taking the address of
+    // a jump table from within an ifunc (or, in the static case, code that
+    // can be executed arbitrarily early).
+    cflags: [
+        "-ffreestanding",
+        "-fno-stack-protector",
+        "-fno-jump-tables",
+    ],
+}
+
+cc_library_static {
+    name: "libc_static_dispatch",
+    defaults: ["libc_dispatch_defaults"],
+    cflags: [
+        "-DBIONIC_STATIC_DISPATCH",
+    ],
+}
+
+cc_library_static {
+    name: "libc_dynamic_dispatch",
+    defaults: ["libc_dispatch_defaults"],
+    cflags: [
+        "-DBIONIC_DYNAMIC_DISPATCH",
+    ],
 }
 
 // ========================================================
@@ -1647,6 +1703,9 @@ cc_defaults {
         arm64: {
             version_script: ":libc.arm64.map",
         },
+        loongarch64: {
+            version_script: ":libc.loongarch64.map",
+        },
         riscv64: {
             version_script: ":libc.riscv64.map",
         },
@@ -1696,7 +1755,7 @@ cc_library {
         symbol_file: "libc.map.txt",
         export_headers_as_system: true,
         export_preprocessed_headers: ["include"],
-        export_llndk_headers: ["libc_llndk_headers"],
+        export_llndk_headers: ["libc_uapi_headers"],
     },
 }
 
@@ -1741,6 +1800,14 @@ genrule {
     srcs: ["libc.map.txt"],
     tools: ["generate-version-script"],
     cmd: "$(location generate-version-script) arm64 $(in) $(out)",
+}
+
+genrule {
+    name: "libc.loongarch64.map",
+    out: ["libc.loongarch64.map.txt"],
+    srcs: ["libc.map.txt"],
+    tools: ["generate-version-script"],
+    cmd: "$(location generate-version-script) loongarch64 $(in) $(out)",
 }
 
 genrule {
@@ -1807,7 +1874,7 @@ cc_library_headers {
 }
 
 cc_library_headers {
-    name: "libc_llndk_headers",
+    name: "libc_uapi_headers",
     visibility: [
         "//external/musl",
     ],
@@ -1856,6 +1923,9 @@ cc_library_headers {
         riscv64: {
             export_system_include_dirs: ["kernel/uapi/asm-riscv"],
         },
+        loongarch64: {
+            export_system_include_dirs: ["kernel/uapi/asm-loongarch64"],
+        },
         x86: {
             export_system_include_dirs: ["kernel/uapi/asm-x86"],
         },
@@ -1902,13 +1972,13 @@ cc_library_headers {
     target: {
         android: {
             export_system_include_dirs: ["include"],
-            header_libs: ["libc_llndk_headers"],
-            export_header_lib_headers: ["libc_llndk_headers"],
+            header_libs: ["libc_uapi_headers"],
+            export_header_lib_headers: ["libc_uapi_headers"],
         },
         linux_bionic: {
             export_system_include_dirs: ["include"],
-            header_libs: ["libc_llndk_headers"],
-            export_header_lib_headers: ["libc_llndk_headers"],
+            header_libs: ["libc_uapi_headers"],
+            export_header_lib_headers: ["libc_uapi_headers"],
         },
     },
 }
@@ -1953,6 +2023,9 @@ cc_library {
         arm64: {
             version_script: ":libstdc++.arm64.map",
         },
+        loongarch64: {
+            version_script: ":libstdc++.loongarch64.map",
+        },
         riscv64: {
             version_script: ":libstdc++.riscv64.map",
         },
@@ -1979,6 +2052,14 @@ genrule {
     srcs: ["libstdc++.map.txt"],
     tools: ["generate-version-script"],
     cmd: "$(location generate-version-script) arm64 $(in) $(out)",
+}
+
+genrule {
+    name: "libstdc++.loongarch64.map",
+    out: ["libstdc++.loongarch64.map.txt"],
+    srcs: ["libstdc++.map.txt"],
+    tools: ["generate-version-script"],
+    cmd: "$(location generate-version-script) loongarch64 $(in) $(out)",
 }
 
 genrule {
@@ -2212,6 +2293,11 @@ cc_library_static {
                 "arch-arm64/string/__memcpy_chk.S",
             ],
         },
+        loongarch64: {
+            srcs: [
+                "arch-loongarch64/string/__memcpy_chk.S",
+            ],
+        },
         riscv64: {
             srcs: [
                 "arch-riscv64/string/__memcpy_chk.S",
@@ -2226,19 +2312,31 @@ cc_library_static {
     nocrt: true,
     stl: "none",
     visibility: [
-        "//packages/modules/Virtualization/vmbase",
+        "//packages/modules/Virtualization/libs/libvmbase",
     ],
+
+    // b/358211032: This library gets linked into a rust rlib.  Disable LTO
+    // until cross-language lto is supported.
+    lto: {
+        never: true,
+    },
 }
 
 // ========================================================
 // NDK headers.
 // ========================================================
 
-versioned_ndk_headers {
+ndk_headers {
     name: "common_libc",
     from: "include",
     to: "",
+    srcs: ["include/**/*.h"],
     license: "NOTICE",
+    // These don't pass the bad verification we do because many of them are
+    // arch-specific, and they aren't necessarily independently includable.
+    // That's not much of a problem though, since C-incompaitibilities in the
+    // UAPI headers should run into problems long before they reach us.
+    skip_verification: true,
 }
 
 ndk_headers {
@@ -2258,6 +2356,7 @@ ndk_headers {
         "kernel/uapi/xen/**/*.h",
     ],
     license: "NOTICE",
+    skip_verification: true,
 }
 
 ndk_headers {
@@ -2274,6 +2373,7 @@ ndk_headers {
     to: "scsi",
     srcs: ["kernel/android/scsi/**/*.h"],
     license: "NOTICE",
+    skip_verification: true,
 }
 
 ndk_headers {
@@ -2282,6 +2382,7 @@ ndk_headers {
     to: "arm-linux-androideabi",
     srcs: ["kernel/uapi/asm-arm/**/*.h"],
     license: "NOTICE",
+    skip_verification: true,
 }
 
 ndk_headers {
@@ -2290,6 +2391,16 @@ ndk_headers {
     to: "aarch64-linux-android",
     srcs: ["kernel/uapi/asm-arm64/**/*.h"],
     license: "NOTICE",
+    skip_verification: true,
+}
+
+ndk_headers {
+    name: "libc_asm_loongarch64",
+    from: "kernel/uapi/asm-loongarch64",
+    to: "loongarch64-linux-android",
+    srcs: ["kernel/uapi/asm-loongarch64/**/*.h"],
+    license: "NOTICE",
+    skip_verification: true,
 }
 
 ndk_headers {
@@ -2298,6 +2409,7 @@ ndk_headers {
     to: "riscv64-linux-android",
     srcs: ["kernel/uapi/asm-riscv/**/*.h"],
     license: "NOTICE",
+    skip_verification: true,
 }
 
 ndk_headers {
@@ -2306,6 +2418,7 @@ ndk_headers {
     to: "i686-linux-android",
     srcs: ["kernel/uapi/asm-x86/**/*.h"],
     license: "NOTICE",
+    skip_verification: true,
 }
 
 ndk_headers {
@@ -2314,6 +2427,7 @@ ndk_headers {
     to: "x86_64-linux-android",
     srcs: ["kernel/uapi/asm-x86/**/*.h"],
     license: "NOTICE",
+    skip_verification: true,
 }
 
 ndk_library {
@@ -2327,6 +2441,7 @@ ndk_library {
         "libc_kernel_android_scsi",
         "libc_asm_arm",
         "libc_asm_arm64",
+        "libc_asm_loongarch64",
         "libc_asm_riscv64",
         "libc_asm_x86",
         "libc_asm_x86_64",
@@ -2378,6 +2493,15 @@ cc_object {
     defaults: ["libseccomp_gen_syscall_nrs_defaults"],
     local_include_dirs: [
         "kernel/uapi/asm-arm64",
+        "kernel/uapi",
+    ],
+}
+
+cc_object {
+    name: "libseccomp_gen_syscall_nrs_loongarch64",
+    defaults: ["libseccomp_gen_syscall_nrs_defaults"],
+    local_include_dirs: [
+        "kernel/uapi/asm-loongarch64",
         "kernel/uapi",
     ],
 }
@@ -2441,6 +2565,9 @@ cc_genrule {
                 ":libseccomp_gen_syscall_nrs_arm",
                 ":libseccomp_gen_syscall_nrs_arm64",
             ],
+        },
+        loongarch64: {
+            srcs: [":libseccomp_gen_syscall_nrs_loongarch64"],
         },
         riscv64: {
             srcs: [":libseccomp_gen_syscall_nrs_riscv64"],
@@ -2558,6 +2685,26 @@ cc_genrule {
 }
 
 cc_genrule {
+    name: "libseccomp_policy_app_zygote_sources_loongarch64",
+    recovery_available: true,
+    cmd: "$(location genseccomp) --out-dir=$(genDir) --name-modifier=app_zygote $(in)",
+    tools: ["genseccomp"],
+    srcs: [
+        ":seccomp_syscalls_sources_zygote",
+        ":libseccomp_gen_syscall_nrs_loongarch64",
+    ],
+    out: [
+        "loongarch64_app_zygote_policy.cpp",
+    ],
+    enabled: false,
+    arch: {
+        loongarch64: {
+            enabled: true,
+        },
+    },
+}
+
+cc_genrule {
     name: "libseccomp_policy_app_zygote_sources_riscv64",
     recovery_available: true,
     cmd: "$(location genseccomp) --out-dir=$(genDir) --name-modifier=app_zygote $(in)",
@@ -2622,6 +2769,26 @@ cc_genrule {
             enabled: true,
         },
         arm64: {
+            enabled: true,
+        },
+    },
+}
+
+cc_genrule {
+    name: "libseccomp_policy_app_sources_loongarch64",
+    recovery_available: true,
+    cmd: "$(location genseccomp) --out-dir=$(genDir) --name-modifier=app $(in)",
+    tools: ["genseccomp"],
+    srcs: [
+        ":seccomp_syscalls_sources_app",
+        ":libseccomp_gen_syscall_nrs_loongarch64",
+    ],
+    out: [
+        "loongarch64_app_policy.cpp",
+    ],
+    enabled: false,
+    arch: {
+        loongarch64: {
             enabled: true,
         },
     },
@@ -2698,6 +2865,26 @@ cc_genrule {
 }
 
 cc_genrule {
+    name: "libseccomp_policy_system_sources_loongarch64",
+    recovery_available: true,
+    cmd: "$(location genseccomp) --out-dir=$(genDir) --name-modifier=system $(in)",
+    tools: ["genseccomp"],
+    srcs: [
+        ":seccomp_syscalls_sources_system",
+        ":libseccomp_gen_syscall_nrs_loongarch64",
+    ],
+    out: [
+        "loongarch64_system_policy.cpp",
+    ],
+    enabled: false,
+    arch: {
+        loongarch64: {
+            enabled: true,
+        },
+    },
+}
+
+cc_genrule {
     name: "libseccomp_policy_system_sources_riscv64",
     recovery_available: true,
     cmd: "$(location genseccomp) --out-dir=$(genDir) --name-modifier=system $(in)",
@@ -2735,6 +2922,13 @@ cc_library {
                 "libseccomp_policy_app_sources_arm",
                 "libseccomp_policy_app_zygote_sources_arm",
                 "libseccomp_policy_system_sources_arm",
+            ],
+        },
+        loongarch64: {
+            generated_sources: [
+                "libseccomp_policy_app_sources_loongarch64",
+                "libseccomp_policy_app_zygote_sources_loongarch64",
+                "libseccomp_policy_system_sources_loongarch64",
             ],
         },
         riscv64: {
@@ -2918,6 +3112,9 @@ cc_genrule {
         arm64: {
             srcs: ["kernel/uapi/asm-arm64/**/*.h"],
         },
+        loongarch64: {
+            srcs: ["kernel/uapi/asm-loongarch64/**/*.h"],
+        },
         x86: {
             srcs: ["kernel/uapi/asm-x86/**/*.h"],
         },
@@ -2960,6 +3157,11 @@ cc_genrule {
         arm64: {
             dist: {
                 suffix: "_arm64",
+            },
+        },
+        loongarch64: {
+            dist: {
+                suffix: "_loongarch64",
             },
         },
         riscv64: {

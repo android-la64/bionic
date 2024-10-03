@@ -72,6 +72,9 @@ cc_library {
         arm64: {
             version_script: ":libdl.arm64.map",
         },
+        loongarch64: {
+            version_script: ":libdl.loongarch64.map",
+        },
         riscv64: {
             version_script: ":libdl.riscv64.map",
         },
@@ -195,6 +198,14 @@ genrule {
     srcs: ["libdl.map.txt"],
     tools: ["generate-version-script"],
     cmd: "$(location generate-version-script) arm64 $(in) $(out)",
+}
+
+genrule {
+    name: "libdl.loongarch64.map",
+    out: ["libdl.loongarch64.map.txt"],
+    srcs: ["libdl.map.txt"],
+    tools: ["generate-version-script"],
+    cmd: "$(location generate-version-script) loongarch64 $(in) $(out)",
 }
 
 genrule {

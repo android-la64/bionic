@@ -176,6 +176,13 @@ size_t StaticTlsLayout::reserve_exe_segment_and_tcb(const TlsSegment* seg,
   offset_exe_ = pair.before;
   offset_bionic_tcb_ = pair.after;
 
+#elif defined(__loongarch__)
+  static_assert(MAX_TLS_SLOT == -1, "Last slot of bionic_tcb must be slot #(-1) on loongarch");
+
+  auto pair = reserve_tp_pair(TlsAlignedSize::of_type<bionic_tcb>(), seg->aligned_size);
+  offset_bionic_tcb_ = pair.before;
+  offset_exe_ = pair.after;
+
 #elif defined(__riscv)
   static_assert(MAX_TLS_SLOT == -1, "Last slot of bionic_tcb must be slot #(-1) on riscv");
 

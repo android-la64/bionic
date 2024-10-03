@@ -12,11 +12,9 @@
 #define PTP_RISING_EDGE (1 << 1)
 #define PTP_FALLING_EDGE (1 << 2)
 #define PTP_STRICT_FLAGS (1 << 3)
-#define PTP_EXT_OFFSET (1 << 4)
 #define PTP_EXTTS_EDGES (PTP_RISING_EDGE | PTP_FALLING_EDGE)
-#define PTP_EXTTS_VALID_FLAGS (PTP_ENABLE_FEATURE | PTP_RISING_EDGE | PTP_FALLING_EDGE | PTP_STRICT_FLAGS | PTP_EXT_OFFSET)
+#define PTP_EXTTS_VALID_FLAGS (PTP_ENABLE_FEATURE | PTP_RISING_EDGE | PTP_FALLING_EDGE | PTP_STRICT_FLAGS)
 #define PTP_EXTTS_V1_VALID_FLAGS (PTP_ENABLE_FEATURE | PTP_RISING_EDGE | PTP_FALLING_EDGE)
-#define PTP_EXTTS_EVENT_VALID (PTP_ENABLE_FEATURE)
 #define PTP_PEROUT_ONE_SHOT (1 << 0)
 #define PTP_PEROUT_DUTY_CYCLE (1 << 1)
 #define PTP_PEROUT_PHASE (1 << 2)
@@ -106,8 +104,6 @@ struct ptp_pin_desc {
 #define PTP_PIN_SETFUNC2 _IOW(PTP_CLK_MAGIC, 16, struct ptp_pin_desc)
 #define PTP_SYS_OFFSET_PRECISE2 _IOWR(PTP_CLK_MAGIC, 17, struct ptp_sys_offset_precise)
 #define PTP_SYS_OFFSET_EXTENDED2 _IOWR(PTP_CLK_MAGIC, 18, struct ptp_sys_offset_extended)
-#define PTP_MASK_CLEAR_ALL _IO(PTP_CLK_MAGIC, 19)
-#define PTP_MASK_EN_SINGLE _IOW(PTP_CLK_MAGIC, 20, unsigned int)
 struct ptp_extts_event {
   struct ptp_clock_time t;
   unsigned int index;
