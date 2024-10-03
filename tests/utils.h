@@ -38,7 +38,6 @@
 #endif
 
 #include <atomic>
-#include <iomanip>
 #include <string>
 #include <regex>
 
@@ -254,7 +253,7 @@ class ExecTestHelper {
     AssertChildExited(pid, expected_exit_status, &error_msg);
     if (expected_output_regex != nullptr) {
       if (!std::regex_search(output_, std::regex(expected_output_regex))) {
-        FAIL() << "regex " << std::quoted(expected_output_regex) << " didn't match " << std::quoted(output_);
+        FAIL() << "regex " << expected_output_regex << " didn't match " << output_;
       }
     }
   }
@@ -316,8 +315,6 @@ static inline bool running_with_mte() {
 }
 
 bool IsLowRamDevice();
-
-int64_t NanoTime();
 
 class Errno {
  public:

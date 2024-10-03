@@ -13,6 +13,9 @@
  * ====================================================
  */
 
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
+
 /*
  * See e_jn.c for complete comments.
  */

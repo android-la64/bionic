@@ -1,9 +1,21 @@
-/*
- * This file is auto-generated. Modifications will be lost.
- *
- * See https://android.googlesource.com/platform/bionic/+/master/libc/kernel/
- * for more information.
- */
+/****************************************************************************
+ ****************************************************************************
+ ***
+ ***   This header was automatically generated from a Linux kernel header
+ ***   of the same name, to make information necessary for userspace to
+ ***   call into the kernel available to libc.  It contains only constants,
+ ***   structures, and macros generated from the original header, and thus,
+ ***   contains no copyrightable information.
+ ***
+ ***   To edit the content of this header, modify the corresponding
+ ***   source file (e.g. under external/kernel-headers/original/) then
+ ***   run bionic/libc/kernel/tools/update_all.py
+ ***
+ ***   Any manual change here will be lost the next time this script will
+ ***   be run. You've been warned!
+ ***
+ ****************************************************************************
+ ****************************************************************************/
 #ifndef _UAPI_ASM_GENERIC_SIGINFO_H
 #define _UAPI_ASM_GENERIC_SIGINFO_H
 #include <linux/compiler.h>
@@ -173,8 +185,7 @@ typedef struct siginfo {
 #define SEGV_ADIPERR 7
 #define SEGV_MTEAERR 8
 #define SEGV_MTESERR 9
-#define SEGV_CPERR 10
-#define NSIGSEGV 10
+#define NSIGSEGV 9
 #define BUS_ADRALN 1
 #define BUS_ADRERR 2
 #define BUS_OBJERR 3

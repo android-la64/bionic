@@ -28,7 +28,8 @@ using namespace std::literals;
 
 #if defined(__BIONIC__)
 
-#include <sys/system_properties.h>
+#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+#include <sys/_system_properties.h>
 
 #include <benchmark/benchmark.h>
 #include <system_properties/system_properties.h>
@@ -39,10 +40,9 @@ struct LocalPropertyTestState {
       : nprops(nprops), valid(false), system_properties_(false) {
     static const char prop_name_chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.";
 
-    valid = system_properties_.AreaInit(dir_.path, nullptr, true);
+    valid = system_properties_.AreaInit(dir_.path, nullptr);
     if (!valid) {
-      printf("Failed to initialize properties, terminating...\n");
-      exit(1);
+      return;
     }
 
     names = new char* [nprops];
@@ -100,9 +100,6 @@ struct LocalPropertyTestState {
     }
 
     system_properties_.contexts_->FreeAndUnmap();
-    if (system_properties_.appcompat_override_contexts_) {
-      system_properties_.appcompat_override_contexts_->FreeAndUnmap();
-    }
 
     for (int i = 0; i < nprops; i++) {
       delete names[i];

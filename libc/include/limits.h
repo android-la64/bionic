@@ -136,9 +136,6 @@
 #define IOV_MAX 1024
 #define SEM_VALUE_MAX 0x3fffffff
 
-/** Do not use: prefer getline() or asprintf() rather than hard-coding an arbitrary size. */
-#define LINE_MAX _POSIX2_LINE_MAX
-
 /* POSIX says these belong in <unistd.h> but BSD has some in <limits.h>. */
 #include <bits/posix_limits.h>
 
@@ -148,15 +145,9 @@
 
 /* >= _POSIX_THREAD_DESTRUCTOR_ITERATIONS */
 #define PTHREAD_DESTRUCTOR_ITERATIONS 4
-
-/**
- * The number of calls to pthread_key_create() without intervening calls to
- * pthread_key_delete() that are guaranteed to succeed. See pthread_key_create()
- * for more details and ways to avoid hitting this limit.
- */
+/* >= _POSIX_THREAD_KEYS_MAX */
 #define PTHREAD_KEYS_MAX 128
-
-/** bionic has no specific limit on the number of threads. */
+/* bionic has no specific limit */
 #undef PTHREAD_THREADS_MAX
 
 #endif /* !_LIMITS_H_ */

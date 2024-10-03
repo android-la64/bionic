@@ -83,7 +83,7 @@ std::vector<std::string> collectHeaders(const std::string& directory,
 }
 
 llvm::StringRef StripPrefix(llvm::StringRef string, llvm::StringRef prefix) {
-  if (string.starts_with(prefix)) {
+  if (string.startswith(prefix)) {
     return string.drop_front(prefix.size());
   }
   return string;

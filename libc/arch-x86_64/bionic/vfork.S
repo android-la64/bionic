@@ -31,7 +31,8 @@
 
 // This custom code preserves the return address across the system call.
 
-ENTRY_WEAK_FOR_NATIVE_BRIDGE(vfork)
+ENTRY(vfork)
+__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(vfork)
   popq    %rdi  // Grab the return address.
 
   // Set cached_pid_ to 0, vforked_ to 1, and stash the previous value.

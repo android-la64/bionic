@@ -41,19 +41,19 @@ ENTRY_PRIVATE(__bionic_clone)
   ecall
 
   # Are we the child?
-  beqz a0, L(child)
+  beqz a0, .L_bc_child
 
   # Did the clone(2) fail?
-  bltz a0, L(failure)
+  bltz a0, .L_bc_failure
   # Nope, we're the parent, and our work here is done.
   ret
 
-L(failure):
+.L_bc_failure:
   # Set errno if something went wrong.
   neg a0, a0
   tail __set_errno_internal
 
-L(child):
+.L_bc_child:
   # We're in the child now. Set the end of the frame record chain.
   li fp, 0
   # Setting ra to 0 will make the unwinder stop at __start_thread.

@@ -41,11 +41,7 @@
 
 #include <async_safe/log.h>
 
-#ifdef LARGE_SYSTEM_PROPERTY_NODE
-constexpr size_t PA_SIZE = 1024 * 1024;
-#else
 constexpr size_t PA_SIZE = 128 * 1024;
-#endif
 constexpr uint32_t PROP_AREA_MAGIC = 0x504f5250;
 constexpr uint32_t PROP_AREA_VERSION = 0xfc6ed0ab;
 
@@ -339,7 +335,8 @@ bool prop_area::foreach_property(prop_trie_node* const trie,
 
   uint_least32_t left_offset = atomic_load_explicit(&trie->left, memory_order_relaxed);
   if (left_offset != 0) {
-    if (!foreach_property(to_prop_trie_node(&trie->left), propfn, cookie)) return false;
+    const int err = foreach_property(to_prop_trie_node(&trie->left), propfn, cookie);
+    if (err < 0) return false;
   }
   uint_least32_t prop_offset = atomic_load_explicit(&trie->prop, memory_order_relaxed);
   if (prop_offset != 0) {
@@ -349,11 +346,13 @@ bool prop_area::foreach_property(prop_trie_node* const trie,
   }
   uint_least32_t children_offset = atomic_load_explicit(&trie->children, memory_order_relaxed);
   if (children_offset != 0) {
-    if (!foreach_property(to_prop_trie_node(&trie->children), propfn, cookie)) return false;
+    const int err = foreach_property(to_prop_trie_node(&trie->children), propfn, cookie);
+    if (err < 0) return false;
   }
   uint_least32_t right_offset = atomic_load_explicit(&trie->right, memory_order_relaxed);
   if (right_offset != 0) {
-    if (!foreach_property(to_prop_trie_node(&trie->right), propfn, cookie)) return false;
+    const int err = foreach_property(to_prop_trie_node(&trie->right), propfn, cookie);
+    if (err < 0) return false;
   }
 
   return true;
@@ -368,6 +367,6 @@ bool prop_area::add(const char* name, unsigned int namelen, const char* value,
   return find_property(root_node(), name, namelen, value, valuelen, true);
 }
 
-bool prop_area::foreach(void (*propfn)(const prop_info* pi, void* cookie), void* cookie) {
+bool prop_area::foreach (void (*propfn)(const prop_info* pi, void* cookie), void* cookie) {
   return foreach_property(root_node(), propfn, cookie);
 }

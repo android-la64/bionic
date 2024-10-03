@@ -48,8 +48,6 @@ constexpr uint64_t ABORT_ON_ERROR = 0x800;
 constexpr uint64_t VERBOSE = 0x1000;
 constexpr uint64_t CHECK_UNREACHABLE_ON_SIGNAL = 0x2000;
 constexpr uint64_t BACKTRACE_SPECIFIC_SIZES = 0x4000;
-constexpr uint64_t LOG_ALLOCATOR_STATS_ON_SIGNAL = 0x8000;
-constexpr uint64_t LOG_ALLOCATOR_STATS_ON_EXIT = 0x10000;
 
 // In order to guarantee posix compliance, set the minimum alignment
 // to 8 bytes for 32 bit systems and 16 bytes for 64 bit systems.
@@ -99,11 +97,8 @@ class Config {
   int record_allocs_signal() const { return record_allocs_signal_; }
   size_t record_allocs_num_entries() const { return record_allocs_num_entries_; }
   const std::string& record_allocs_file() const { return record_allocs_file_; }
-  bool record_allocs_on_exit() const { return record_allocs_on_exit_; }
 
   int check_unreachable_signal() const { return check_unreachable_signal_; }
-
-  int log_allocator_stats_signal() const { return log_allocator_stats_signal_; }
 
  private:
   struct OptionInfo {
@@ -141,7 +136,6 @@ class Config {
 
   bool SetRecordAllocs(const std::string& option, const std::string& value);
   bool SetRecordAllocsFile(const std::string& option, const std::string& value);
-  bool SetRecordAllocsOnExit(const std::string& option, const std::string& value);
 
   bool VerifyValueEmpty(const std::string& option, const std::string& value);
 
@@ -173,7 +167,6 @@ class Config {
   int record_allocs_signal_ = 0;
   size_t record_allocs_num_entries_ = 0;
   std::string record_allocs_file_;
-  bool record_allocs_on_exit_ = false;
 
   uint64_t options_ = 0;
   uint8_t fill_alloc_value_;
@@ -182,5 +175,4 @@ class Config {
   uint8_t rear_guard_value_;
 
   int check_unreachable_signal_ = 0;
-  int log_allocator_stats_signal_ = 0;
 };

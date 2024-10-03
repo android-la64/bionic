@@ -31,7 +31,6 @@
 #include <unistd.h>
 
 #include <benchmark/benchmark.h>
-#include "ScopedDecayTimeRestorer.h"
 #include "util.h"
 
 #if defined(__BIONIC__)
@@ -105,8 +104,6 @@ void BenchmarkMalloc(MallocEntry entries[], size_t total_entries, size_t max_all
 #include "malloc_sql.h"
 
 static void BM_malloc_sql_trace_default(benchmark::State& state) {
-  ScopedDecayTimeRestorer restorer;
-
   // The default is expected to be a zero decay time.
   mallopt(M_DECAY_TIME, 0);
 
@@ -118,14 +115,14 @@ static void BM_malloc_sql_trace_default(benchmark::State& state) {
 BIONIC_BENCHMARK(BM_malloc_sql_trace_default);
 
 static void BM_malloc_sql_trace_decay1(benchmark::State& state) {
-  ScopedDecayTimeRestorer restorer;
-
   mallopt(M_DECAY_TIME, 1);
 
   for (auto _ : state) {
     BenchmarkMalloc(g_sql_entries, sizeof(g_sql_entries) / sizeof(MallocEntry),
                     kMaxSqlAllocSlots);
   }
+
+  mallopt(M_DECAY_TIME, 0);
 }
 BIONIC_BENCHMARK(BM_malloc_sql_trace_decay1);
 

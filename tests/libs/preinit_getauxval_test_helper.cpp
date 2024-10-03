@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <sys/auxv.h>
 
-#include "CHECK.h"
+#include "libs_utils.h"
 
 static unsigned long g_AT_RANDOM;
 static unsigned long g_AT_PAGESZ;

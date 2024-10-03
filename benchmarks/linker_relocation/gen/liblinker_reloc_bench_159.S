@@ -63,7 +63,7 @@ nop
 b__MGIA8gvalkzy210KZYPbzzragR:
 .space __SIZEOF_POINTER__
 .data
-.weak b__MGIA8gvalkzy28ZrzCbbyGVYv112RRR
+.globl b__MGIA8gvalkzy28ZrzCbbyGVYv112RRR
 .type b__MGIA8gvalkzy28ZrzCbbyGVYv112RRR,%object
 b__MGIA8gvalkzy28ZrzCbbyGVYv112RRR:
 .space __SIZEOF_POINTER__
@@ -558,7 +558,7 @@ nop
 b__MAX8gvalkzy210KZYRyrzrag12HafvtarqGrkgRw:
 nop
 .data
-.weak b__MGIA8gvalkzy212KZYNggevohgrR
+.globl b__MGIA8gvalkzy212KZYNggevohgrR
 .type b__MGIA8gvalkzy212KZYNggevohgrR,%object
 b__MGIA8gvalkzy212KZYNggevohgrR:
 .space __SIZEOF_POINTER__
@@ -608,12 +608,12 @@ nop
 b__MAX8gvalkzy214KZYQrpynengvba12FunyybjPybarRCAF_11KZYQbphzragR:
 nop
 .data
-.weak b__MGIA8gvalkzy28ZrzCbbyGVYv104RRR
+.globl b__MGIA8gvalkzy28ZrzCbbyGVYv104RRR
 .type b__MGIA8gvalkzy28ZrzCbbyGVYv104RRR,%object
 b__MGIA8gvalkzy28ZrzCbbyGVYv104RRR:
 .space __SIZEOF_POINTER__
 .data
-.weak b__MGIA8gvalkzy28ZrzCbbyGVYv120RRR
+.globl b__MGIA8gvalkzy28ZrzCbbyGVYv120RRR
 .type b__MGIA8gvalkzy28ZrzCbbyGVYv120RRR,%object
 b__MGIA8gvalkzy28ZrzCbbyGVYv120RRR:
 .space __SIZEOF_POINTER__
@@ -828,7 +828,7 @@ nop
 b__MA8gvalkzy27KZYHgvy5GbFgeRyCpv:
 nop
 .data
-.weak b__MGIA8gvalkzy28ZrzCbbyGVYv80RRR
+.globl b__MGIA8gvalkzy28ZrzCbbyGVYv80RRR
 .type b__MGIA8gvalkzy28ZrzCbbyGVYv80RRR,%object
 b__MGIA8gvalkzy28ZrzCbbyGVYv80RRR:
 .space __SIZEOF_POINTER__

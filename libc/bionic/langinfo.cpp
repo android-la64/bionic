@@ -98,4 +98,6 @@ char* nl_langinfo(nl_item item) {
   return const_cast<char*>(result);
 }
 
-__strong_alias(nl_langinfo_l, nl_langinfo)
+char* nl_langinfo_l(nl_item item, locale_t) {
+  return nl_langinfo(item);
+}

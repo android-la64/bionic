@@ -1,9 +1,21 @@
-/*
- * This file is auto-generated. Modifications will be lost.
- *
- * See https://android.googlesource.com/platform/bionic/+/master/libc/kernel/
- * for more information.
- */
+/****************************************************************************
+ ****************************************************************************
+ ***
+ ***   This header was automatically generated from a Linux kernel header
+ ***   of the same name, to make information necessary for userspace to
+ ***   call into the kernel available to libc.  It contains only constants,
+ ***   structures, and macros generated from the original header, and thus,
+ ***   contains no copyrightable information.
+ ***
+ ***   To edit the content of this header, modify the corresponding
+ ***   source file (e.g. under external/kernel-headers/original/) then
+ ***   run bionic/libc/kernel/tools/update_all.py
+ ***
+ ***   Any manual change here will be lost the next time this script will
+ ***   be run. You've been warned!
+ ***
+ ****************************************************************************
+ ****************************************************************************/
 #ifndef LINUX_PCI_REGS_H
 #define LINUX_PCI_REGS_H
 #define PCI_CFG_SPACE_SIZE 256
@@ -881,7 +893,6 @@
 #define PCI_EXP_DPC_STATUS_INTERRUPT 0x0008
 #define PCI_EXP_DPC_RP_BUSY 0x0010
 #define PCI_EXP_DPC_STATUS_TRIGGER_RSN_EXT 0x0060
-#define PCI_EXP_DPC_RP_PIO_FEP 0x1f00
 #define PCI_EXP_DPC_SOURCE_ID 0x0A
 #define PCI_EXP_DPC_RP_PIO_STATUS 0x0C
 #define PCI_EXP_DPC_RP_PIO_MASK 0x10

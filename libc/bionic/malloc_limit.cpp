@@ -31,7 +31,6 @@
 #include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #include <private/bionic_malloc_dispatch.h>
 

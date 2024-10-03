@@ -102,7 +102,7 @@ int clone(int (*fn)(void*), void* child_stack, int flags, void* arg, ...) {
   if (fn != nullptr) {
     clone_result = __bionic_clone(flags, child_stack, parent_tid, new_tls, child_tid, fn, arg);
   } else {
-#if defined(__x86_64__) || defined(__loongarch64) // sys_clone's last two arguments are flipped on x86-64.
+#if defined(__x86_64__) // sys_clone's last two arguments are flipped on x86-64.
     clone_result = syscall(__NR_clone, flags, child_stack, parent_tid, child_tid, new_tls);
 #else
     clone_result = syscall(__NR_clone, flags, child_stack, parent_tid, new_tls, child_tid);

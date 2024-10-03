@@ -38,6 +38,9 @@
  * must satisfy both cosh(conj(z)) == conj(cosh(z)) and cosh(-z) == cosh(z).
  */
 
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
+
 #include <complex.h>
 #include <math.h>
 

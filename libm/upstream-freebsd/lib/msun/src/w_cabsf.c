@@ -5,6 +5,11 @@
  * Placed into the Public Domain, 1994.
  */
 
+#ifndef lint
+static const char rcsid[] =
+  "$FreeBSD$";
+#endif /* not lint */
+
 #include <complex.h>
 #include <math.h>
 #include "math_private.h"

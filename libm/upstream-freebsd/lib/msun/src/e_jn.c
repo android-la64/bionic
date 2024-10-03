@@ -1,3 +1,4 @@
+/* @(#)e_jn.c 1.4 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -8,6 +9,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /*
  * jn(n, x), yn(n, x)

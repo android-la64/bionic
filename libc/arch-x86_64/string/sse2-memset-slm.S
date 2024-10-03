@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <private/bionic_asm.h>
 
+#include "cache.h"
 
 #ifndef L
 # define L(label)	.L##label
@@ -115,8 +116,11 @@ L(128bytesmore):
 	cmpq	%rcx, %rdx
 	je	L(return)
 
-	cmp	__x86_shared_cache_size(%rip), %r8
-
+#ifdef SHARED_CACHE_SIZE
+	cmp	$SHARED_CACHE_SIZE, %r8
+#else
+	cmp	__x86_64_shared_cache_size(%rip), %r8
+#endif
 	ja	L(128bytesmore_nt)
 
 	ALIGN (4)

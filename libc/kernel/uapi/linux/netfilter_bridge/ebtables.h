@@ -1,9 +1,21 @@
-/*
- * This file is auto-generated. Modifications will be lost.
- *
- * See https://android.googlesource.com/platform/bionic/+/master/libc/kernel/
- * for more information.
- */
+/****************************************************************************
+ ****************************************************************************
+ ***
+ ***   This header was automatically generated from a Linux kernel header
+ ***   of the same name, to make information necessary for userspace to
+ ***   call into the kernel available to libc.  It contains only constants,
+ ***   structures, and macros generated from the original header, and thus,
+ ***   contains no copyrightable information.
+ ***
+ ***   To edit the content of this header, modify the corresponding
+ ***   source file (e.g. under external/kernel-headers/original/) then
+ ***   run bionic/libc/kernel/tools/update_all.py
+ ***
+ ***   Any manual change here will be lost the next time this script will
+ ***   be run. You've been warned!
+ ***
+ ****************************************************************************
+ ****************************************************************************/
 #ifndef _UAPI__LINUX_BRIDGE_EFF_H
 #define _UAPI__LINUX_BRIDGE_EFF_H
 #include <linux/types.h>
@@ -51,7 +63,7 @@ struct ebt_entries {
   unsigned int counter_offset;
   int policy;
   unsigned int nentries;
-  char data[] __attribute__((aligned(__alignof__(struct ebt_replace))));
+  char data[0] __attribute__((aligned(__alignof__(struct ebt_replace))));
 };
 #define EBT_ENTRY_OR_ENTRIES 0x01
 #define EBT_NOPROTO 0x02
@@ -76,7 +88,7 @@ struct ebt_entry_match {
     struct xt_match * match;
   } u;
   unsigned int match_size;
-  unsigned char data[] __attribute__((aligned(__alignof__(struct ebt_replace))));
+  unsigned char data[0] __attribute__((aligned(__alignof__(struct ebt_replace))));
 };
 struct ebt_entry_watcher {
   union {
@@ -87,7 +99,7 @@ struct ebt_entry_watcher {
     struct xt_target * watcher;
   } u;
   unsigned int watcher_size;
-  unsigned char data[] __attribute__((aligned(__alignof__(struct ebt_replace))));
+  unsigned char data[0] __attribute__((aligned(__alignof__(struct ebt_replace))));
 };
 struct ebt_entry_target {
   union {
@@ -117,11 +129,10 @@ struct ebt_entry {
   unsigned char sourcemsk[ETH_ALEN];
   unsigned char destmac[ETH_ALEN];
   unsigned char destmsk[ETH_ALEN];
-  __struct_group(, offsets,, unsigned int watchers_offset;
+  unsigned int watchers_offset;
   unsigned int target_offset;
   unsigned int next_offset;
- );
-  unsigned char elems[] __attribute__((aligned(__alignof__(struct ebt_replace))));
+  unsigned char elems[0] __attribute__((aligned(__alignof__(struct ebt_replace))));
 };
 #define EBT_BASE_CTL 128
 #define EBT_SO_SET_ENTRIES (EBT_BASE_CTL)

@@ -31,7 +31,6 @@
 #include "Config.h"
 #include "DebugData.h"
 #include "GuardData.h"
-#include "LogAllocatorStats.h"
 #include "PointerData.h"
 #include "debug_disable.h"
 #include "malloc_debug.h"
@@ -76,13 +75,6 @@ bool DebugData::Initialize(const char* options) {
   if (config_.options() & EXPAND_ALLOC) {
     extra_bytes_ += config_.expand_alloc_bytes();
   }
-
-  if (config_.options() & LOG_ALLOCATOR_STATS_ON_SIGNAL) {
-    if (!LogAllocatorStats::Initialize(config_)) {
-      return false;
-    }
-  }
-
   return true;
 }
 

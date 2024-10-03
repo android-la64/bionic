@@ -33,19 +33,23 @@ ENTRY(name); \
     j impl; \
 END(name)
 
-// TODO: switch to the V variants when qemu is fixed.
-FUNCTION_DELEGATE(memchr, memchr_gc)
-FUNCTION_DELEGATE(memcmp, memcmp_gc)
-FUNCTION_DELEGATE(memcpy, memcpy_gc)
-FUNCTION_DELEGATE(memmove, memmove_gc)
-FUNCTION_DELEGATE(memset, memset_gc)
-FUNCTION_DELEGATE(stpcpy, stpcpy_gc)
-FUNCTION_DELEGATE(strcat, strcat_gc)
-FUNCTION_DELEGATE(strchr, strchr_gc)
-FUNCTION_DELEGATE(strcmp, strcmp_gc)
-FUNCTION_DELEGATE(strcpy, strcpy_gc)
-FUNCTION_DELEGATE(strlen, strlen_gc)
-FUNCTION_DELEGATE(strncat, strncat_gc)
-FUNCTION_DELEGATE(strncmp, strncmp_gc)
-FUNCTION_DELEGATE(strncpy, strncpy_gc)
-FUNCTION_DELEGATE(strnlen, strnlen_gc)
+#if defined(__riscv_v)
+
+FUNCTION_DELEGATE(memchr, memchr_vext)
+FUNCTION_DELEGATE(memcmp, memcmp_vext)
+FUNCTION_DELEGATE(memcpy, memcpy_vext)
+FUNCTION_DELEGATE(memmove, memmove_vext)
+FUNCTION_DELEGATE(memset, memset_vext)
+FUNCTION_DELEGATE(strcat, strcat_vext)
+FUNCTION_DELEGATE(strchr, strchr_vext)
+FUNCTION_DELEGATE(strcmp, strcmp_vext)
+FUNCTION_DELEGATE(strcpy, strcpy_vext)
+FUNCTION_DELEGATE(strlen, strlen_vext)
+FUNCTION_DELEGATE(strncat, strncat_vext)
+FUNCTION_DELEGATE(strncmp, strncmp_vext)
+FUNCTION_DELEGATE(strncpy, strncpy_vext)
+FUNCTION_DELEGATE(strnlen, strnlen_vext)
+
+#endif
+
+NOTE_GNU_PROPERTY()

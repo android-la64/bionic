@@ -11,7 +11,7 @@ for changes related to native code loading in various Android releases.
 ### POSIX
 
 You can see the current status with respect to POSIX in the form of tests:
-https://android.googlesource.com/platform/bionic/+/main/tests/headers/posix/
+https://android.googlesource.com/platform/bionic/+/master/tests/headers/posix/
 
 Some POSIX functionality is not supported by the Linux kernel, and
 is guarded with tests for `__linux__`. Other functionality is not
@@ -32,14 +32,10 @@ Missing functions are either obsolete or explicitly disallowed by SELinux:
   * `ualarm`
 
 Missing functionality:
-  * `<aio.h>`. No particular reason not to have this other than that no-one's
-    needed it yet, and it's relatively complex. If/when llvm-libc adds this,
-    maybe we'll just reuse that.
+  * `<aio.h>`
   * `<monetary.h>`. See
     [discussion](https://github.com/android/ndk/issues/1182).
-  * `<wordexp.h>`. Unsafe because it passes user input to the shell (!),
-    and often should just be a call to glob() anyway. See also
-    [OpenBSD's discussion about adding wordexp()](https://www.mail-archive.com/tech@openbsd.org/msg02325.html).
+  * `<wordexp.h>`
   * Locales. Although bionic contains the various `_l()` functions, the only
     locale supported is a UTF-8 C/POSIX locale. Most of the POSIX APIs are
     insufficient to support the wide range of languages used by Android users,
@@ -57,19 +53,10 @@ list of POSIX functions implemented by glibc but not by bionic.
 
 ### libc
 
-Current libc symbols: https://android.googlesource.com/platform/bionic/+/main/libc/libc.map.txt
-
-New libc functions in API level 36:
-  * `qsort_r`, `sig2str`/`str2sig` (POSIX Issue 8 additions).
-  * GNU/BSD extension `lchmod`.
-  * New system call wrapper: `mseal` (`<sys/mman.h>`).
+Current libc symbols: https://android.googlesource.com/platform/bionic/+/master/libc/libc.map.txt
 
 New libc functions in V (API level 35):
-  * New `android_crash_detail_register`, `android_crash_detail_unregister`,
-    `android_crash_detail_replace_name`, and `android_crash_detail_replace_data`
-    functionality for adding arbitrary data to tombstones
-    (see `<android/crash_detail.h>` for full documentation).
-  * `tcgetwinsize`, `tcsetwinsize`, `_Fork` (POSIX Issue 8 additions).
+  * `tcgetwinsize`, `tcsetwinsize` (POSIX Issue 8 additions).
   * `timespec_getres` (C23 addition).
   * `localtime_rz`, `mktime_z`, `tzalloc`, and `tzfree` (NetBSD
     extensions implemented in tzcode, and the "least non-standard"
@@ -134,7 +121,6 @@ New libc functions in Q (API level 29):
   * `getloadavg` (BSD/GNU extension in <stdlib.h>)
 
 New libc behavior in Q (API level 29):
-  * Support for [ELF TLS](elf-tls.md).
   * Whole printf family now supports the GNU `%m` extension, rather than a
     special-case hack in `syslog`.
   * `popen` now always uses `O_CLOEXEC`, not just with the `e` extension.
@@ -292,36 +278,28 @@ New libc functions in J (API level 16):
 
 libc function count over time:
 
-| API level | Function count |
-|-----------|----------------|
-| 16        | 842            |
-| 17        | 870            |
-| 18        | 878            |
-| 19        | 893            |
-| 21        | 1016           |
-| 22        | 1038           |
-| 23        | 1103           |
-| 24        | 1147           |
-| 25        | 1147           |
-| 26        | 1199           |
-| 27        | 1199           |
-| 28        | 1298           |
-| 29        | 1312           |
-| 30        | 1368           |
-| 31        | 1379           |
-| 32        | 1379           |
-| 33        | 1386           |
-| 34        | 1392           |
+| OS    | API level | Function count |
+|-------|-----------|----------------|
+| J     | 16        | 842            |
+| J MR1 | 17        | 870            |
+| J MR2 | 18        | 878            |
+| K     | 19        | 893            |
+| L     | 21        | 1118           |
+| M     | 23        | 1183           |
+| N     | 24        | 1228           |
+| O     | 26        | 1280           |
+| P     | 28        | 1378           |
+| Q     | 29        | 1394           |
 
 Data collected by:
 ```
-ndk-r26c$ for i in `ls -1v toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/*/libc.so` ; \
-  do echo $i; nm $i | grep -w T | wc -l ; done
+ndk-r21$ for i in `ls -1v platforms/android-*/arch-arm/usr/lib/libc.so` ; do \
+  echo $i; nm $i | grep -w T | wc -l ; done
 ```
 
 ### libm
 
-Current libm symbols: https://android.googlesource.com/platform/bionic/+/main/libm/libm.map.txt
+Current libm symbols: https://android.googlesource.com/platform/bionic/+/master/libm/libm.map.txt
 
 0 remaining missing C11/POSIX libm functions.
 
@@ -343,25 +321,17 @@ New libm functions in J-MR2 (API level 18):
 ## Target API level behavioral differences
 
 Most bionic bug fixes and improvements have been made without checks for
-the app's `targetSdkVersion`. There are a handful of exceptions. (If in
-doubt, search the source for `android_get_application_target_sdk_version()`.)
+the app's `targetSdkVersion`. As of O there were exactly two exceptions,
+but there are likely to be more in future because of Project Treble.
 
-### Destroyed mutex checking (targetSdkVersion >= 28)
-
-If a destroyed `pthread_mutex_t` is passed to any of the mutex functions, apps
-targeting API level 28 or higher will see a
-"<function> called on a destroyed mutex" fortify failure. Apps targeting older
-API levels will just have the function fail with EBUSY (matching the likely
-behavior before we added the check).
-
-### Invalid `pthread_t` handling (targetSdkVersion >= 26)
+### Invalid `pthread_t` handling (targetSdkVersion >= O)
 
 As part of a long-term goal to remove the global thread list,
 and in an attempt to flush out racy code, we changed how an invalid
 `pthread_t` is handled. For `pthread_detach`, `pthread_getcpuclockid`,
 `pthread_getschedparam`/`pthread_setschedparam`, `pthread_join`, and
 `pthread_kill`, instead of returning ESRCH when passed an invalid
-`pthread_t`, if you're targeting API level 26 or above, they'll abort with the
+`pthread_t`, if you're targeting O or above, they'll abort with the
 message "attempt to use invalid pthread\_t".
 
 Note that this doesn't change behavior as much as you might think: the
@@ -399,13 +369,13 @@ To fix your code, taking the affected functions one by one:
     the tid may have been reused, but your code is inherently unsafe without
     a redesign anyway.
 
-### Interruptable `sem_wait` (targetSdkVersion >= 24)
+### Interruptable `sem_wait` (targetSdkVersion >= N)
 
 POSIX says that `sem_wait` can be interrupted by delivery of a
 signal. This wasn't historically true in Android, and when we fixed this
 bug we found that existing code relied on the old behavior. To preserve
 compatibility, `sem_wait` can only return EINTR on Android if the app
-targets API level 24 or later.
+targets N or later.
 
 
 ## FORTIFY
@@ -415,25 +385,22 @@ automatic bounds checking for common libc functions. If a buffer
 overrun is detected, the program is safely aborted as in this
 [example](https://source.android.com/devices/tech/debug/native-crash#fortify).
 
-Note that Android's FORTIFY has been extended to cover other issues. It can
-detect, for example, passing `O_CREAT` to open(2) without specifying a mode. It
-also performs some checking regardless of whether the caller was built with
-FORTIFY enabled. From API level 28, for example, calling a `pthread_mutex_`
-function on a destroyed mutex, calling a `<dirent.h>` function on a null
-pointer, using `%n` with the printf(3) family, or using the scanf(3) `m`
-modifier incorrectly will all result in FORTIFY failures even for code not built
-with FORTIFY.
+Note that in recent releases Android's FORTIFY has been extended to
+cover other issues. It can now detect, for example, passing `O_CREAT`
+to open(2) without specifying a mode. It also performs some checking
+regardless of whether the caller was built with FORTIFY enabled. In P,
+for example, calling a `pthread_mutex_` function on a destroyed mutex,
+calling a `<dirent.h>` function on a null pointer, using `%n` with the
+printf(3) family, or using the scanf(3) `m` modifier incorrectly will
+all result in FORTIFY failures even for code not built with FORTIFY.
 
 More background information is available in our
 [FORTIFY in Android](https://android-developers.googleblog.com/2017/04/fortify-in-android.html)
-blog post, and there's more detail about the implementation in
-[The Anatomy of Clang FORTIFY](clang_fortify_anatomy.md).
+blog post.
 
-The Android platform is built with `-D_FORTIFY_SOURCE=2`. Users of ndk-build
-or the NDK's CMake toolchain file also get this by default with NDK r21 or
-newer. Users of other build systems
-need to manually enable FORTIFY by setting `_FORTIFY_SOURCE` themselves in
-whatever build system they're using. The exact subset of FORTIFY available to
+The Android platform is built with `-D_FORTIFY_SOURCE=2`, but NDK users
+need to manually enable FORTIFY by setting that themselves in whatever
+build system they're using. The exact subset of FORTIFY available to
 NDK users will depend on their target ABI level, because when a FORTIFY
 check can't be guaranteed at compile-time, a call to a run-time `_chk`
 function is added.

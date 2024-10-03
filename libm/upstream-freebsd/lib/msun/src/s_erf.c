@@ -1,3 +1,4 @@
+/* @(#)s_erf.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -8,6 +9,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /* double erf(double x)
  * double erfc(double x)

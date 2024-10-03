@@ -1,5 +1,6 @@
-/*	$OpenBSD: ntohs.c,v 1.10 2024/04/15 14:30:48 naddy Exp $ */
+/*	$OpenBSD: ntohs.c,v 1.9 2014/07/21 01:51:10 guenther Exp $ */
 /*
+ * Written by J.T. Conklin <jtc@netbsd.org>.
  * Public domain.
  */
 
@@ -8,8 +9,13 @@
 
 #undef ntohs
 
-uint16_t
-ntohs(uint16_t x)
+u_int16_t
+ntohs(u_int16_t x)
 {
-	return be16toh(x);
+#if BYTE_ORDER == LITTLE_ENDIAN
+	u_char *s = (u_char *) &x;
+	return (u_int16_t)(s[0] << 8 | s[1]);
+#else
+	return x;
+#endif
 }

@@ -27,12 +27,11 @@
  */
 
 #include <sys/cdefs.h>
-
-// ARCH_SET_FS is not exposed via <sys/prctl.h> or <linux/prctl.h>.
 #include <asm/prctl.h>
+#include <stdint.h>
 
-extern int arch_prctl(int, unsigned long);
+extern int __arch_prctl(int, unsigned long);
 
 __LIBC_HIDDEN__ int __set_tls(void* ptr) {
-  return arch_prctl(ARCH_SET_FS, (unsigned long) ptr);
+  return __arch_prctl(ARCH_SET_FS, (uintptr_t) ptr);
 }

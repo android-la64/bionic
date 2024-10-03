@@ -1,3 +1,4 @@
+/* From: @(#)k_cos.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,6 +10,9 @@
  * is preserved.
  * ====================================================
  */
+
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
 
 /*
  * ld128 version of k_cos.c.  See ../src/k_cos.c for most comments.

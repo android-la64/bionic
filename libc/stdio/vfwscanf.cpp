@@ -32,7 +32,6 @@
  */
 
 #include "scanf_common.h"
-
 // An interpretive version of __sccl from vfscanf.c --- a table of all wchar_t values would
 // be a little too expensive, and some kind of compressed version isn't worth the trouble.
 static inline bool in_ccl(wchar_t wc, const wchar_t* ccl) {
@@ -336,7 +335,7 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
           if (!(flags & SUPPRESS)) p = va_arg(ap, wchar_t*);
           n = 0;
           while (width-- != 0 && (wi = __fgetwc_unlock(fp)) != WEOF) {
-            if (!(flags & SUPPRESS)) *p++ = static_cast<wchar_t>(wi);
+            if (!(flags & SUPPRESS)) *p++ = (wchar_t)wi;
             n++;
           }
           if (n == 0) goto input_failure;
@@ -349,10 +348,10 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
           while (width != 0 && (wi = __fgetwc_unlock(fp)) != WEOF) {
             if (width >= MB_CUR_MAX && !(flags & SUPPRESS)) {
               nconv = wcrtomb(mbp, wi, &mbs);
-              if (nconv == static_cast<size_t>(-1)) goto input_failure;
+              if (nconv == (size_t)-1) goto input_failure;
             } else {
               nconv = wcrtomb(mbbuf, wi, &mbs);
-              if (nconv == static_cast<size_t>(-1)) goto input_failure;
+              if (nconv == (size_t)-1) goto input_failure;
               if (nconv > width) {
                 __ungetwc(wi, fp);
                 break;
@@ -374,7 +373,7 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
       case CT_STRING:
         // CT_CCL: scan a (nonempty) character class (sets NOSKIP).
         // CT_STRING: like CCL, but zero-length string OK, & no NOSKIP.
-        if (width == 0) width = SIZE_MAX; // 'infinity'.
+        if (width == 0) width = (size_t)~0; // 'infinity'.
         if ((flags & SUPPRESS) && (flags & LONG)) {
           n = 0;
           while ((wi = __fgetwc_unlock(fp)) != WEOF && width-- != 0 && ((c == CT_CCL && in_ccl(wi, ccl)) || (c == CT_STRING && !iswspace(wi)))) n++;
@@ -382,7 +381,7 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
         } else if (flags & LONG) {
           p0 = p = va_arg(ap, wchar_t*);
           while ((wi = __fgetwc_unlock(fp)) != WEOF && width-- != 0 && ((c == CT_CCL && in_ccl(wi, ccl)) || (c == CT_STRING && !iswspace(wi)))) {
-            *p++ = static_cast<wchar_t>(wi);
+            *p++ = (wchar_t)wi;
           }
           if (wi != WEOF) __ungetwc(wi, fp);
           n = p - p0;
@@ -393,10 +392,10 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
           while ((wi = __fgetwc_unlock(fp)) != WEOF && width != 0 && ((c == CT_CCL && in_ccl(wi, ccl)) || (c == CT_STRING && !iswspace(wi)))) {
             if (width >= MB_CUR_MAX && !(flags & SUPPRESS)) {
               nconv = wcrtomb(mbp, wi, &mbs);
-              if (nconv == static_cast<size_t>(-1)) goto input_failure;
+              if (nconv == (size_t)-1) goto input_failure;
             } else {
               nconv = wcrtomb(mbbuf, wi, &mbs);
-              if (nconv == static_cast<size_t>(-1)) goto input_failure;
+              if (nconv == (size_t)-1) goto input_failure;
               if (nconv > width) break;
               if (!(flags & SUPPRESS)) memcpy(mbp, mbbuf, nconv);
             }
@@ -486,7 +485,7 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
             case 'e':
             case 'f':
               if (base == 0) base = 10;
-              if (base != 16 && static_cast<int>(c - '0') >= base) break; /* not legal here */
+              if (base != 16 && (int)(c - '0') >= base) break; /* not legal here */
               flags &= ~(SIGNOK | PFBOK | PFXOK | NDIGITS);
               goto ok;
 
@@ -524,7 +523,7 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
           /*
            * c is legal: store it and look at the next.
            */
-          *p++ = static_cast<wchar_t>(c);
+          *p++ = (wchar_t)c;
         }
         /*
          * If we had only a sign, it is no good; push back the sign.
@@ -549,7 +548,7 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
           else
             res = wcstoumax(buf, NULL, base);
           if (flags & POINTER)
-            *va_arg(ap, void**) = reinterpret_cast<void*>(res);
+            *va_arg(ap, void**) = (void*)(uintptr_t)res;
           else if (flags & MAXINT)
             *va_arg(ap, intmax_t*) = res;
           else if (flags & LLONG)
@@ -588,7 +587,7 @@ int __vfwscanf(FILE* __restrict fp, const wchar_t* __restrict fmt, __va_list ap)
             float res = wcstof(buf, &p);
             *va_arg(ap, float*) = res;
           }
-          if (static_cast<size_t>(p - buf) != width) abort();
+          if (p - buf != (ptrdiff_t)width) abort();
           nassigned++;
         }
         nread += width;

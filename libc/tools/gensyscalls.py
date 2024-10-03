@@ -15,7 +15,7 @@ import sys
 import tempfile
 
 
-SupportedArchitectures = [ "arm", "arm64", "loongarch64", "riscv64", "x86", "x86_64" ]
+SupportedArchitectures = [ "arm", "arm64", "riscv64", "x86", "x86_64" ]
 
 syscall_stub_header = \
 """
@@ -27,7 +27,7 @@ ENTRY(%(func)s)
 # ARM assembler templates for each syscall stub
 #
 
-arm_call_default = syscall_stub_header + """\
+arm_eabi_call_default = syscall_stub_header + """\
     mov     ip, r7
     .cfi_register r7, ip
     ldr     r7, =%(__NR_name)s
@@ -41,7 +41,7 @@ arm_call_default = syscall_stub_header + """\
 END(%(func)s)
 """
 
-arm_call_long = syscall_stub_header + """\
+arm_eabi_call_long = syscall_stub_header + """\
     mov     ip, sp
     stmfd   sp!, {r4, r5, r6, r7}
     .cfi_def_cfa_offset 16
@@ -78,23 +78,6 @@ arm64_call = syscall_stub_header + """\
 END(%(func)s)
 """
 
-#
-# LoongArch64 assembler templates for each syscall stub
-#
-
-loongarch64_call = syscall_stub_header + """\
-    li.d    a7, %(__NR_name)s
-    syscall 0
-
-    li.d    t0, -(MAX_ERRNO + 1)
-    bltu    t0, a0, 1f
-
-    jirl    zero, ra, 0
-1:
-    sub.d   a0, zero, a0
-    b       __set_errno_internal
-END(%(func)s)
-"""
 
 #
 # RISC-V64 assembler templates for each syscall stub
@@ -247,21 +230,20 @@ def add_footer(pointer_length, stub, syscall):
     return stub
 
 
-def arm_genstub(syscall):
+def arm_eabi_genstub(syscall):
     num_regs = count_arm_param_registers(syscall["params"])
     if num_regs > 4:
-        return arm_call_long % syscall
-    return arm_call_default % syscall
+        return arm_eabi_call_long % syscall
+    return arm_eabi_call_default % syscall
 
 
 def arm64_genstub(syscall):
     return arm64_call % syscall
 
-def loongarch64_genstub(syscall):
-    return loongarch64_call % syscall
 
 def riscv64_genstub(syscall):
     return riscv64_call % syscall
+
 
 def x86_genstub(syscall):
     result     = syscall_stub_header % syscall
@@ -474,13 +456,10 @@ def main(arch, syscall_file):
         syscall["__NR_name"] = make__NR_name(syscall["name"])
 
         if "arm" in syscall:
-            syscall["asm-arm"] = add_footer(32, arm_genstub(syscall), syscall)
+            syscall["asm-arm"] = add_footer(32, arm_eabi_genstub(syscall), syscall)
 
         if "arm64" in syscall:
             syscall["asm-arm64"] = add_footer(64, arm64_genstub(syscall), syscall)
-
-        if "loongarch64" in syscall:
-            syscall["asm-loongarch64"] = add_footer(64, loongarch64_genstub(syscall), syscall)
 
         if "riscv64" in syscall:
             syscall["asm-riscv64"] = add_footer(64, riscv64_genstub(syscall), syscall)
