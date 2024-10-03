@@ -33,6 +33,68 @@
 #include <sys/syscall.h>
 #endif
 
+
+#if defined(__riscv)
+#include <riscv_vector.h>
+
+__attribute__((noinline))
+uint64_t scalar_cast(uint8_t const* p) {
+  return *(uint64_t const*)p;
+}
+
+__attribute__((noinline))
+uint64_t scalar_memcpy(uint8_t const* p) {
+  uint64_t r;
+  __builtin_memcpy(&r, p, sizeof(r));
+  return r;
+}
+
+__attribute__((noinline))
+uint64_t vector_memcpy(uint8_t* d, uint8_t const* p) {
+  __builtin_memcpy(d, p, 16);
+  return *(uint64_t const*)d;
+}
+
+__attribute__((noinline))
+uint64_t vector_ldst(uint8_t* d, uint8_t const* p) {
+  __riscv_vse8(d, __riscv_vle8_v_u8m1(p, 16), 16);
+  return *(uint64_t const*)d;
+}
+
+__attribute__((noinline))
+uint64_t vector_ldst64(uint8_t* d, uint8_t const* p) {
+  __riscv_vse64((unsigned long *)d, __riscv_vle64_v_u64m1((const unsigned long *)p, 16), 16);
+  return *(uint64_t const*)d;
+}
+
+// For testing scalar and vector unaligned accesses.
+uint64_t tmp[3] = {1,1,1};
+uint64_t dst[3] = {1,1,1};
+#endif
+
+TEST(sys_hwprobe, __riscv_hwprobe_misaligned_scalar) {
+#if defined(__riscv)
+  uint8_t* p = (uint8_t*)tmp + 1;
+  ASSERT_NE(0U, scalar_cast(p));
+  ASSERT_NE(0U, scalar_memcpy(p));
+#else
+  GTEST_SKIP() << "__riscv_hwprobe requires riscv64";
+#endif
+}
+
+TEST(sys_hwprobe, __riscv_hwprobe_misaligned_vector) {
+#if defined(__riscv)
+  uint8_t* p = (uint8_t*)tmp + 1;
+  uint8_t* d = (uint8_t*)dst + 1;
+
+  ASSERT_NE(0U, vector_ldst(d, p));
+  ASSERT_NE(0U, vector_memcpy(d, p));
+  ASSERT_NE(0U, vector_ldst64(d, p));
+#else
+  GTEST_SKIP() << "__riscv_hwprobe requires riscv64";
+#endif
+}
+
 TEST(sys_hwprobe, __riscv_hwprobe) {
 #if defined(__riscv) && __has_include(<sys/hwprobe.h>)
   riscv_hwprobe probes[] = {{.key = RISCV_HWPROBE_KEY_IMA_EXT_0},
@@ -41,19 +103,10 @@ TEST(sys_hwprobe, __riscv_hwprobe) {
   EXPECT_EQ(RISCV_HWPROBE_KEY_IMA_EXT_0, probes[0].key);
   EXPECT_TRUE((probes[0].value & RISCV_HWPROBE_IMA_FD) != 0);
   EXPECT_TRUE((probes[0].value & RISCV_HWPROBE_IMA_C) != 0);
-  // TODO: remove #define when our uapi headers are new enough.
-#define RISCV_HWPROBE_IMA_V (1 << 2)
   EXPECT_TRUE((probes[0].value & RISCV_HWPROBE_IMA_V) != 0);
-  // TODO: remove #ifs when our kernel is new enough.
-#if defined(RISCV_HWPROBE_EXT_ZBA)
   EXPECT_TRUE((probes[0].value & RISCV_HWPROBE_EXT_ZBA) != 0);
-#endif
-#if defined(RISCV_HWPROBE_EXT_ZBB)
   EXPECT_TRUE((probes[0].value & RISCV_HWPROBE_EXT_ZBB) != 0);
-#endif
-#if defined(RISCV_HWPROBE_EXT_ZBS)
   EXPECT_TRUE((probes[0].value & RISCV_HWPROBE_EXT_ZBS) != 0);
-#endif
 
   EXPECT_EQ(RISCV_HWPROBE_KEY_CPUPERF_0, probes[1].key);
   EXPECT_TRUE((probes[1].value & RISCV_HWPROBE_MISALIGNED_MASK) == RISCV_HWPROBE_MISALIGNED_FAST);

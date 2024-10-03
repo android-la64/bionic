@@ -78,10 +78,57 @@ extern char* _Nullable * _Nullable environ;
 
 __noreturn void _exit(int __status);
 
-pid_t  fork(void);
-pid_t  vfork(void) __returns_twice;
+/**
+ * [fork(2)](https://man7.org/linux/man-pages/man2/fork.2.html) creates a new
+ * process. fork() runs any handlers set by pthread_atfork().
+ *
+ * Returns 0 in the child, the pid of the child in the parent,
+ * and returns -1 and sets `errno` on failure.
+ */
+pid_t fork(void);
+
+/**
+ * _Fork() creates a new process. _Fork() differs from fork() in that it does
+ * not run any handlers set by pthread_atfork(). In addition to any user-defined
+ * ones, bionic uses pthread_atfork() handlers to ensure consistency of its own
+ * state, so the child should only call
+ * [POSIX async-safe](https://man7.org/linux/man-pages/man7/signal-safety.7.html)
+ * functions.
+ *
+ * Returns 0 in the child, the pid of the child in the parent,
+ * and returns -1 and sets `errno` on failure.
+ *
+ * Available since API level 35.
+ */
+pid_t _Fork(void) __INTRODUCED_IN(35);
+
+/**
+ * [vfork(2)](https://man7.org/linux/man-pages/man2/vfork.2.html) creates a new
+ * process. vfork() differs from fork() in that it does not run any handlers
+ * set by pthread_atfork(), and the parent is suspended until the child calls
+ * exec() or exits.
+ *
+ * Returns 0 in the child, the pid of the child in the parent,
+ * and returns -1 and sets `errno` on failure.
+ */
+pid_t vfork(void) __returns_twice;
+
+/**
+ * [getpid(2)](https://man7.org/linux/man-pages/man2/getpid.2.html) returns
+ * the caller's process ID.
+ *
+ * Returns the caller's process ID.
+ */
 pid_t  getpid(void);
-pid_t  gettid(void) __attribute_const__;
+
+/**
+ * [gettid(2)](https://man7.org/linux/man-pages/man2/gettid.2.html) returns
+ * the caller's thread ID.
+ *
+ * Returns the caller's thread ID.
+ */
+pid_t  gettid(void);
+
 pid_t  getpgid(pid_t __pid);
 int    setpgid(pid_t __pid, pid_t __pgid);
 pid_t  getppid(void);
@@ -103,7 +150,7 @@ int fexecve(int __fd, char* _Nullable const* _Nullable __argv, char* _Nullable c
 int nice(int __incr);
 
 /**
- * [setegid(2)](http://man7.org/linux/man-pages/man2/setegid.2.html) sets
+ * [setegid(2)](https://man7.org/linux/man-pages/man2/setegid.2.html) sets
  * the effective group ID.
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -114,7 +161,7 @@ int nice(int __incr);
 int setegid(gid_t __gid);
 
 /**
- * [seteuid(2)](http://man7.org/linux/man-pages/man2/seteuid.2.html) sets
+ * [seteuid(2)](https://man7.org/linux/man-pages/man2/seteuid.2.html) sets
  * the effective user ID.
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -125,7 +172,7 @@ int setegid(gid_t __gid);
 int seteuid(uid_t __uid);
 
 /**
- * [setgid(2)](http://man7.org/linux/man-pages/man2/setgid.2.html) sets
+ * [setgid(2)](https://man7.org/linux/man-pages/man2/setgid.2.html) sets
  * the group ID.
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -136,7 +183,7 @@ int seteuid(uid_t __uid);
 int setgid(gid_t __gid);
 
 /**
- * [setregid(2)](http://man7.org/linux/man-pages/man2/setregid.2.html) sets
+ * [setregid(2)](https://man7.org/linux/man-pages/man2/setregid.2.html) sets
  * the real and effective group IDs (use -1 to leave an ID unchanged).
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -147,7 +194,7 @@ int setgid(gid_t __gid);
 int setregid(gid_t __rgid, gid_t __egid);
 
 /**
- * [setresgid(2)](http://man7.org/linux/man-pages/man2/setresgid.2.html) sets
+ * [setresgid(2)](https://man7.org/linux/man-pages/man2/setresgid.2.html) sets
  * the real, effective, and saved group IDs (use -1 to leave an ID unchanged).
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -158,7 +205,7 @@ int setregid(gid_t __rgid, gid_t __egid);
 int setresgid(gid_t __rgid, gid_t __egid, gid_t __sgid);
 
 /**
- * [setresuid(2)](http://man7.org/linux/man-pages/man2/setresuid.2.html) sets
+ * [setresuid(2)](https://man7.org/linux/man-pages/man2/setresuid.2.html) sets
  * the real, effective, and saved user IDs (use -1 to leave an ID unchanged).
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -169,7 +216,7 @@ int setresgid(gid_t __rgid, gid_t __egid, gid_t __sgid);
 int setresuid(uid_t __ruid, uid_t __euid, uid_t __suid);
 
 /**
- * [setreuid(2)](http://man7.org/linux/man-pages/man2/setreuid.2.html) sets
+ * [setreuid(2)](https://man7.org/linux/man-pages/man2/setreuid.2.html) sets
  * the real and effective group IDs (use -1 to leave an ID unchanged).
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -180,7 +227,7 @@ int setresuid(uid_t __ruid, uid_t __euid, uid_t __suid);
 int setreuid(uid_t __ruid, uid_t __euid);
 
 /**
- * [setuid(2)](http://man7.org/linux/man-pages/man2/setuid.2.html) sets
+ * [setuid(2)](https://man7.org/linux/man-pages/man2/setuid.2.html) sets
  * the user ID.
  *
  * On Android, this function only affects the calling thread, not all threads
@@ -265,7 +312,7 @@ int dup3(int __old_fd, int __new_fd, int __flags);
 int fsync(int __fd);
 int fdatasync(int __fd);
 
-/* See https://android.googlesource.com/platform/bionic/+/master/docs/32-bit-abi.md */
+/* See https://android.googlesource.com/platform/bionic/+/main/docs/32-bit-abi.md */
 #if defined(__USE_FILE_OFFSET64)
 int truncate(const char* _Nonnull __path, off_t __length) __RENAME(truncate64);
 off_t lseek(int __fd, off_t __offset, int __whence) __RENAME(lseek64);
@@ -303,6 +350,13 @@ int ttyname_r(int __fd, char* _Nonnull __buf, size_t __buf_size);
 
 int acct(const char* _Nullable __path);
 
+/**
+ * [getpagesize(2)](https://man7.org/linux/man-pages/man2/getpagesize.2.html)
+ * returns the system's page size. This is slightly faster than going via
+ * sysconf(), and avoids the linear search in getauxval().
+ *
+ * Returns the system's page size in bytes.
+ */
 int getpagesize(void) __attribute_const__;
 
 long syscall(long __number, ...);
@@ -310,8 +364,11 @@ long syscall(long __number, ...);
 int daemon(int __no_chdir, int __no_close);
 
 #if defined(__arm__)
+/**
+ * New code should use __builtin___clear_cache() instead, which works on
+ * all architectures.
+ */
 int cacheflush(long __addr, long __nbytes, long __cache);
-    /* __attribute__((deprecated("use __builtin___clear_cache instead"))); */
 #endif
 
 pid_t tcgetpgrp(int __fd);

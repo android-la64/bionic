@@ -1,21 +1,9 @@
-/****************************************************************************
- ****************************************************************************
- ***
- ***   This header was automatically generated from a Linux kernel header
- ***   of the same name, to make information necessary for userspace to
- ***   call into the kernel available to libc.  It contains only constants,
- ***   structures, and macros generated from the original header, and thus,
- ***   contains no copyrightable information.
- ***
- ***   To edit the content of this header, modify the corresponding
- ***   source file (e.g. under external/kernel-headers/original/) then
- ***   run bionic/libc/kernel/tools/update_all.py
- ***
- ***   Any manual change here will be lost the next time this script will
- ***   be run. You've been warned!
- ***
- ****************************************************************************
- ****************************************************************************/
+/*
+ * This file is auto-generated. Modifications will be lost.
+ *
+ * See https://android.googlesource.com/platform/bionic/+/master/libc/kernel/
+ * for more information.
+ */
 #ifndef __LINUX_V4L2_CONTROLS_H
 #define __LINUX_V4L2_CONTROLS_H
 #include <linux/const.h>
@@ -724,6 +712,7 @@ enum v4l2_mpeg_video_av1_level {
   V4L2_MPEG_VIDEO_AV1_LEVEL_7_2 = 22,
   V4L2_MPEG_VIDEO_AV1_LEVEL_7_3 = 23
 };
+#define V4L2_CID_MPEG_VIDEO_AVERAGE_QP (V4L2_CID_CODEC_BASE + 657)
 #define V4L2_CID_CODEC_CX2341X_BASE (V4L2_CTRL_CLASS_CODEC | 0x1000)
 #define V4L2_CID_MPEG_CX2341X_VIDEO_SPATIAL_FILTER_MODE (V4L2_CID_CODEC_CX2341X_BASE + 0)
 enum v4l2_mpeg_cx2341x_video_spatial_filter_mode {

@@ -28,12 +28,10 @@
 
 #include <platform/bionic/tls_defines.h>
 #include <private/bionic_asm.h>
-#include <private/bionic_asm_offsets.h>
 #include <asm/signal.h>
 #include <linux/sched.h>
 
-ENTRY(vfork)
-__BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(vfork)
+ENTRY_WEAK_FOR_NATIVE_BRIDGE(vfork)
     // x9 = __get_tls()[TLS_SLOT_THREAD_ID]
     mrs     x9, tpidr_el0
     ldr     x9, [x9, #(TLS_SLOT_THREAD_ID * 8)]
@@ -59,8 +57,8 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(vfork)
     // [1] https://cs.android.com/android/platform/superproject/+/master:system/extras/simpleperf/app_api/cpp/simpleperf.cpp;drc=788fa4183441f4977ddbd5a055e42a7fe7691d21;l=308
 #if !__has_feature(hwaddress_sanitizer)
     // if (!__libc_globals->memtag_stack) x0 |= CLONE_VM | CLONE_VFORK;
-    adrp    x1, __libc_globals + OFFSETOF_libc_globals_memtag_stack
-    ldrb    w1, [x1, :lo12:__libc_globals + OFFSETOF_libc_globals_memtag_stack]
+    adrp    x1, __libc_memtag_stack
+    ldrb    w1, [x1, :lo12:__libc_memtag_stack]
     cbnz    w1, 1f
     orr     x0, x0, #CLONE_VM
     orr     x0, x0, #CLONE_VFORK
@@ -74,7 +72,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(vfork)
     mov     x8, __NR_clone
     svc     #0
 
-    cbz     x0, .L_exit
+    cbz     x0, L(done)
 
     // rc != 0: reset cached_pid_ and vforked_.
     str     w10, [x9, #20]
@@ -82,7 +80,7 @@ __BIONIC_WEAK_ASM_FOR_NATIVE_BRIDGE(vfork)
     cneg    x0, x0, hi
     b.hi    __set_errno_internal
 
-.L_exit:
+L(done):
     ret
 END(vfork)
 

@@ -1,21 +1,9 @@
-/****************************************************************************
- ****************************************************************************
- ***
- ***   This header was automatically generated from a Linux kernel header
- ***   of the same name, to make information necessary for userspace to
- ***   call into the kernel available to libc.  It contains only constants,
- ***   structures, and macros generated from the original header, and thus,
- ***   contains no copyrightable information.
- ***
- ***   To edit the content of this header, modify the corresponding
- ***   source file (e.g. under external/kernel-headers/original/) then
- ***   run bionic/libc/kernel/tools/update_all.py
- ***
- ***   Any manual change here will be lost the next time this script will
- ***   be run. You've been warned!
- ***
- ****************************************************************************
- ****************************************************************************/
+/*
+ * This file is auto-generated. Modifications will be lost.
+ *
+ * See https://android.googlesource.com/platform/bionic/+/master/libc/kernel/
+ * for more information.
+ */
 #ifndef _UAPI_MPTCP_H
 #define _UAPI_MPTCP_H
 #include <netinet/in.h>
@@ -175,13 +163,13 @@ struct mptcp_subflow_addrs {
     struct sockaddr sa_local;
     struct sockaddr_in sin_local;
     struct sockaddr_in6 sin6_local;
-    struct __kernel_sockaddr_storage ss_local;
+    struct sockaddr_storage ss_local;
   };
   union {
     struct sockaddr sa_remote;
     struct sockaddr_in sin_remote;
     struct sockaddr_in6 sin6_remote;
-    struct __kernel_sockaddr_storage ss_remote;
+    struct sockaddr_storage ss_remote;
   };
 };
 struct mptcp_subflow_info {

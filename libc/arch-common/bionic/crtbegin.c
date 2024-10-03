@@ -92,6 +92,8 @@ __asm__(PRE "mov fp,#0; mov lr,#0; mov r0,sp; b _start_main" POST);
 __asm__(PRE
         "xorl %ebp,%ebp; movl %esp,%eax; andl $~0xf,%esp; subl $12,%esp; pushl %eax;"
         "call _start_main" POST);
+#elif defined(__loongarch__)
+__asm__(PRE "li.d $fp,0; li.d $ra,0; move $a0,$sp; b _start_main" POST);
 #elif defined(__riscv)
 __asm__(PRE "li fp,0; li ra,0; mv a0,sp; tail _start_main" POST);
 #elif defined(__x86_64__)

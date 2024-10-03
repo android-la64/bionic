@@ -222,6 +222,9 @@
 #if defined(__NR_fchmodat)
   #define SYS_fchmodat __NR_fchmodat
 #endif
+#if defined(__NR_fchmodat2)
+  #define SYS_fchmodat2 __NR_fchmodat2
+#endif
 #if defined(__NR_fchown)
   #define SYS_fchown __NR_fchown
 #endif
@@ -573,6 +576,9 @@
 #if defined(__NR_madvise)
   #define SYS_madvise __NR_madvise
 #endif
+#if defined(__NR_map_shadow_stack)
+  #define SYS_map_shadow_stack __NR_map_shadow_stack
+#endif
 #if defined(__NR_mbind)
   #define SYS_mbind __NR_mbind
 #endif
@@ -665,6 +671,9 @@
 #endif
 #if defined(__NR_mremap)
   #define SYS_mremap __NR_mremap
+#endif
+#if defined(__NR_mseal)
+  #define SYS_mseal __NR_mseal
 #endif
 #if defined(__NR_msgctl)
   #define SYS_msgctl __NR_msgctl

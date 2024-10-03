@@ -1,21 +1,9 @@
-/****************************************************************************
- ****************************************************************************
- ***
- ***   This header was automatically generated from a Linux kernel header
- ***   of the same name, to make information necessary for userspace to
- ***   call into the kernel available to libc.  It contains only constants,
- ***   structures, and macros generated from the original header, and thus,
- ***   contains no copyrightable information.
- ***
- ***   To edit the content of this header, modify the corresponding
- ***   source file (e.g. under external/kernel-headers/original/) then
- ***   run bionic/libc/kernel/tools/update_all.py
- ***
- ***   Any manual change here will be lost the next time this script will
- ***   be run. You've been warned!
- ***
- ****************************************************************************
- ****************************************************************************/
+/*
+ * This file is auto-generated. Modifications will be lost.
+ *
+ * See https://android.googlesource.com/platform/bionic/+/master/libc/kernel/
+ * for more information.
+ */
 #ifndef _UAPI_INPUT_EVENT_CODES_H
 #define _UAPI_INPUT_EVENT_CODES_H
 #define INPUT_PROP_POINTER 0x00
@@ -540,6 +528,7 @@
 #define BTN_DPAD_RIGHT 0x223
 #define KEY_ALS_TOGGLE 0x230
 #define KEY_ROTATE_LOCK_TOGGLE 0x231
+#define KEY_REFRESH_RATE_TOGGLE 0x232
 #define KEY_BUTTONCONFIG 0x240
 #define KEY_TASKMANAGER 0x241
 #define KEY_JOURNAL 0x242
@@ -554,6 +543,8 @@
 #define KEY_CAMERA_ACCESS_ENABLE 0x24b
 #define KEY_CAMERA_ACCESS_DISABLE 0x24c
 #define KEY_CAMERA_ACCESS_TOGGLE 0x24d
+#define KEY_ACCESSIBILITY 0x24e
+#define KEY_DO_NOT_DISTURB 0x24f
 #define KEY_BRIGHTNESS_MIN 0x250
 #define KEY_BRIGHTNESS_MAX 0x251
 #define KEY_KBDINPUTASSIST_PREV 0x260

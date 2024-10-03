@@ -90,7 +90,7 @@ static sysconf_caches* __sysconf_caches() {
 
 #else
 
-long __sysconf_fread_long(const char* path) {
+static long __sysconf_fread_long(const char* path) {
   long result = 0;
   FILE* fp = fopen(path, "re");
   if (fp != nullptr) {
@@ -182,7 +182,8 @@ long sysconf(int name) {
 
     case _SC_AVPHYS_PAGES:      return get_avphys_pages();
     case _SC_CHILD_MAX:         return __sysconf_rlimit(RLIMIT_NPROC);
-    case _SC_CLK_TCK:           return static_cast<long>(getauxval(AT_CLKTCK));
+    case _SC_CLK_TCK:
+      return static_cast<long>(getauxval(AT_CLKTCK));
     case _SC_NPROCESSORS_CONF:  return get_nprocs_conf();
     case _SC_NPROCESSORS_ONLN:  return get_nprocs();
     case _SC_OPEN_MAX:          return __sysconf_rlimit(RLIMIT_NOFILE);
@@ -204,7 +205,11 @@ long sysconf(int name) {
     case _SC_COLL_WEIGHTS_MAX:  return _POSIX2_COLL_WEIGHTS_MAX;  // Minimum requirement.
     case _SC_EXPR_NEST_MAX:     return _POSIX2_EXPR_NEST_MAX;     // Minimum requirement.
     case _SC_LINE_MAX:          return _POSIX2_LINE_MAX;          // Minimum requirement.
-    case _SC_NGROUPS_MAX:       return NGROUPS_MAX;
+    case _SC_NGROUPS_MAX:
+      // Only root can read /proc/sys/kernel/ngroups_max on Android, and groups
+      // are vestigial anyway, so the "maximum maximum" of NGROUPS_MAX is a good
+      // enough answer for _SC_NGROUPS_MAX...
+      return NGROUPS_MAX;
     case _SC_PASS_MAX:          return PASS_MAX;
     case _SC_2_C_BIND:          return _POSIX2_C_BIND;
     case _SC_2_C_DEV:           return _POSIX2_C_DEV;
@@ -235,7 +240,7 @@ long sysconf(int name) {
     case _SC_AIO_LISTIO_MAX:    return _POSIX_AIO_LISTIO_MAX;     // Minimum requirement.
     case _SC_AIO_MAX:           return _POSIX_AIO_MAX;            // Minimum requirement.
     case _SC_AIO_PRIO_DELTA_MAX:return 0;                         // Minimum requirement.
-    case _SC_DELAYTIMER_MAX:    return INT_MAX;
+    case _SC_DELAYTIMER_MAX:    return _POSIX_DELAYTIMER_MAX;
     case _SC_MQ_OPEN_MAX:       return _POSIX_MQ_OPEN_MAX;        // Minimum requirement.
     case _SC_MQ_PRIO_MAX:       return _POSIX_MQ_PRIO_MAX;        // Minimum requirement.
     case _SC_RTSIG_MAX:         return RTSIG_MAX;
@@ -303,11 +308,11 @@ long sysconf(int name) {
     case _SC_THREAD_ROBUST_PRIO_PROTECT:  return _POSIX_THREAD_ROBUST_PRIO_PROTECT;
     case _SC_THREAD_SPORADIC_SERVER:      return _POSIX_THREAD_SPORADIC_SERVER;
     case _SC_TIMEOUTS:          return _POSIX_TIMEOUTS;
-    case _SC_TRACE:             return -1;             // Obsolescent in POSIX.1-2008.
-    case _SC_TRACE_EVENT_FILTER:      return -1;       // Obsolescent in POSIX.1-2008.
+    case _SC_TRACE:             return -1;
+    case _SC_TRACE_EVENT_FILTER:      return -1;
     case _SC_TRACE_EVENT_NAME_MAX:    return -1;
-    case _SC_TRACE_INHERIT:     return -1;             // Obsolescent in POSIX.1-2008.
-    case _SC_TRACE_LOG:         return -1;             // Obsolescent in POSIX.1-2008.
+    case _SC_TRACE_INHERIT:     return -1;
+    case _SC_TRACE_LOG:         return -1;
     case _SC_TRACE_NAME_MAX:    return -1;
     case _SC_TRACE_SYS_MAX:     return -1;
     case _SC_TRACE_USER_EVENT_MAX:    return -1;
@@ -316,7 +321,7 @@ long sysconf(int name) {
     case _SC_V7_ILP32_OFFBIG:   return _POSIX_V7_ILP32_OFFBIG;
     case _SC_V7_LP64_OFF64:     return _POSIX_V7_LP64_OFF64;
     case _SC_V7_LPBIG_OFFBIG:   return _POSIX_V7_LPBIG_OFFBIG;
-    case _SC_XOPEN_STREAMS:     return -1;            // Obsolescent in POSIX.1-2008.
+    case _SC_XOPEN_STREAMS:     return -1;
     case _SC_XOPEN_UUCP:        return -1;
 
     case _SC_LEVEL1_ICACHE_SIZE:      return __sysconf_caches()->l1_i.size;

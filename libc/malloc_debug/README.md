@@ -170,7 +170,7 @@ backtrace\_max\_size will be backtraced. The backtrace\_size option
 overrides this option, and should not be used at the same time.
 
 This option can also be used in combination with other tools such
-as [libmemunreachable](https://android.googlesource.com/platform/system/memory/libmemunreachable/+/master/README.md)
+as [libmemunreachable](https://android.googlesource.com/platform/system/memory/libmemunreachable/+/main/README.md)
 to only get backtraces for sizes of allocations listed as being leaked.
 
 ### backtrace\_max\_size=ALLOCATION\_SIZE\_BYTES
@@ -183,7 +183,7 @@ backtrace\_max\_size will be backtraced. The backtrace\_size option
 overrides this option, and should not be used at the same time.
 
 This option can also be used in combination with other tools such
-as [libmemunreachable](https://android.googlesource.com/platform/system/memory/libmemunreachable/+/master/README.md)
+as [libmemunreachable](https://android.googlesource.com/platform/system/memory/libmemunreachable/+/main/README.md)
 to only get backtraces for sizes of allocations listed as being leaked.
 
 ### backtrace\_size=ALLOCATION\_SIZE\_BYTES
@@ -192,7 +192,7 @@ that only allocations of size **ALLOCATION\_SIZE\_BYTES** will be backtraced.
 This option overrides the backtrace\_min\_size and the backtrace\_max\_size.
 
 This option can also be used in combination with other tools such
-as [libmemunreachable](https://android.googlesource.com/platform/system/memory/libmemunreachable/+/master/README.md)
+as [libmemunreachable](https://android.googlesource.com/platform/system/memory/libmemunreachable/+/main/README.md)
 to only get backtraces for sizes of allocations listed as being leaked.
 
 ### backtrace\_full
@@ -340,6 +340,16 @@ Example leak error found in the log:
     04-15 12:35:33.305  7412  7412 E malloc_debug:           #02  pc 000a9e38  /system/lib/libc++.so
     04-15 12:35:33.305  7412  7412 E malloc_debug:           #03  pc 000a28a8  /system/lib/libc++.so
 
+### log\_allocator\_stats\_on\_signal
+As of Android V, this option will trigger a call to:
+
+    mallopt(M_LOG_STATS, 0);
+
+When a process receives the signal SIGRTMAX - 15 (which is 49 on Android
+devices). The mallopt call is not async safe and is not called from the
+signal handler directly. Instead, the next time any allocation call occurs,
+the mallopt is called.
+
 ### record\_allocs[=TOTAL\_ENTRIES]
 Keep track of every allocation/free made on every thread and dump them
 to a file when the signal SIGRTMAX - 18 (which is 46 on Android devices)
@@ -445,6 +455,19 @@ If FILE\_NAME is set, then it indicates where the record allocation data
 will be placed.
 
 **NOTE**: This option is not available until the O release of Android.
+
+### record\_allocs\_on\_exit
+This option only has meaning if record\_allocs is set. It indicates that
+when the process terminates, the record file should be created
+automatically.
+
+The only caveat to this option is that when the process terminates,
+the file that will contain the records will be the normal file name
+with **.PID** appended. Where PID is the pid of the process that has
+terminated. This is to avoid cases where a number of processes exit
+at the same time and attempt to write to the same file.
+
+**NOTE**: This option is not available until the V release of Android.
 
 ### verify\_pointers
 Track all live allocations to determine if a pointer is used that does not

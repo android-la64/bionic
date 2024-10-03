@@ -1,21 +1,9 @@
-/****************************************************************************
- ****************************************************************************
- ***
- ***   This header was automatically generated from a Linux kernel header
- ***   of the same name, to make information necessary for userspace to
- ***   call into the kernel available to libc.  It contains only constants,
- ***   structures, and macros generated from the original header, and thus,
- ***   contains no copyrightable information.
- ***
- ***   To edit the content of this header, modify the corresponding
- ***   source file (e.g. under external/kernel-headers/original/) then
- ***   run bionic/libc/kernel/tools/update_all.py
- ***
- ***   Any manual change here will be lost the next time this script will
- ***   be run. You've been warned!
- ***
- ****************************************************************************
- ****************************************************************************/
+/*
+ * This file is auto-generated. Modifications will be lost.
+ *
+ * See https://android.googlesource.com/platform/bionic/+/master/libc/kernel/
+ * for more information.
+ */
 #ifndef __ARM_KVM_H__
 #define __ARM_KVM_H__
 #define KVM_SPSR_EL1 0
@@ -272,6 +260,12 @@ enum {
 #define KVM_PSCI_RET_NI PSCI_RET_NOT_SUPPORTED
 #define KVM_PSCI_RET_INVAL PSCI_RET_INVALID_PARAMS
 #define KVM_PSCI_RET_DENIED PSCI_RET_DENIED
+#define KVM_CAP_ARM_PROTECTED_VM_FLAGS_SET_FW_IPA 0
+#define KVM_CAP_ARM_PROTECTED_VM_FLAGS_INFO 1
+struct kvm_protected_vm_info {
+  __u64 firmware_size;
+  __u64 __reserved[7];
+};
 #define KVM_SYSTEM_EVENT_RESET_FLAG_PSCI_RESET2 (1ULL << 0)
 #define KVM_EXIT_FAIL_ENTRY_CPU_UNSUPPORTED (1ULL << 0)
 enum kvm_smccc_filter_action {

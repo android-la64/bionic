@@ -20,12 +20,15 @@
 
 #include <dirent.h>
 #include <fcntl.h>
-#include <linux/if_packet.h>
 #include <net/ethernet.h>
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
+
+// (glibc as of 2.37 has redefinitions if you include these before <net/if.h>.)
+#include <linux/if.h>
+#include <linux/if_packet.h>
 
 #include <algorithm>
 #include <map>
@@ -134,7 +137,7 @@ static void CheckAddressIsInSet(const std::string& if_name, bool unicast,
   sockaddr_in* sock = reinterpret_cast<sockaddr_in*>(&ifr.ifr_addr);
   in_addr_t addr = sock->sin_addr.s_addr;
 
-  EXPECT_TRUE(addrs.find(addr) != addrs.end()) << if_name << ' ' << std::hex << ntohl(addr);
+  EXPECT_TRUE(addrs.contains(addr)) << if_name << ' ' << std::hex << ntohl(addr);
 }
 
 TEST(ifaddrs, getifaddrs_INET) {
@@ -211,15 +214,9 @@ static std::string FlagsToString(short flags) {
   if ((flags & IFF_PORTSEL) != 0) result += " PORTSEL";
   if ((flags & IFF_AUTOMEDIA) != 0) result += " AUTOMEDIA";
   if ((flags & IFF_DYNAMIC) != 0) result += " DYNAMIC";
-#if defined(IFF_LOWER_UP)
   if ((flags & IFF_LOWER_UP) != 0) result += " LOWER_UP";
-#endif
-#if defined(IFF_DORMANT)
   if ((flags & IFF_DORMANT) != 0) result += " DORMANT";
-#endif
-#if defined(IFF_ECHO)
   if ((flags & IFF_ECHO) != 0) result += " ECHO";
-#endif
   return result;
 }
 
