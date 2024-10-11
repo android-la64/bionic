@@ -22,9 +22,6 @@ enum {
   IOMMUFD_CMD_VFIO_IOAS,
   IOMMUFD_CMD_HWPT_ALLOC,
   IOMMUFD_CMD_GET_HW_INFO,
-  IOMMUFD_CMD_HWPT_SET_DIRTY_TRACKING,
-  IOMMUFD_CMD_HWPT_GET_DIRTY_BITMAP,
-  IOMMUFD_CMD_HWPT_INVALIDATE,
 };
 struct iommu_destroy {
   __u32 size;
@@ -119,25 +116,6 @@ struct iommu_vfio_ioas {
   __u16 __reserved;
 };
 #define IOMMU_VFIO_IOAS _IO(IOMMUFD_TYPE, IOMMUFD_CMD_VFIO_IOAS)
-enum iommufd_hwpt_alloc_flags {
-  IOMMU_HWPT_ALLOC_NEST_PARENT = 1 << 0,
-  IOMMU_HWPT_ALLOC_DIRTY_TRACKING = 1 << 1,
-};
-enum iommu_hwpt_vtd_s1_flags {
-  IOMMU_VTD_S1_SRE = 1 << 0,
-  IOMMU_VTD_S1_EAFE = 1 << 1,
-  IOMMU_VTD_S1_WPE = 1 << 2,
-};
-struct iommu_hwpt_vtd_s1 {
-  __aligned_u64 flags;
-  __aligned_u64 pgtbl_addr;
-  __u32 addr_width;
-  __u32 __reserved;
-};
-enum iommu_hwpt_data_type {
-  IOMMU_HWPT_DATA_NONE,
-  IOMMU_HWPT_DATA_VTD_S1,
-};
 struct iommu_hwpt_alloc {
   __u32 size;
   __u32 flags;
@@ -145,14 +123,8 @@ struct iommu_hwpt_alloc {
   __u32 pt_id;
   __u32 out_hwpt_id;
   __u32 __reserved;
-  __u32 data_type;
-  __u32 data_len;
-  __aligned_u64 data_uptr;
 };
 #define IOMMU_HWPT_ALLOC _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_ALLOC)
-enum iommu_hw_info_vtd_flags {
-  IOMMU_HW_INFO_VTD_ERRATA_772415_SPR17 = 1 << 0,
-};
 struct iommu_hw_info_vtd {
   __u32 flags;
   __u32 __reserved;
@@ -163,9 +135,6 @@ enum iommu_hw_info_type {
   IOMMU_HW_INFO_TYPE_NONE,
   IOMMU_HW_INFO_TYPE_INTEL_VTD,
 };
-enum iommufd_hw_capabilities {
-  IOMMU_HW_CAP_DIRTY_TRACKING = 1 << 0,
-};
 struct iommu_hw_info {
   __u32 size;
   __u32 flags;
@@ -174,53 +143,6 @@ struct iommu_hw_info {
   __aligned_u64 data_uptr;
   __u32 out_data_type;
   __u32 __reserved;
-  __aligned_u64 out_capabilities;
 };
 #define IOMMU_GET_HW_INFO _IO(IOMMUFD_TYPE, IOMMUFD_CMD_GET_HW_INFO)
-enum iommufd_hwpt_set_dirty_tracking_flags {
-  IOMMU_HWPT_DIRTY_TRACKING_ENABLE = 1,
-};
-struct iommu_hwpt_set_dirty_tracking {
-  __u32 size;
-  __u32 flags;
-  __u32 hwpt_id;
-  __u32 __reserved;
-};
-#define IOMMU_HWPT_SET_DIRTY_TRACKING _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_SET_DIRTY_TRACKING)
-enum iommufd_hwpt_get_dirty_bitmap_flags {
-  IOMMU_HWPT_GET_DIRTY_BITMAP_NO_CLEAR = 1,
-};
-struct iommu_hwpt_get_dirty_bitmap {
-  __u32 size;
-  __u32 hwpt_id;
-  __u32 flags;
-  __u32 __reserved;
-  __aligned_u64 iova;
-  __aligned_u64 length;
-  __aligned_u64 page_size;
-  __aligned_u64 data;
-};
-#define IOMMU_HWPT_GET_DIRTY_BITMAP _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_GET_DIRTY_BITMAP)
-enum iommu_hwpt_invalidate_data_type {
-  IOMMU_HWPT_INVALIDATE_DATA_VTD_S1,
-};
-enum iommu_hwpt_vtd_s1_invalidate_flags {
-  IOMMU_VTD_INV_FLAGS_LEAF = 1 << 0,
-};
-struct iommu_hwpt_vtd_s1_invalidate {
-  __aligned_u64 addr;
-  __aligned_u64 npages;
-  __u32 flags;
-  __u32 __reserved;
-};
-struct iommu_hwpt_invalidate {
-  __u32 size;
-  __u32 hwpt_id;
-  __aligned_u64 data_uptr;
-  __u32 data_type;
-  __u32 entry_len;
-  __u32 entry_num;
-  __u32 __reserved;
-};
-#define IOMMU_HWPT_INVALIDATE _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_INVALIDATE)
 #endif

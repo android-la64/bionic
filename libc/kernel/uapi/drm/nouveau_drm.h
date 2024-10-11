@@ -25,6 +25,7 @@ extern "C" {
 #define NOUVEAU_GETPARAM_EXEC_PUSH_MAX 17
 #define NOUVEAU_GETPARAM_VRAM_BAR_SIZE 18
 #define NOUVEAU_GETPARAM_VRAM_USED 19
+#define NOUVEAU_GETPARAM_HAS_VMA_TILEMODE 20
 struct drm_nouveau_getparam {
   __u64 param;
   __u64 value;

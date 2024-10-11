@@ -30,10 +30,6 @@ struct io_uring_sqe {
   union {
     __u64 addr;
     __u64 splice_off_in;
-    struct {
-      __u32 level;
-      __u32 optname;
-    };
   };
   __u32 len;
   union {
@@ -56,9 +52,6 @@ struct io_uring_sqe {
     __u32 xattr_flags;
     __u32 msg_ring_flags;
     __u32 uring_cmd_flags;
-    __u32 waitid_flags;
-    __u32 futex_flags;
-    __u32 install_fd_flags;
   };
   __u64 user_data;
   union {
@@ -69,7 +62,6 @@ struct io_uring_sqe {
   union {
     __s32 splice_fd_in;
     __u32 file_index;
-    __u32 optlen;
     struct {
       __u16 addr_len;
       __u16 __pad3[1];
@@ -80,7 +72,6 @@ struct io_uring_sqe {
       __u64 addr3;
       __u64 __pad2[1];
     };
-    __u64 optval;
     __u8 cmd[0];
   };
 };
@@ -168,17 +159,10 @@ enum io_uring_op {
   IORING_OP_URING_CMD,
   IORING_OP_SEND_ZC,
   IORING_OP_SENDMSG_ZC,
-  IORING_OP_READ_MULTISHOT,
-  IORING_OP_WAITID,
-  IORING_OP_FUTEX_WAIT,
-  IORING_OP_FUTEX_WAKE,
-  IORING_OP_FUTEX_WAITV,
-  IORING_OP_FIXED_FD_INSTALL,
-  IORING_OP_FTRUNCATE,
   IORING_OP_LAST,
 };
 #define IORING_URING_CMD_FIXED (1U << 0)
-#define IORING_URING_CMD_MASK IORING_URING_CMD_FIXED
+#define IORING_URING_CMD_POLLED (1U << 31)
 #define IORING_FSYNC_DATASYNC (1U << 0)
 #define IORING_TIMEOUT_ABS (1U << 0)
 #define IORING_TIMEOUT_UPDATE (1U << 1)
@@ -212,7 +196,6 @@ enum {
 };
 #define IORING_MSG_RING_CQE_SKIP (1U << 0)
 #define IORING_MSG_RING_FLAGS_PASS (1U << 1)
-#define IORING_FIXED_FD_NO_CLOEXEC (1U << 0)
 struct io_uring_cqe {
   __u64 user_data;
   __s32 res;
@@ -316,9 +299,6 @@ enum {
   IORING_UNREGISTER_PBUF_RING = 23,
   IORING_REGISTER_SYNC_CANCEL = 24,
   IORING_REGISTER_FILE_ALLOC_RANGE = 25,
-  IORING_REGISTER_PBUF_STATUS = 26,
-  IORING_REGISTER_NAPI = 27,
-  IORING_UNREGISTER_NAPI = 28,
   IORING_REGISTER_LAST,
   IORING_REGISTER_USE_REGISTERED_RING = 1U << 31
 };
@@ -404,17 +384,6 @@ struct io_uring_buf_reg {
   __u16 flags;
   __u64 resv[3];
 };
-struct io_uring_buf_status {
-  __u32 buf_group;
-  __u32 head;
-  __u32 resv[8];
-};
-struct io_uring_napi {
-  __u32 busy_poll_to;
-  __u8 prefer_busy_poll;
-  __u8 pad[3];
-  __u64 resv;
-};
 enum {
   IORING_RESTRICTION_REGISTER_OP = 0,
   IORING_RESTRICTION_SQE_OP = 1,
@@ -451,8 +420,6 @@ struct io_uring_recvmsg_out {
 enum {
   SOCKET_URING_OP_SIOCINQ = 0,
   SOCKET_URING_OP_SIOCOUTQ,
-  SOCKET_URING_OP_GETSOCKOPT,
-  SOCKET_URING_OP_SETSOCKOPT,
 };
 #ifdef __cplusplus
 }
