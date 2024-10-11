@@ -121,7 +121,7 @@
 #define TLS_SLOT_NATIVE_BRIDGE_GUEST_STATE 10
 #define MAX_TLS_SLOT 10  // update this value when reserving a slot
 
-#elif defined(__riscv)
+#elif defined(__riscv) || defined(__loongarch__)
 
 // RISC-V ELF Specification[1] specifies that RISC-V uses Variant I as described
 // by the ELF TLS specification, with tp containing the address one past the end

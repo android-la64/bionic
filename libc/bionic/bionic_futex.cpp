@@ -82,6 +82,7 @@ int __futex_pi_lock_ex(volatile void* ftx, bool shared, bool use_realtime_clock,
   static atomic_int lock_op = 0;
   int op = atomic_load_explicit(&lock_op, memory_order_relaxed);
   if (op == 0) {
+#if 0
     uint32_t tmp = 0;
     if (__futex(&tmp, FUTEX_LOCK_PI2, 0, nullptr, 0) == 0) {
       __futex(&tmp, FUTEX_UNLOCK_PI, 0, nullptr, 0);
@@ -89,6 +90,9 @@ int __futex_pi_lock_ex(volatile void* ftx, bool shared, bool use_realtime_clock,
     } else {
       op = FUTEX_LOCK_PI;
     }
+#else
+    op = FUTEX_LOCK_PI;
+#endif
     atomic_store_explicit(&lock_op, op, memory_order_relaxed);
   }
 

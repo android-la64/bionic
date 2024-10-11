@@ -141,11 +141,12 @@ static std::string generateGuardCondition(const DeclarationAvailability& avail) 
   std::vector<std::string> expressions;
   static const std::vector<std::pair<std::string, std::set<Arch>>> arch_sets = {
       {"!defined(__LP64__)", {Arch::arm, Arch::x86}},
-      {"defined(__LP64__)", {Arch::arm64, Arch::riscv64, Arch::x86_64}},
+      {"defined(__LP64__)", {Arch::arm64, Arch::loongarch64, Arch::riscv64, Arch::x86_64}},
   };
   std::map<Arch, std::string> individual_archs = {
     { Arch::arm, "defined(__arm__)" },
     { Arch::arm64, "defined(__aarch64__)" },
+    { Arch::loongarch64, "defined(__loongarch64)" },
     { Arch::riscv64, "defined(__riscv)" },
     { Arch::x86, "defined(__i386__)" },
     { Arch::x86_64, "defined(__x86_64__)" },

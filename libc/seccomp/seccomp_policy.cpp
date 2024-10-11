@@ -76,6 +76,19 @@ static const size_t secondary_system_filter_size = x86_system_filter_size;
 static const long secondary_setresgid = __x86_setresgid;
 static const long secondary_setresuid = __x86_setresuid;
 
+#elif defined(__loongarch__)
+
+#define PRIMARY_ARCH AUDIT_ARCH_LOONGARCH64
+static const struct sock_filter* primary_app_filter = loongarch64_app_filter;
+static const size_t primary_app_filter_size = loongarch64_app_filter_size;
+static const struct sock_filter* primary_app_zygote_filter = loongarch64_app_zygote_filter;
+static const size_t primary_app_zygote_filter_size = loongarch64_app_zygote_filter_size;
+static const struct sock_filter* primary_system_filter = loongarch64_system_filter;
+static const size_t primary_system_filter_size = loongarch64_system_filter_size;
+
+static const long primary_setresgid = __loongarch64_setresgid;
+static const long primary_setresuid = __loongarch64_setresuid;
+
 #elif defined(__riscv)
 
 #define PRIMARY_ARCH AUDIT_ARCH_RISCV64

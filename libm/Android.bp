@@ -323,6 +323,19 @@ cc_library {
             version_script: ":libm.arm64.map",
         },
 
+        loongarch64: {
+            srcs: [
+                "fenv-loongarch64.c",
+            ],
+
+            //to check
+            exclude_srcs: [
+            ],
+            version_script: ":libm.loongarch64.map",
+            // "#pragma STDC FENV_ACCESS ON" in e_sqrtl.c is not supported for loongarch64.
+            cflags: ["-Wno-ignored-pragmas"],
+        },
+
         riscv64: {
             srcs: [
                 "riscv64/fenv.c",
@@ -483,6 +496,14 @@ genrule {
     srcs: ["libm.map.txt"],
     tools: ["generate-version-script"],
     cmd: "$(location generate-version-script) arm64 $(in) $(out)",
+}
+
+genrule {
+    name: "libm.loongarch64.map",
+    out: ["libm.loongarch64.map.txt"],
+    srcs: ["libm.map.txt"],
+    tools: ["generate-version-script"],
+    cmd: "$(location generate-version-script) loongarch64 $(in) $(out)",
 }
 
 genrule {

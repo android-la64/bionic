@@ -15,7 +15,7 @@ import sys
 import tempfile
 
 
-SupportedArchitectures = [ "arm", "arm64", "riscv64", "x86", "x86_64" ]
+SupportedArchitectures = [ "arm", "arm64", "loongarch64", "riscv64", "x86", "x86_64" ]
 
 syscall_stub_header = \
 """
@@ -78,6 +78,23 @@ arm64_call = syscall_stub_header + """\
 END(%(func)s)
 """
 
+#
+# LoongArch64 assembler templates for each syscall stub
+#
+
+loongarch64_call = syscall_stub_header + """\
+    li.d    a7, %(__NR_name)s
+    syscall 0
+
+    li.d    t0, -(MAX_ERRNO + 1)
+    bltu    t0, a0, 1f
+
+    jirl    zero, ra, 0
+1:
+    sub.d   a0, zero, a0
+    b       __set_errno_internal
+END(%(func)s)
+"""
 
 #
 # RISC-V64 assembler templates for each syscall stub
@@ -240,10 +257,11 @@ def arm_eabi_genstub(syscall):
 def arm64_genstub(syscall):
     return arm64_call % syscall
 
+def loongarch64_genstub(syscall):
+    return loongarch64_call % syscall
 
 def riscv64_genstub(syscall):
     return riscv64_call % syscall
-
 
 def x86_genstub(syscall):
     result     = syscall_stub_header % syscall
@@ -460,6 +478,9 @@ def main(arch, syscall_file):
 
         if "arm64" in syscall:
             syscall["asm-arm64"] = add_footer(64, arm64_genstub(syscall), syscall)
+
+        if "loongarch64" in syscall:
+            syscall["asm-loongarch64"] = add_footer(64, loongarch64_genstub(syscall), syscall)
 
         if "riscv64" in syscall:
             syscall["asm-riscv64"] = add_footer(64, riscv64_genstub(syscall), syscall)
