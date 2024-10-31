@@ -374,9 +374,9 @@ typedef elf_fpreg_t elf_fpregset_t[ELF_NFPREG];
 typedef struct sigcontext mcontext_t;
 
 /* Userlevel context.  */
-typedef struct ucontext_t {
+typedef struct ucontext {
   unsigned long uc_flags;
-  struct ucontext_t *uc_link;
+  struct ucontext *uc_link;
   stack_t uc_stack;
   sigset_t        uc_sigmask;
   /* There's some padding here to allow sigset_t to be expanded in the
