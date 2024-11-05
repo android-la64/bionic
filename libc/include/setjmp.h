@@ -62,6 +62,8 @@
 #elif defined(__i386__)
 /** The size in words of an x86 jmp_buf. Inherited from OpenBSD. */
 #define _JBLEN 10
+#elif defined(__loongarch__)
+#define _JBLEN 64
 #elif defined(__riscv)
 /**
  * The size in words of a riscv64 jmp_buf. Room for callee-saved registers,
