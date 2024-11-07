@@ -378,7 +378,10 @@ typedef struct ucontext {
   unsigned long uc_flags;
   struct ucontext *uc_link;
   stack_t uc_stack;
-  sigset_t        uc_sigmask;
+  union {
+    sigset_t uc_sigmask;
+    sigset64_t uc_sigmask64;
+  };
   /* There's some padding here to allow sigset_t to be expanded in the
    * future.  Though this is unlikely, other architectures put uc_sigmask
    * at the end of this structure and explicitly state it can be

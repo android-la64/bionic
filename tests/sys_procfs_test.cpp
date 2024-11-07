@@ -47,6 +47,8 @@ TEST(sys_procfs, constants) {
   static_assert(sizeof(user_regs) / sizeof(elf_greg_t) == ELF_NGREG);
 #elif defined(__aarch64__)
   static_assert(sizeof(user_pt_regs) / sizeof(elf_greg_t) == ELF_NGREG);
+#elif defined(__loongarch64)
+  static_assert(45 == ELF_NGREG);
 #else
   static_assert(sizeof(user_regs_struct) / sizeof(elf_greg_t) == ELF_NGREG);
 #endif

@@ -30,7 +30,7 @@
 
 ENTRY(_start)
   // Force unwinds to end in this function.
-  .cfi_undefined ra
+  .cfi_undefined 1
 
   move a0, sp
   la.pcrel   t0, __linker_init

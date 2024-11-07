@@ -38,6 +38,8 @@ __BEGIN_DECLS
 #define ELF_NGREG (sizeof(struct user_regs) / sizeof(elf_greg_t))
 #elif defined(__aarch64__)
 #define ELF_NGREG (sizeof(struct user_pt_regs) / sizeof(elf_greg_t))
+#elif defined(__loongarch64)
+#define ELF_NGREG 45
 #else
 #define ELF_NGREG (sizeof(struct user_regs_struct) / sizeof(elf_greg_t))
 #endif
@@ -45,7 +47,9 @@ __BEGIN_DECLS
 typedef unsigned long elf_greg_t;
 typedef elf_greg_t elf_gregset_t[ELF_NGREG];
 
+#if !defined(__loongarch64)
 typedef fpregset_t elf_fpregset_t;
+#endif
 
 #if defined(__i386__)
 typedef struct user_fpxregs_struct elf_fpxregset_t;

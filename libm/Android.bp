@@ -330,6 +330,26 @@ cc_library {
 
             //to check
             exclude_srcs: [
+                "upstream-freebsd/lib/msun/src/s_fma.c",
+                "upstream-freebsd/lib/msun/src/s_fmaf.c",
+                "upstream-freebsd/lib/msun/src/s_fmax.c",
+                "upstream-freebsd/lib/msun/src/s_fmaxf.c",
+                "upstream-freebsd/lib/msun/src/s_fmin.c",
+                "upstream-freebsd/lib/msun/src/s_fminf.c",
+                "upstream-freebsd/lib/msun/src/s_llrint.c",
+                "upstream-freebsd/lib/msun/src/s_llrintf.c",
+                "upstream-freebsd/lib/msun/src/s_llround.c",
+                "upstream-freebsd/lib/msun/src/s_llroundf.c",
+                "upstream-freebsd/lib/msun/src/s_lrint.c",
+                "upstream-freebsd/lib/msun/src/s_lrintf.c",
+                "upstream-freebsd/lib/msun/src/s_lround.c",
+                "upstream-freebsd/lib/msun/src/s_lroundf.c",
+                "upstream-freebsd/lib/msun/src/s_rint.c",
+                "upstream-freebsd/lib/msun/src/s_rintf.c",
+                "upstream-freebsd/lib/msun/src/s_round.c",
+                "upstream-freebsd/lib/msun/src/s_roundf.c",
+                "upstream-freebsd/lib/msun/src/s_trunc.c",
+                "upstream-freebsd/lib/msun/src/s_truncf.c",
             ],
             version_script: ":libm.loongarch64.map",
             // "#pragma STDC FENV_ACCESS ON" in e_sqrtl.c is not supported for loongarch64.

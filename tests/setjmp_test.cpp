@@ -258,6 +258,8 @@ TEST(setjmp, setjmp_fp_registers) {
 #define JB_SIGFLAG_OFFSET 0
 #elif defined(__i386__)
 #define JB_SIGFLAG_OFFSET 8
+#elif defined(__loongarch64)
+#define JB_SIGFLAG_OFFSET 0
 #elif defined(__riscv)
 #define JB_SIGFLAG_OFFSET 0
 #elif defined(__x86_64)

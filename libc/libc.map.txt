@@ -740,7 +740,7 @@ LIBC {
     pread;
     pread64; # introduced-arm=12 introduced-arm64=21 introduced-x86=12 introduced-x86_64=21
     printf;
-    prlimit; # arm64 x86_64 riscv64
+    prlimit; # arm64 x86_64 riscv64 loongarch64
     prlimit64; # introduced=21
     process_vm_readv; # introduced=23
     process_vm_writev; # introduced=23

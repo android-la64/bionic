@@ -55,6 +55,8 @@ static int GetTargetElfMachine() {
   return EM_AARCH64;
 #elif defined(__i386__)
   return EM_386;
+#elif defined(__loongarch64)
+  return EM_LOONGARCH;
 #elif defined(__riscv)
   return EM_RISCV;
 #elif defined(__x86_64__)

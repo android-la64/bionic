@@ -530,7 +530,7 @@ TEST(signal, sighold_filter) {
 #endif
 }
 
-#if defined(__BIONIC__) && !defined(__riscv)
+#if defined(__BIONIC__) && !defined(__riscv) && !defined(__loongarch64)
 // Not exposed via headers, but the symbols are available if you declare them yourself.
 extern "C" int sigblock(int);
 extern "C" int sigsetmask(int);

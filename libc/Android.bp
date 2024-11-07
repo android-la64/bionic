@@ -2685,7 +2685,7 @@ cc_genrule {
         ":libseccomp_gen_syscall_nrs_loongarch64",
     ],
     out: [
-        "loongarch64.cpp",
+        "loongarch64_app_zygote_policy.cpp",
     ],
     enabled: false,
     arch: {

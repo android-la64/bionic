@@ -22,7 +22,7 @@ double fabs(double x) { return __builtin_fabs(x); }
 float fabsf(float x) { return __builtin_fabsf(x); }
 long double fabsl(long double x) { return __builtin_fabsl(x); }
 
-#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__)
+#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__) || defined(__loongarch64)
 float ceilf(float x) { return __builtin_ceilf(x); }
 double ceil(double x) { return __builtin_ceil(x); }
 #if defined(__ILP32__)
@@ -54,7 +54,7 @@ __weak_reference(floor, floorl);
 #endif
 #endif
 
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch64)
 float fmaf(float x, float y, float z) { return __builtin_fmaf(x, y, z); }
 double fma(double x, double y, double z) { return __builtin_fma(x, y, z); }
 
@@ -65,21 +65,21 @@ float fminf(float x, float y) { return __builtin_fminf(x, y); }
 double fmin(double x, double y) { return __builtin_fmin(x, y); }
 #endif
 
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch64)
 long lrint(double x) { return __builtin_lrint(x); }
 long lrintf(float x) { return __builtin_lrintf(x); }
 long long llrint(double x) { return __builtin_llrint(x); }
 long long llrintf(float x) { return __builtin_llrintf(x); }
 #endif
 
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch64)
 long lround(double x) { return __builtin_lround(x); }
 long lroundf(float x) { return __builtin_lroundf(x); }
 long long llround(double x) { return __builtin_llround(x); }
 long long llroundf(float x) { return __builtin_llroundf(x); }
 #endif
 
-#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__)
+#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__) || defined(__loongarch64)
 float rintf(float x) { return __builtin_rintf(x); }
 double rint(double x) { return __builtin_rint(x); }
 #if defined(__ILP32__)
@@ -87,7 +87,7 @@ __weak_reference(rint, rintl);
 #endif
 #endif
 
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch64)
 float roundf(float x) { return __builtin_roundf(x); }
 double round(double x) { return __builtin_round(x); }
 #endif
@@ -98,7 +98,7 @@ double sqrt(double x) { return __builtin_sqrt(x); }
 __weak_reference(sqrt, sqrtl);
 #endif
 
-#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__)
+#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__) || defined(__loongarch64)
 float truncf(float x) { return __builtin_truncf(x); }
 double trunc(double x) { return __builtin_trunc(x); }
 #if defined(__ILP32__)
