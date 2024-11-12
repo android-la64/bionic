@@ -340,7 +340,7 @@ typedef struct ucontext {
 #define ELF_NFPREG  34
 
 #define NGREG ELF_NGREG
-#define NFREG ELF_NFREG
+#define NFREG ELF_NFPREG
 
 #if defined(__USE_GNU)
 
