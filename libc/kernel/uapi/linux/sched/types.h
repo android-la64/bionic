@@ -7,9 +7,12 @@
 #ifndef _UAPI_LINUX_SCHED_TYPES_H
 #define _UAPI_LINUX_SCHED_TYPES_H
 #include <linux/types.h>
+#ifndef _SCHED_PARAM_DEFINED
+#define _SCHED_PARAM_DEFINED
 struct sched_param {
   int sched_priority;
 };
+#endif
 #define SCHED_ATTR_SIZE_VER0 48
 #define SCHED_ATTR_SIZE_VER1 56
 struct sched_attr {

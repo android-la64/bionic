@@ -94,9 +94,12 @@ __BEGIN_DECLS
  * See sched_getparam()/sched_setparam() and
  * sched_getscheduler()/sched_setscheduler().
  */
+#ifndef _SCHED_PARAM_DEFINED
+#define _SCHED_PARAM_DEFINED
 struct sched_param {
   int sched_priority;
 };
+#endif
 
 /**
  * [sched_setscheduler(2)](https://man7.org/linux/man-pages/man2/sched_setscheduler.2.html)
