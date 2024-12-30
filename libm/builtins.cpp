@@ -23,8 +23,12 @@ float fabsf(float x) { return __builtin_fabsf(x); }
 long double fabsl(long double x) { return __builtin_fabsl(x); }
 
 #if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__) || defined(__loongarch64)
-float ceilf(float x) { return __builtin_ceilf(x); }
-double ceil(double x) { return __builtin_ceil(x); }
+float ceilf(float x) { float fr; int r; __asm__("ftintrp.l.s %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (float)r; }
+//float ceilf(float x) { return __builtin_ceilf(x); }
+//double ceil(double x) { return __builtin_ceil(x); }
+double ceil(double x) { double fr; long r; __asm__("ftintrp.l.d %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (double)r; }
 #if defined(__ILP32__)
 __weak_reference(ceil, ceill);
 #endif
