@@ -22,11 +22,12 @@ double fabs(double x) { return __builtin_fabs(x); }
 float fabsf(float x) { return __builtin_fabsf(x); }
 long double fabsl(long double x) { return __builtin_fabsl(x); }
 
-#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__) || defined(__loongarch64)
+#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__)
+float ceilf(float x) { return __builtin_ceilf(x); }
+double ceil(double x) { return __builtin_ceil(x); }
+#elif defined(__loongarch64)
 float ceilf(float x) { float fr; int r; __asm__("ftintrp.l.s %0,%2\r\n"
                                                   "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (float)r; }
-//float ceilf(float x) { return __builtin_ceilf(x); }
-//double ceil(double x) { return __builtin_ceil(x); }
 double ceil(double x) { double fr; long r; __asm__("ftintrp.l.d %0,%2\r\n"
                                                   "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (double)r; }
 #if defined(__ILP32__)
@@ -50,6 +51,11 @@ namespace s_floorf {
 }
 float floorf(float x) { return s_floorf::floorf(x); }
 double floor(double x) { return s_floor::floor(x); }
+#elif defined(__loongarch64)
+double floor(double x) { double fr; long r; __asm__("ftintrm.l.d %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (double)r; }
+float floorf(float x) { float fr; int r; __asm__("ftintrm.l.s %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (float)r; }
 #else
 float floorf(float x) { return __builtin_floorf(x); }
 double floor(double x) { return __builtin_floor(x); }
@@ -76,11 +82,20 @@ long long llrint(double x) { return __builtin_llrint(x); }
 long long llrintf(float x) { return __builtin_llrintf(x); }
 #endif
 
-#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch64)
+#if defined(__aarch64__) || defined(__riscv)
 long lround(double x) { return __builtin_lround(x); }
 long lroundf(float x) { return __builtin_lroundf(x); }
 long long llround(double x) { return __builtin_llround(x); }
 long long llroundf(float x) { return __builtin_llroundf(x); }
+#elif defined(__loongarch64)
+long lround(double x) { double fr; long r; __asm__("ftintrne.l.d %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return r; }
+long lroundf(float x) { float fr; long r; __asm__("ftintrne.l.s %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return r; }
+long long llround(double x) { double fr; long long r; __asm__("ftintrne.l.d %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return r; }
+long long llroundf(float x) { float fr; long long r; __asm__("ftintrne.l.s %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return r; }
 #endif
 
 #if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__) || defined(__loongarch64)
@@ -91,9 +106,14 @@ __weak_reference(rint, rintl);
 #endif
 #endif
 
-#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch64)
+#if defined(__aarch64__) || defined(__riscv)
 float roundf(float x) { return __builtin_roundf(x); }
 double round(double x) { return __builtin_round(x); }
+#elif defined(__loongarch64)
+float roundf(float x) { float fr; long r; __asm__("ftintrne.l.s %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (float)r; }
+double round(double x) { double fr; long r; __asm__("ftintrne.l.d %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (double)r; }
 #endif
 
 float sqrtf(float x) { return __builtin_sqrtf(x); }
@@ -102,9 +122,14 @@ double sqrt(double x) { return __builtin_sqrt(x); }
 __weak_reference(sqrt, sqrtl);
 #endif
 
-#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__) || defined(__loongarch64)
+#if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__)
 float truncf(float x) { return __builtin_truncf(x); }
 double trunc(double x) { return __builtin_trunc(x); }
+#elif defined(__loongarch64)
+float truncf(float x) { float fr; long r; __asm__("ftintrz.l.s %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (float)r; }
+double trunc(double x) { double fr; long r; __asm__("ftintrz.l.d %0,%2\r\n"
+                                                  "movfr2gr.d %1, %0": "=f"(fr), "=r"(r):"f"(x)); return (double)r; }
 #if defined(__ILP32__)
 __weak_reference(trunc, truncl);
 #endif
