@@ -92,8 +92,8 @@ TEST(fenv, feraiseexcept) {
   feclearexcept(FE_ALL_EXCEPT);
   ASSERT_EQ(0, fetestexcept(FE_ALL_EXCEPT));
 
-  ASSERT_EQ(0, feraiseexcept(FE_DIVBYZERO | FE_OVERFLOW));
-  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(0, feraiseexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT ));
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW| FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 }
 
 TEST(fenv, fegetenv_fesetenv) {
@@ -105,16 +105,16 @@ TEST(fenv, fegetenv_fesetenv) {
   // fegetenv (unlike feholdexcept) leaves the current state untouched...
   fenv_t state;
   ASSERT_EQ(0, fegetenv(&state));
-  ASSERT_EQ(FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 
   // Dividing by zero sets the appropriate flag...
   DivideByZero();
-  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 
   // And fesetenv (unlike feupdateenv) clobbers that to return to where
   // we started.
   ASSERT_EQ(0, fesetenv(&state));
-  ASSERT_EQ(FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 }
 
 TEST(fenv, fegetenv_fesetenv_rounding_mode) {
@@ -150,29 +150,29 @@ TEST(fenv, feholdexcept_feupdateenv) {
   // And feupdateenv (unlike fesetenv) merges what we started with
   // (FE_OVERFLOW) with what we now have (FE_DIVBYZERO).
   ASSERT_EQ(0, feupdateenv(&state));
-  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 }
 
 TEST(fenv, fegetexceptflag_fesetexceptflag) {
   // Set three flags.
   feclearexcept(FE_ALL_EXCEPT);
-  ASSERT_EQ(0, feraiseexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW));
-  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(0, feraiseexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT));
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 
   fexcept_t all; // FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW
   fexcept_t two; // FE_OVERFLOW | FE_UNDERFLOW
   ASSERT_EQ(0, fegetexceptflag(&all, FE_ALL_EXCEPT));
-  ASSERT_EQ(0, fegetexceptflag(&two, FE_OVERFLOW | FE_UNDERFLOW));
+  ASSERT_EQ(0, fegetexceptflag(&two, FE_OVERFLOW | FE_INEXACT));
 
   // Check we can restore all.
   feclearexcept(FE_ALL_EXCEPT);
   ASSERT_EQ(0, fesetexceptflag(&all, FE_ALL_EXCEPT));
-  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(FE_DIVBYZERO | FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 
   // Check that `two` only stored a subset.
   feclearexcept(FE_ALL_EXCEPT);
   ASSERT_EQ(0, fesetexceptflag(&two, FE_ALL_EXCEPT));
-  ASSERT_EQ(FE_OVERFLOW | FE_UNDERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 
   // Check that we can restore a single flag.
   feclearexcept(FE_ALL_EXCEPT);
@@ -181,8 +181,8 @@ TEST(fenv, fegetexceptflag_fesetexceptflag) {
 
   // Check that we can restore a subset of flags.
   feclearexcept(FE_ALL_EXCEPT);
-  ASSERT_EQ(0, fesetexceptflag(&all, FE_OVERFLOW | FE_UNDERFLOW));
-  ASSERT_EQ(FE_OVERFLOW | FE_UNDERFLOW, fetestexcept(FE_ALL_EXCEPT));
+  ASSERT_EQ(0, fesetexceptflag(&all, FE_OVERFLOW | FE_INEXACT));
+  ASSERT_EQ(FE_OVERFLOW | FE_INEXACT, fetestexcept(FE_ALL_EXCEPT));
 }
 
 TEST(fenv, fedisableexcept_fegetexcept) {
