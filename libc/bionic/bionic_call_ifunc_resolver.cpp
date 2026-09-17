@@ -53,6 +53,16 @@ ElfW(Addr) __bionic_call_ifunc_resolver(ElfW(Addr) resolver_addr) {
   typedef ElfW(Addr) (*ifunc_resolver_t)(unsigned long);
   static unsigned long hwcap = getauxval(AT_HWCAP);
   return reinterpret_cast<ifunc_resolver_t>(resolver_addr)(hwcap);
+#elif defined(__loongarch__)
+  typedef ElfW(Addr) (*ifunc_resolver_t)(const __ifunc_arg_t*);
+  static __ifunc_arg_t arg;
+  static bool initialized = false;
+  if (!initialized) {
+    initialized = true;
+    arg._size = sizeof(arg);
+    arg._hwcap = getauxval(AT_HWCAP);
+  }
+  return reinterpret_cast<ifunc_resolver_t>(resolver_addr)(&arg);
 #elif defined(__riscv)
   // The third argument is currently unused, but reserved for future
   // expansion. If we pass nullptr from the beginning, it'll be easier

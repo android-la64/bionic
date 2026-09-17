@@ -32,7 +32,7 @@
 
 /**
  * @file sys/ifunc.h
- * @brief Declarations used for ifunc resolvers. Currently only meaningful for arm64.
+ * @brief Declarations used for ifunc resolvers.
  */
 
 __BEGIN_DECLS
@@ -72,6 +72,20 @@ typedef struct __ifunc_arg_t {
  * which was an evolutionary stage Android never went through.
  */
 #define _IFUNC_ARG_HWCAP (1ULL << 62)
+
+#elif defined(__loongarch__)
+
+/**
+ * LoongArch ifunc resolvers receive one pointer to this structure.
+ * Check _size before reading fields so later versions can extend it.
+ */
+typedef struct __ifunc_arg_t {
+  /** Set to sizeof(__ifunc_arg_t). */
+  unsigned long _size;
+
+  /** Set to getauxval(AT_HWCAP). */
+  unsigned long _hwcap;
+} __ifunc_arg_t;
 
 #endif
 

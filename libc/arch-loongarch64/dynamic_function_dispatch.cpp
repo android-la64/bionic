@@ -33,6 +33,15 @@
 
 #include <private/bionic_ifuncs.h>
 
+// Resolvers currently use the generic implementation. This helper can
+// check hardware features when optimized implementations are added.
+__attribute__((unused))
+static bool __loongarch_hwcap_has(const __ifunc_arg_t* arg, unsigned long bit) {
+  return arg != nullptr &&
+         arg->_size >= offsetof(__ifunc_arg_t, _hwcap) + sizeof(arg->_hwcap) &&
+         (arg->_hwcap & bit) != 0;
+}
+
 extern "C" {
 
 typedef void* memchr_func(const void*, int, size_t);
