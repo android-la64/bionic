@@ -26,6 +26,7 @@
  * SUCH DAMAGE.
  */
 
+#include <asm/hwcap.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <sys/syscall.h>
@@ -96,6 +97,9 @@ DEFINE_IFUNC_FOR(strcpy) {
 
 typedef size_t strlen_func(const char*);
 DEFINE_IFUNC_FOR(strlen) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(strlen_func, strlen_lsx);
+  }
   RETURN_FUNC(strlen_func, strlen_gc);
 }
 
@@ -116,6 +120,9 @@ DEFINE_IFUNC_FOR(strncpy) {
 
 typedef size_t strnlen_func(const char*, size_t);
 DEFINE_IFUNC_FOR(strnlen) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(strnlen_func, strnlen_lsx);
+  }
   RETURN_FUNC(strnlen_func, strnlen_gc);
 }
 
