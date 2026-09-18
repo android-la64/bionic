@@ -39,35 +39,31 @@ static inline uint64_t zero_mask(__m128i bytes) {
 // Called only after the first 64 bytes or at a 4 KiB boundary.
 static size_t scan_rest(const unsigned char* p, size_t count) __attribute__((noinline));
 
-// Scan one 4 KiB tail, then resume aligned 64-byte windows.
+// Scan complete aligned 16-byte blocks without loading across a 4 KiB boundary.
+// The first block may include bytes before p, all within the same mapped page.
 __attribute__((noinline, cold))
 static size_t scan_tail(const unsigned char* p, size_t count) {
-  for (;;) {
-    uintptr_t offset = (uintptr_t)p & 4095u;
-    if (offset == 0) return scan_rest(p, count);
-    if (offset > 4080u) {
-      do {
-        if (*p == 0) return count;
-        ++p;
-        ++count;
-      } while (((uintptr_t)p & 4095u) != 0);
-      continue;
-    }
-    uint64_t mask = zero_mask(__lsx_vld(p, 0));
+  uintptr_t skew = (uintptr_t)p & 15u;
+  const unsigned char* block = (const unsigned char*)((uintptr_t)p & ~(uintptr_t)15u);
+  uint64_t mask = zero_mask(__lsx_vld(block, 0));
+  mask &= 0xffffu << skew;
+  if (mask != 0) return count + __builtin_ctzll(mask) - skew;
+  block += 16;
+  count += 16 - skew;
+  while (((uintptr_t)block & 4095u) != 0) {
+    mask = zero_mask(__lsx_vld(block, 0));
     if (mask != 0) return count + __builtin_ctzll(mask);
-    p += 16;
+    block += 16;
     count += 16;
   }
+  return scan_rest(block, count);
 }
 
-// The first window proved that any bytes revisited by alignment are nonzero.
+// Keep the pointer moving forward; realigning it would rescan known nonzero bytes.
 __attribute__((noinline))
 static size_t scan_rest(const unsigned char* p, size_t count) {
-  // Revisit only proven nonzero bytes so each subsequent window is 64-byte aligned.
-  uintptr_t skew = (uintptr_t)p & 63u;
-  p -= skew;
-  count -= skew;
   for (;;) {
+    if (((uintptr_t)p & 4095u) > 4032u) return scan_tail(p, count);
     __m128i a = __lsx_vld(p, 0);
     __m128i b = __lsx_vld(p, 16);
     __m128i c = __lsx_vld(p, 32);
