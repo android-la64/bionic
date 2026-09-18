@@ -30,29 +30,69 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// A set bit means that the corresponding byte in the 16-byte block is zero.
-static inline unsigned int strlen_zero_mask(const unsigned char* p) {
-  __m128i bytes = __lsx_vld(p, 0);
+static inline size_t first_zero(__m128i bytes) {
+  // Comparison marks zero bytes; vfrstpi returns their first lane, or 16.
+  __m128i equal_zero = __lsx_vseqi_b(bytes, 0);
+  __m128i position = __lsx_vfrstpi_b(equal_zero, equal_zero, 0);
+  return __lsx_vpickve2gr_bu(position, 0);
+}
+
+static inline unsigned int any_zero(__m128i bytes) {
   __m128i equal_zero = __lsx_vseqi_b(bytes, 0);
   __m128i packed = __lsx_vmsknz_b(equal_zero);
-  return __lsx_vpickve2gr_wu(packed, 0) & 0xffffu;
+  return __lsx_vpickve2gr_wu(packed, 0);
 }
 
 size_t strlen_lsx(const char* str) {
   const unsigned char* start = (const unsigned char*)str;
   const unsigned char* p = start;
+  __m128i a, b, c, d;
 
-  // Reach a 16-byte boundary without reading before the string starts.
   while (((uintptr_t)p & 15u) != 0) {
     if (*p == 0) return (size_t)(p - start);
     ++p;
   }
 
+  // p+63 stays in one 4 KiB region, including on 16/64 KiB pages.
+  if (((uintptr_t)p & 4095u) <= 4032u) {
+    a = __lsx_vld(p, 0);
+    b = __lsx_vld(p, 16);
+    c = __lsx_vld(p, 32);
+    d = __lsx_vld(p, 48);
+    __m128i minimum = __lsx_vmin_bu(__lsx_vmin_bu(a, b), __lsx_vmin_bu(c, d));
+    if (any_zero(minimum) != 0) goto resolve_four;
+    p += 64;
+  }
+
   for (;;) {
-    unsigned int zero_mask = strlen_zero_mask(p);
-    if (zero_mask != 0) {
-      return (size_t)(p - start) + (size_t)__builtin_ctz(zero_mask);
+    // Check the next first block before considering a four-block read.
+    a = __lsx_vld(p, 0);
+    size_t first = first_zero(a);
+    if (first != 16) return (size_t)(p - start) + first;
+
+    if (((uintptr_t)p & 4095u) > 4032u) {
+      p += 16;
+      continue;
     }
-    p += 16;
+
+    b = __lsx_vld(p, 16);
+    c = __lsx_vld(p, 32);
+    d = __lsx_vld(p, 48);
+    __m128i minimum = __lsx_vmin_bu(__lsx_vmin_bu(b, c), d);
+    if (any_zero(minimum) == 0) {
+      p += 64;
+      continue;
+    }
+
+  resolve_four:
+    // Resolve candidate blocks in address order.
+    first = first_zero(a);
+    if (first != 16) return (size_t)(p - start) + first;
+    first = first_zero(b);
+    if (first != 16) return (size_t)(p - start) + 16 + first;
+    first = first_zero(c);
+    if (first != 16) return (size_t)(p - start) + 32 + first;
+    first = first_zero(d);
+    return (size_t)(p - start) + 48 + first;
   }
 }
