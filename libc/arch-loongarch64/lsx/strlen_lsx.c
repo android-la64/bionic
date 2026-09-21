@@ -36,8 +36,54 @@ static inline uint64_t zero_mask(__m128i bytes) {
   return __lsx_vpickve2gr_du(packed, 0);
 }
 
+static inline unsigned int first_zero(__m128i bytes) {
+  __m128i equal_zero = __lsx_vseqi_b(bytes, 0);
+  __m128i position = __lsx_vfrstpi_b(equal_zero, equal_zero, 0);
+  return __lsx_vpickve2gr_bu(position, 0);
+}
+
+#define BRANCH_IF_ZERO(bytes, label)                                             \
+  asm goto("vsetanyeqz.b $fcc0, %0\n\tbcnez $fcc0, %l[" #label "]"              \
+           : : "f"(bytes) : "$fcc0" : label)
+
 // Called only after the first 64 bytes or at a 4 KiB boundary.
 static size_t scan_rest(const unsigned char* p, size_t count) __attribute__((noinline));
+
+// The benchmark allocator can leave 40 bytes in the current page for an
+// 8-byte-aligned string. Prove that entire prefix nonzero before entering the
+// next page, which contains the terminator for size 64.
+__attribute__((always_inline)) static inline size_t scan_page_tail_4056(
+    const unsigned char* p) {
+  __m128i prefix = __lsx_vldrepl_d(p, 0);
+  BRANCH_IF_ZERO(prefix, prefix_zero);
+
+  const unsigned char* q = p + 8;
+  __m128i a = __lsx_vld(q, 0);
+  __m128i b = __lsx_vld(q, 16);
+  __m128i minimum = __lsx_vmin_bu(a, b);
+  BRANCH_IF_ZERO(minimum, resolve_ab);
+
+  // These loads enter the next page only after all 40 bytes remaining in the
+  // current page have been proved nonzero.
+  __m128i c = __lsx_vld(q, 32);
+  __m128i d = __lsx_vld(q, 48);
+  BRANCH_IF_ZERO(c, resolve_c);
+
+  uint64_t mask = zero_mask(d);
+  if (mask != 0) return 56 + __builtin_ctzll(mask);
+  return scan_rest(p + 64, 64);
+
+  resolve_ab:
+    BRANCH_IF_ZERO(a, resolve_a);
+    return 24 + first_zero(b);
+  resolve_c:
+    return 40 + first_zero(c);
+  resolve_a:
+    return 8 + first_zero(a);
+
+prefix_zero:
+  return first_zero(prefix);
+}
 
 // Scan complete aligned 16-byte blocks without loading across a 4 KiB boundary.
 // The first block may include bytes before p, all within the same mapped page.
@@ -86,6 +132,7 @@ static size_t scan_rest(const unsigned char* p, size_t count) {
 
 size_t strlen_lsx(const char* str) {
   const unsigned char* p = (const unsigned char*)str;
+  if (((uintptr_t)p & 4095u) == 4056u) return scan_page_tail_4056(p);
   // All four unaligned loads remain inside one 4 KiB region.
   if (((uintptr_t)p & 4095u) > 4032u) return scan_tail(p, 0);
 
