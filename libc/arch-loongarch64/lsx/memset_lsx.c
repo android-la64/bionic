@@ -29,7 +29,7 @@
 #include <lsxintrin.h>
 #include <stddef.h>
 
-void* memset_lsx(void* destination, int c, size_t n) {
+__attribute__((no_builtin("memset"))) void* memset_lsx(void* destination, int c, size_t n) {
   unsigned char* p = (unsigned char*)destination;
   if (n < 16) {
     for (size_t i = 0; i < n; ++i) p[i] = (unsigned char)c;
