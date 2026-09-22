@@ -28,7 +28,6 @@
 
 #include <lsxintrin.h>
 #include <stddef.h>
-#include <stdint.h>
 
 static inline unsigned int memchr_match_mask(__m128i bytes, __m128i target) {
   __m128i equal = __lsx_vseq_b(bytes, target);
@@ -41,12 +40,6 @@ void* memchr_lsx(const void* source, int c, size_t n) {
 
   const unsigned char target_byte = (unsigned char)c;
   const unsigned char* p = (const unsigned char*)source;
-
-  while (n != 0 && ((uintptr_t)p & 15u) != 0) {
-    if (*p == target_byte) return (void*)p;
-    ++p;
-    --n;
-  }
 
   const __m128i target = __lsx_vreplgr2vr_b(target_byte);
   while (n >= 64) {
