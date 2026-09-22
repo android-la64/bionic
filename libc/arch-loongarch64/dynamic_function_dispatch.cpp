@@ -60,11 +60,17 @@ DEFINE_IFUNC_FOR(memcmp) {
 
 typedef void* memcpy_func(void*, const void*, size_t);
 DEFINE_IFUNC_FOR(memcpy) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(memcpy_func, memcpy_lsx);
+  }
   RETURN_FUNC(memcpy_func, memcpy_gc);
 }
 
 typedef void* memmove_func(void*, const void*, size_t);
 DEFINE_IFUNC_FOR(memmove) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(memmove_func, memmove_lsx);
+  }
   RETURN_FUNC(memmove_func, memmove_gc);
 }
 
