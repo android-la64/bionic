@@ -47,6 +47,9 @@ extern "C" {
 
 typedef void* memchr_func(const void*, int, size_t);
 DEFINE_IFUNC_FOR(memchr) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(memchr_func, memchr_lsx);
+  }
   RETURN_FUNC(memchr_func, memchr_gc);
 }
 
@@ -82,6 +85,9 @@ DEFINE_IFUNC_FOR(strcat) {
 
 typedef char* strchr_func(const char*, int);
 DEFINE_IFUNC_FOR(strchr) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(strchr_func, strchr_lsx);
+  }
   RETURN_FUNC(strchr_func, strchr_gc);
 }
 
