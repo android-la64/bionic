@@ -53,6 +53,8 @@ static inline void copy_forward(unsigned char* d, const unsigned char* s, size_t
     __lsx_vst(last0, d + n - 16, 0);
     return;
   }
+  __m128i final = __lsx_vld(s + n - 16, 0);
+  unsigned char* final_destination = d + n - 16;
   while (n >= 128) {
     __m128i v0 = __lsx_vld(s, 0);
     __m128i v1 = __lsx_vld(s, 16);
@@ -103,10 +105,7 @@ static inline void copy_forward(unsigned char* d, const unsigned char* s, size_t
     d += 16;
     n -= 16;
   }
-  if (n != 0) {
-    __m128i last = __lsx_vld(s + n - 16, 0);
-    __lsx_vst(last, d + n - 16, 0);
-  }
+  __lsx_vst(final, final_destination, 0);
 }
 
 static inline void copy_backward(unsigned char* d, const unsigned char* s, size_t n) {
