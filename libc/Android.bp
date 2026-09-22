@@ -1387,6 +1387,26 @@ cc_library_static {
 }
 
 // ========================================================
+// libc_loongarch64_lsx.a --- LSX compilation unit for libc
+// ========================================================
+
+cc_library_static {
+    name: "libc_loongarch64_lsx",
+    defaults: ["libc_defaults"],
+    nocrt: true,
+    system_shared_libs: [],
+    stl: "none",
+    arch: {
+        loongarch64: {
+            srcs: ["arch-loongarch64/lsx/placeholder.c",
+                   "arch-loongarch64/lsx/strlen_lsx.c",
+                   "arch-loongarch64/lsx/strnlen_lsx.c"],
+            cflags: ["-mlsx"],
+        },
+    },
+}
+
+// ========================================================
 // libc_common.a --- everything shared by libc.a and libc.so
 // ========================================================
 
@@ -1416,6 +1436,9 @@ cc_library_static {
     arch: {
         arm: {
             whole_static_libs: ["libc_aeabi"],
+        },
+        loongarch64: {
+            whole_static_libs: ["libc_loongarch64_lsx"],
         },
     },
 }

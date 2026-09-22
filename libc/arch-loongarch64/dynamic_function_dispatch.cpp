@@ -26,12 +26,22 @@
  * SUCH DAMAGE.
  */
 
+#include <asm/hwcap.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 
 #include <private/bionic_ifuncs.h>
+
+// Resolvers currently use the generic implementation. This helper can
+// check hardware features when optimized implementations are added.
+__attribute__((unused))
+static bool __loongarch_hwcap_has(const __ifunc_arg_t* arg, unsigned long bit) {
+  return arg != nullptr &&
+         arg->_size >= offsetof(__ifunc_arg_t, _hwcap) + sizeof(arg->_hwcap) &&
+         (arg->_hwcap & bit) != 0;
+}
 
 extern "C" {
 
@@ -87,6 +97,9 @@ DEFINE_IFUNC_FOR(strcpy) {
 
 typedef size_t strlen_func(const char*);
 DEFINE_IFUNC_FOR(strlen) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(strlen_func, strlen_lsx);
+  }
   RETURN_FUNC(strlen_func, strlen_gc);
 }
 
@@ -107,6 +120,9 @@ DEFINE_IFUNC_FOR(strncpy) {
 
 typedef size_t strnlen_func(const char*, size_t);
 DEFINE_IFUNC_FOR(strnlen) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(strnlen_func, strnlen_lsx);
+  }
   RETURN_FUNC(strnlen_func, strnlen_gc);
 }
 

@@ -29,14 +29,27 @@
  * SUCH DAMAGE.
  */
 
+#include <stdint.h>
 #include <string.h>
 
-size_t
-strlen_gc(const char *str)
-{
-	const char *s;
+size_t strlen_gc(const char* str) {
+  const unsigned char* s = (const unsigned char*)str;
+  const unsigned char* start = s;
+  const uint64_t lo = UINT64_C(0x0101010101010101);
+  const uint64_t hi = UINT64_C(0x8080808080808080);
 
-	for (s = str; *s; ++s)
-		;
-	return (s - str);
+  while (((uintptr_t)s & 7) != 0) {
+    if (*s == '\0') return (size_t)(s - start);
+    ++s;
+  }
+
+  for (;;) {
+    uint64_t word;
+    uint64_t zero;
+
+    __builtin_memcpy(&word, s, sizeof(word));
+    zero = (word - lo) & ~word & hi;
+    if (zero != 0) return (size_t)(s - start) + ((size_t)__builtin_ctzll(zero) >> 3);
+    s += sizeof(word);
+  }
 }

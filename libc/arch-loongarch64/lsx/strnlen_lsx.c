@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,42 @@
  * SUCH DAMAGE.
  */
 
-#pragma once
-
+#include <lsxintrin.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <sys/ifunc.h>
 
-#if defined(__aarch64__)
-#define IFUNC_ARGS (uint64_t hwcap __attribute__((unused)), \
-                    __ifunc_arg_t* arg __attribute__((unused)))
-#elif defined(__arm__)
-#define IFUNC_ARGS (unsigned long hwcap __attribute__((unused)))
-#elif defined(__loongarch__)
-#define IFUNC_ARGS (const __ifunc_arg_t* arg __attribute__((unused)))
-#else
-#define IFUNC_ARGS ()
-#endif
+static inline unsigned int strnlen_zero_mask(const unsigned char* p) {
+  __m128i bytes = __lsx_vld(p, 0);
+  __m128i equal_zero = __lsx_vseqi_b(bytes, 0);
+  __m128i packed = __lsx_vmsknz_b(equal_zero);
+  return __lsx_vpickve2gr_wu(packed, 0) & 0xffffu;
+}
 
-// We can't have HWASAN enabled in resolvers because they may be called before HWASAN is
-// initialized.
-#define DEFINE_IFUNC_FOR(name) \
-    name##_func name __attribute__((ifunc(#name "_resolver"))); \
-    __attribute__((visibility("hidden"))) \
-    __attribute__((no_sanitize("hwaddress"))) \
-    name##_func* name##_resolver IFUNC_ARGS
+size_t strnlen_lsx(const char* str, size_t maxlen) {
+  const unsigned char* start = (const unsigned char*)str;
+  const unsigned char* p = start;
+  size_t remaining = maxlen;
 
-#define DECLARE_FUNC(type, name) \
-    __attribute__((visibility("hidden"))) \
-    type name
+  // The scalar prefix and tail never access a byte outside maxlen.
+  while (remaining != 0 && ((uintptr_t)p & 15u) != 0) {
+    if (*p == 0) return (size_t)(p - start);
+    ++p;
+    --remaining;
+  }
 
-#define RETURN_FUNC(type, name) { \
-        DECLARE_FUNC(type, name); \
-        return name; \
+  while (remaining >= 16) {
+    unsigned int zero_mask = strnlen_zero_mask(p);
+    if (zero_mask != 0) {
+      return (size_t)(p - start) + (size_t)__builtin_ctz(zero_mask);
     }
+    p += 16;
+    remaining -= 16;
+  }
+
+  while (remaining != 0) {
+    if (*p == 0) return (size_t)(p - start);
+    ++p;
+    --remaining;
+  }
+  return maxlen;
+}
