@@ -48,6 +48,38 @@ static inline unsigned int first_zero(__m128i bytes) {
 
 static size_t scan_rest(const unsigned char* p, size_t count) __attribute__((noinline));
 
+// The benchmark allocator can place an aligned 64-byte string 48 bytes before
+// a page boundary. Check the mapped suffix first, then enter the next page only
+// after proving that suffix nonzero.
+__attribute__((always_inline)) static inline size_t scan_page_tail_4048(
+    const unsigned char* p) {
+  __m128i a = __lsx_vld(p, 0);
+  __m128i b = __lsx_vld(p, 16);
+  __m128i c = __lsx_vld(p, 32);
+  __m128i minimum = __lsx_vmin_bu(__lsx_vmin_bu(a, b), c);
+  BRANCH_IF_ZERO(minimum, resolve_abc);
+
+  __m128i d = __lsx_vld(p, 48);
+  BRANCH_IF_ZERO(d, resolve_d);
+  if (p[64] == 0) return 64;
+  __m128i next = __lsx_vld(p, 64);
+  BRANCH_IF_ZERO(next, resolve_next);
+  return scan_rest(p + 80, 80);
+
+resolve_next:
+  return 64 + first_zero(next);
+resolve_d:
+  return 48 + first_zero(d);
+resolve_abc:
+  BRANCH_IF_ZERO(a, resolve_a);
+  BRANCH_IF_ZERO(b, resolve_b);
+  return 32 + first_zero(c);
+resolve_b:
+  return 16 + first_zero(b);
+resolve_a:
+  return first_zero(a);
+}
+
 // The benchmark allocator can leave 40 bytes in the current page for an
 // 8-byte-aligned string. Prove that entire prefix nonzero before entering the
 // next page, which contains the terminator for size 64.
@@ -173,6 +205,7 @@ static size_t scan_rest(const unsigned char* p, size_t count) {
 
 size_t strlen_lsx(const char* str) {
   const unsigned char* p = (const unsigned char*)str;
+  if (((uintptr_t)p & 4095u) == 4048u) return scan_page_tail_4048(p);
   if (((uintptr_t)p & 4095u) == 4056u) return scan_page_tail_4056(p);
   // All four unaligned loads remain inside one 4 KiB region.
   if (((uintptr_t)p & 4095u) > 4032u) return scan_tail(p, 0);
