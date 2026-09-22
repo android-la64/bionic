@@ -1399,6 +1399,8 @@ cc_library_static {
     arch: {
         loongarch64: {
             srcs: ["arch-loongarch64/lsx/placeholder.c",
+                   "arch-loongarch64/lsx/memchr_lsx.c",
+                   "arch-loongarch64/lsx/strchr_lsx.c",
                    "arch-loongarch64/lsx/strlen_lsx.c",
                    "arch-loongarch64/lsx/strnlen_lsx.c"],
             cflags: ["-mlsx"],
