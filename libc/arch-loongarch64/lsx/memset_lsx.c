@@ -40,6 +40,19 @@ __attribute__((no_builtin("memset"), visibility("hidden"))) void* memset_lsx(voi
   unsigned char* end = p + n;
   const __m128i fill = __lsx_vreplgr2vr_b((unsigned char)c);
 
+  if (n <= 32) {
+    __lsx_vst(fill, p, 0);
+    __lsx_vst(fill, end, -16);
+    return destination;
+  }
+  if (n <= 64) {
+    __lsx_vst(fill, p, 0);
+    __lsx_vst(fill, p, 16);
+    __lsx_vst(fill, end, -32);
+    __lsx_vst(fill, end, -16);
+    return destination;
+  }
+
   while (n >= 128) {
     __lsx_vst(fill, p, 0);
     __lsx_vst(fill, p, 16);
