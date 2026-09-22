@@ -70,6 +70,9 @@ DEFINE_IFUNC_FOR(memmove) {
 
 typedef void* memset_func(void*, int, size_t);
 DEFINE_IFUNC_FOR(memset) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(memset_func, memset_lsx);
+  }
   RETURN_FUNC(memset_func, memset_gc);
 }
 
