@@ -109,9 +109,23 @@ static inline void copy_forward(unsigned char* d, const unsigned char* s, size_t
 }
 
 static inline void copy_backward(unsigned char* d, const unsigned char* s, size_t n) {
+  if (n < 16) {
+    d += n;
+    s += n;
+    while (n != 0) {
+      --d;
+      --s;
+      *d = *s;
+      --n;
+    }
+    return;
+  }
+
+  __m128i first = __lsx_vld(s, 0);
+  unsigned char* first_destination = d;
   d += n;
   s += n;
-  while (n >= 128) {
+  while (n > 128) {
     d -= 128;
     s -= 128;
     __m128i v0 = __lsx_vld(s, 0);
@@ -132,7 +146,7 @@ static inline void copy_backward(unsigned char* d, const unsigned char* s, size_
     __lsx_vst(v7, d, 112);
     n -= 128;
   }
-  if (n >= 64) {
+  if (n > 64) {
     d -= 64;
     s -= 64;
     __m128i v0 = __lsx_vld(s, 0);
@@ -145,7 +159,7 @@ static inline void copy_backward(unsigned char* d, const unsigned char* s, size_
     __lsx_vst(v3, d, 48);
     n -= 64;
   }
-  if (n >= 32) {
+  if (n > 32) {
     d -= 32;
     s -= 32;
     __m128i v0 = __lsx_vld(s, 0);
@@ -154,19 +168,14 @@ static inline void copy_backward(unsigned char* d, const unsigned char* s, size_
     __lsx_vst(v1, d, 16);
     n -= 32;
   }
-  if (n >= 16) {
+  if (n > 16) {
     d -= 16;
     s -= 16;
     __m128i value = __lsx_vld(s, 0);
     __lsx_vst(value, d, 0);
     n -= 16;
   }
-  while (n != 0) {
-    --d;
-    --s;
-    *d = *s;
-    --n;
-  }
+  __lsx_vst(first, first_destination, 0);
 }
 
 __attribute__((no_builtin("memcpy", "memmove"), visibility("hidden")))
