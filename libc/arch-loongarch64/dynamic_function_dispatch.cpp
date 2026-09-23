@@ -55,6 +55,9 @@ DEFINE_IFUNC_FOR(memchr) {
 
 typedef int memcmp_func(const void*, const void*, size_t);
 DEFINE_IFUNC_FOR(memcmp) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(memcmp_func, memcmp_lsx);
+  }
   RETURN_FUNC(memcmp_func, memcmp_gc);
 }
 
@@ -102,6 +105,9 @@ DEFINE_IFUNC_FOR(strchr) {
 
 typedef int strcmp_func(const char*, const char*);
 DEFINE_IFUNC_FOR(strcmp) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(strcmp_func, strcmp_lsx);
+  }
   RETURN_FUNC(strcmp_func, strcmp_gc);
 }
 
@@ -125,6 +131,9 @@ DEFINE_IFUNC_FOR(strncat) {
 
 typedef int strncmp_func(const char*, const char*, size_t);
 DEFINE_IFUNC_FOR(strncmp) {
+  if (__loongarch_hwcap_has(arg, HWCAP_LOONGARCH_LSX)) {
+    RETURN_FUNC(strncmp_func, strncmp_lsx);
+  }
   RETURN_FUNC(strncmp_func, strncmp_gc);
 }
 
