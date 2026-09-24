@@ -43,92 +43,96 @@ static inline unsigned int magnitude(float x) {
   return bits & 0x7fffffffU;
 }
 
-static inline double signed_zero(double value, double sign) {
-  return value == 0.0 ? __builtin_copysign(value, sign) : value;
+static inline unsigned int exponent(double x) {
+  unsigned long long bits;
+  __builtin_memcpy(&bits, &x, sizeof(bits));
+  return (bits >> 52) & 0x7ffU;
 }
 
-static inline float signed_zero(float value, float sign) {
-  return value == 0.0f ? __builtin_copysignf(value, sign) : value;
+static inline unsigned int exponent(float x) {
+  unsigned int bits;
+  __builtin_memcpy(&bits, &x, sizeof(bits));
+  return (bits >> 23) & 0xffU;
 }
 
 }  // namespace loongarch_rounding
 
 __attribute__((noinline)) double floor(double x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7ff0000000000000ULL) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4330000000000000ULL) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0x7ff) return x + x;
+  if (exponent >= 1075) return x;
   double result;
   __asm__ volatile("ftintrm.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysign(result, x);
 }
 
 __attribute__((noinline)) float floorf(float x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7f800000U) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4b000000U) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0xff) return x + x;
+  if (exponent >= 150) return x;
   float result;
   __asm__ volatile("ftintrm.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysignf(result, x);
 }
 
 __attribute__((noinline)) double ceil(double x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7ff0000000000000ULL) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4330000000000000ULL) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0x7ff) return x + x;
+  if (exponent >= 1075) return x;
   double result;
   __asm__ volatile("ftintrp.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysign(result, x);
 }
 
 __attribute__((noinline)) float ceilf(float x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7f800000U) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4b000000U) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0xff) return x + x;
+  if (exponent >= 150) return x;
   float result;
   __asm__ volatile("ftintrp.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysignf(result, x);
 }
 
 __attribute__((noinline)) double trunc(double x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7ff0000000000000ULL) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4330000000000000ULL) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0x7ff) return x + x;
+  if (exponent >= 1075) return x;
   double result;
   __asm__ volatile("ftintrz.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysign(result, x);
 }
 
 __attribute__((noinline)) float truncf(float x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7f800000U) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4b000000U) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0xff) return x + x;
+  if (exponent >= 150) return x;
   float result;
   __asm__ volatile("ftintrz.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysignf(result, x);
 }
 
 __attribute__((noinline)) double round(double x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7ff0000000000000ULL) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4330000000000000ULL) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0x7ff) return x + x;
+  if (exponent >= 1075) return x;
   double result;
   __asm__ volatile("ftintrne.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
   const double difference = x - result;
   if (difference == 0.5 && x > 0.0) result += 1.0;
   if (difference == -0.5 && x < 0.0) result -= 1.0;
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysign(result, x);
 }
 
 __attribute__((noinline)) float roundf(float x) {
-  const auto magnitude = loongarch_rounding::magnitude(x);
-  if (magnitude >= 0x7f800000U) return x + x;
-  if (magnitude == 0 || magnitude >= 0x4b000000U) return x;
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0xff) return x + x;
+  if (exponent >= 150) return x;
   float result;
   __asm__ volatile("ftintrne.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
   const float difference = x - result;
   if (difference == 0.5f && x > 0.0f) result += 1.0f;
   if (difference == -0.5f && x < 0.0f) result -= 1.0f;
-  return loongarch_rounding::signed_zero(result, x);
+  return __builtin_copysignf(result, x);
 }
 
 __attribute__((noinline)) double rint(double x) {
