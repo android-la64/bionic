@@ -28,6 +28,152 @@ long double fabsl(long double x) {
   return __builtin_fabsl(x);
 }
 
+#if defined(__loongarch64)
+namespace loongarch_rounding {
+
+static inline unsigned long long magnitude(double x) {
+  unsigned long long bits;
+  __builtin_memcpy(&bits, &x, sizeof(bits));
+  return bits & 0x7fffffffffffffffULL;
+}
+
+static inline unsigned int exponent(double x) {
+  unsigned long long bits;
+  __builtin_memcpy(&bits, &x, sizeof(bits));
+  return (bits >> 52) & 0x7ffU;
+}
+
+static inline unsigned long long exponent(float x) {
+  unsigned int bits;
+  __builtin_memcpy(&bits, &x, sizeof(bits));
+  return (bits >> 23) & 0xffU;
+}
+
+}  // namespace loongarch_rounding
+
+__attribute__((noinline)) double floor(double x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0x7ff) return x + x;
+  if (exponent >= 1075) return x;
+  double result;
+  __asm__ volatile("ftintrm.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
+  return __builtin_copysign(result, x);
+}
+
+__attribute__((noinline)) float floorf(float x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
+  float result;
+  __asm__ volatile("ftintrm.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
+  return __builtin_copysignf(result, x);
+}
+
+__attribute__((noinline)) double ceil(double x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0x7ff) return x + x;
+  if (exponent >= 1075) return x;
+  double result;
+  __asm__ volatile("ftintrp.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
+  return __builtin_copysign(result, x);
+}
+
+__attribute__((noinline)) float ceilf(float x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
+  float result;
+  __asm__ volatile("ftintrp.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
+  return __builtin_copysignf(result, x);
+}
+
+__attribute__((noinline)) double trunc(double x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent == 0x7ff) return x + x;
+  if (exponent >= 1075) return x;
+  double result;
+  __asm__ volatile("ftintrz.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
+  return __builtin_copysign(result, x);
+}
+
+__attribute__((noinline)) float truncf(float x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
+  float result;
+  __asm__ volatile("ftintrz.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
+  return __builtin_copysignf(result, x);
+}
+
+__attribute__((noinline)) double round(double x) {
+  const auto exponent = loongarch_rounding::magnitude(x) >> 52;
+  if (exponent >= 1075) {
+    if (exponent == 0x7ff) return x + x;
+    return x;
+  }
+  double result;
+  __asm__ volatile("ftintrne.l.d %0, %1\n\tffint.d.l %0, %0" : "=&f"(result) : "f"(x));
+  const double magnitude_difference = __builtin_fabs(x) - __builtin_fabs(result);
+  if (magnitude_difference == 0.5) result += __builtin_copysign(1.0, x);
+  return __builtin_copysign(result, x);
+}
+
+__attribute__((noinline)) float roundf(float x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
+  float result;
+  __asm__ volatile("ftintrne.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
+  const float magnitude_difference = __builtin_fabsf(x) - __builtin_fabsf(result);
+  if (magnitude_difference == 0.5f) result += __builtin_copysignf(1.0f, x);
+  return __builtin_copysignf(result, x);
+}
+
+__attribute__((noinline)) double rint(double x) {
+  const auto magnitude = loongarch_rounding::magnitude(x);
+  if (magnitude >= 0x7ff0000000000000ULL) return x + x;
+  if (magnitude == 0 || magnitude >= 0x4330000000000000ULL) return x;
+  double result;
+  __asm__ volatile("frint.d %0, %1" : "=f"(result) : "f"(x));
+  return result;
+}
+
+__attribute__((noinline)) float rintf(float x) {
+  const auto exponent = loongarch_rounding::exponent(x);
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
+  float result;
+  __asm__ volatile("frint.s %0, %1" : "=f"(result) : "f"(x));
+  return result;
+}
+
+__attribute__((noinline)) long lrint(double x) {
+  double converted;
+  long result;
+  __asm__ volatile("ftint.l.d %0, %2\n\tmovfr2gr.d %1, %0"
+                   : "=&f"(converted), "=r"(result) : "f"(x));
+  return result;
+}
+
+__attribute__((noinline)) long long llrint(double x) {
+  double converted;
+  long long result;
+  __asm__ volatile("ftint.l.d %0, %2\n\tmovfr2gr.d %1, %0"
+                   : "=&f"(converted), "=r"(result) : "f"(x));
+  return result;
+}
+#endif
+
 #if defined(__aarch64__) || defined(__riscv) || defined(__i386__) || defined(__x86_64__)
 float ceilf(float x) {
   return __builtin_ceilf(x);
@@ -50,7 +196,7 @@ long double copysignl(long double x, long double y) {
   return __builtin_copysignl(x, y);
 }
 
-#if (defined(__arm__) && (__ARM_ARCH < 8)) || defined(__loongarch64)
+#if defined(__arm__) && (__ARM_ARCH < 8)
 // armv8 arm32 has a single-instruction implementation for these, but
 // armv7 arm32 doesn't, so __builtin_ doesn't work for arm32.
 #include "math_private.h"
@@ -67,7 +213,7 @@ double floor(double x) {
   return s_floor::floor(x);
 }
 
-#else
+#elif !defined(__loongarch64)
 float floorf(float x) {
   return __builtin_floorf(x);
 }
