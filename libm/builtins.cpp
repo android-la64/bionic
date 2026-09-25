@@ -37,12 +37,6 @@ static inline unsigned long long magnitude(double x) {
   return bits & 0x7fffffffffffffffULL;
 }
 
-static inline unsigned int magnitude(float x) {
-  unsigned int bits;
-  __builtin_memcpy(&bits, &x, sizeof(bits));
-  return bits & 0x7fffffffU;
-}
-
 static inline unsigned int exponent(double x) {
   unsigned long long bits;
   __builtin_memcpy(&bits, &x, sizeof(bits));
