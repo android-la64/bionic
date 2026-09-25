@@ -49,7 +49,7 @@ static inline unsigned int exponent(double x) {
   return (bits >> 52) & 0x7ffU;
 }
 
-static inline unsigned int exponent(float x) {
+static inline unsigned long long exponent(float x) {
   unsigned int bits;
   __builtin_memcpy(&bits, &x, sizeof(bits));
   return (bits >> 23) & 0xffU;
@@ -68,8 +68,10 @@ __attribute__((noinline)) double floor(double x) {
 
 __attribute__((noinline)) float floorf(float x) {
   const auto exponent = loongarch_rounding::exponent(x);
-  if (exponent == 0xff) return x + x;
-  if (exponent >= 150) return x;
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
   float result;
   __asm__ volatile("ftintrm.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
   return __builtin_copysignf(result, x);
@@ -86,8 +88,10 @@ __attribute__((noinline)) double ceil(double x) {
 
 __attribute__((noinline)) float ceilf(float x) {
   const auto exponent = loongarch_rounding::exponent(x);
-  if (exponent == 0xff) return x + x;
-  if (exponent >= 150) return x;
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
   float result;
   __asm__ volatile("ftintrp.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
   return __builtin_copysignf(result, x);
@@ -104,8 +108,10 @@ __attribute__((noinline)) double trunc(double x) {
 
 __attribute__((noinline)) float truncf(float x) {
   const auto exponent = loongarch_rounding::exponent(x);
-  if (exponent == 0xff) return x + x;
-  if (exponent >= 150) return x;
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
   float result;
   __asm__ volatile("ftintrz.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
   return __builtin_copysignf(result, x);
@@ -125,8 +131,10 @@ __attribute__((noinline)) double round(double x) {
 
 __attribute__((noinline)) float roundf(float x) {
   const auto exponent = loongarch_rounding::exponent(x);
-  if (exponent == 0xff) return x + x;
-  if (exponent >= 150) return x;
+  if (exponent >= 150) {
+    if (exponent == 0xff) return x + x;
+    return x;
+  }
   float result;
   __asm__ volatile("ftintrne.w.s %0, %1\n\tffint.s.w %0, %0" : "=&f"(result) : "f"(x));
   const float difference = x - result;
